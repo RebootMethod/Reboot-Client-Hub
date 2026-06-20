@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobility — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+.resource-link-card {
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 18px 22px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start;
+}
+.resource-link-card .rl-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.resource-link-card .rl-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.resource-link-card .rl-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.55; margin-bottom: 8px; }
+.resource-link-card a.rl-link { color: var(--yellow); font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.resource-link-card a.rl-link:hover { text-decoration: underline; }
+
+.pliability-card {
+  background: var(--yellow-dim); border: 1px solid rgba(255,224,51,0.2); border-left: 3px solid var(--yellow);
+  border-radius: 4px; padding: 24px 26px; margin: 24px 0;
+}
+.pliability-card .pc-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--yellow); margin-bottom: 10px; }
+.pliability-card h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+.pliability-card p { font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.65; margin-bottom: 12px; }
+.pliability-card a.pc-link {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); color: #0a0a0a;
+  font-weight: 700; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 10px 20px; border-radius: 3px; text-decoration: none; margin-top: 4px;
+}
+
+.area-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.area-tab-btn {
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 3px;
+  color: var(--muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+  padding: 9px 16px; cursor: pointer; transition: all 0.15s;
+}
+.area-tab-btn:hover { color: var(--text); border-color: rgba(255,224,51,0.3); }
+.area-tab-btn.active { background: var(--yellow); border-color: var(--yellow); color: #0a0a0a; }
+.area-panel { display: none; }
+.area-panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Recovery & Lifestyle</p>
+    <h1>Mobility:<br><em>Non-Negotiable</em></h1>
+    <p class="hero-intro">Mobility is not a warm-up afterthought or something you'll "get to eventually." It's a direct input into injury prevention, training progress, and how your body holds up over the next 20 years — not just the next 20 weeks.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>Mobility is not optional or supplementary — it's a core pillar alongside training, nutrition, and sleep.</li>
+      <li>Restricted mobility is one of the most common silent causes of training plateaus and recurring "niggle" injuries in men over 40.</li>
+      <li>Connective tissue adapts slower than muscle — mobility work is what keeps the two in sync as training loads increase.</li>
+      <li>10 minutes daily beats 60 minutes once a week. Consistency matters more than session length.</li>
+      <li>Free YouTube resources can build a complete mobility practice — Pliability is worth it if you want structure and progression tracking.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Why Mobility Is Not Optional</h2>
+      </div>
+      <p>It's easy to treat mobility as the thing you'd do if you had extra time — a nice-to-have stretch session squeezed in if the rest of the week allows for it. That framing is backwards, and it's one of the most common reasons men over 40 hit recurring, frustrating injuries despite training intelligently in every other respect.</p>
+      <p><strong>Restricted joint mobility doesn't just limit how a movement looks — it changes how force travels through your body.</strong> When a joint can't move through its full intended range, the body compensates by shifting load to nearby tissues that weren't built to handle it. A stiff hip shows up as knee pain. Poor thoracic rotation shows up as a shoulder impingement. Limited ankle dorsiflexion shows up as a low back that always feels tight on squat day. The site of the pain is rarely the actual source of the problem.</p>
+      <div class="callout">
+        <p class="callout-label">The Connective Tissue Reality</p>
+        <p>As covered in <a href="training-recovery-guide.html" style="color:var(--yellow)">Training & Recovery Over 40</a>, connective tissue (tendons, ligaments, fascia) adapts far more slowly than muscle tissue. Mobility work is one of the few direct levers you have to keep connective tissue health in step with increasing training loads — without it, the gap between what your muscles can lift and what your joints can actually support keeps widening.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">The Three Things Mobility Actually Does</h2>
+      </div>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">🛡</div>
+          <div class="pillar-name">Injury Prevention</div>
+          <div class="pillar-desc">Full range of motion at a joint means force is distributed properly rather than concentrated at compensation points. This is the single biggest lever against the "random" niggles that derail training blocks.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">📈</div>
+          <div class="pillar-name">Training Progress</div>
+          <div class="pillar-desc">You cannot build strength in a range of motion you don't have access to. Improved hip and ankle mobility alone routinely unlocks better squat depth, bar path, and ultimately more weight on the bar.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">⏳</div>
+          <div class="pillar-name">Longevity</div>
+          <div class="pillar-desc">The men still moving well, training hard, and pain-free at 60 are overwhelmingly the ones who treated mobility as a daily practice in their 40s — not the ones who waited until something broke.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Your Daily Mobility Routine</h2>
+      </div>
+      <p>10 minutes daily, ideally as a dedicated session separate from your training warm-up (a proper training warm-up is movement-specific preparation, not a substitute for general mobility work). Morning is ideal — it counteracts the stiffness that builds overnight and sets up the rest of the day.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">1</span><span><strong>90/90 Hip Switches</strong> — 8-10 reps each side. The single best general hip mobility drill available, hitting internal and external rotation in one movement.</span></li>
+        <li><span class="rule-badge">2</span><span><strong>World's Greatest Stretch</strong> — 5 reps each side. A complete full-body sequence covering hip flexors, t-spine rotation, and hamstrings in one flowing movement.</span></li>
+        <li><span class="rule-badge">3</span><span><strong>Thoracic Spine Rotations (quadruped)</strong> — 8 reps each side. Directly counters the rounded, desk-bound posture most men carry by mid-afternoon.</span></li>
+        <li><span class="rule-badge">4</span><span><strong>Ankle Dorsiflexion (knee-to-wall)</strong> — 10 reps each side. Poor ankle mobility is an under-recognised root cause of squat depth and knee tracking issues.</span></li>
+        <li><span class="rule-badge">5</span><span><strong>Cat-Cow</strong> — 10 slow reps. Simple, effective spinal mobility to close out the routine.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Targeted Work by Problem Area</h2>
+      </div>
+      <p>Beyond the daily baseline, most men carry one or two specific trouble spots that deserve extra attention. Click into the area that matches your own pattern.</p>
+
+      <div class="area-tabs" id="area-tabs">
+        <button class="area-tab-btn active" data-area="hips" onclick="setArea('hips',this)">Hips</button>
+        <button class="area-tab-btn" data-area="shoulders" onclick="setArea('shoulders',this)">Shoulders</button>
+        <button class="area-tab-btn" data-area="tspine" onclick="setArea('tspine',this)">T-Spine</button>
+        <button class="area-tab-btn" data-area="ankles" onclick="setArea('ankles',this)">Ankles</button>
+      </div>
+
+      <div class="area-panel active" id="panel-hips">
+        <p style="font-size:0.85rem; color: var(--muted); margin-bottom: 14px;">The most common restriction in desk-bound men — tight hip flexors from prolonged sitting limit squat and deadlift positioning and contribute to lower back compensation.</p>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Couch Stretch</div>
+            <div class="rl-desc">The single most effective hip flexor opener for desk-bound lifters. 2 minutes per side, daily.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=couch+stretch+hip+flexor+tutorial" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">90/90 Hip Mobility Flow</div>
+            <div class="rl-desc">Builds internal and external rotation range — directly transfers to squat depth and deadlift setup.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=90+90+hip+mobility+flow" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-panel" id="panel-shoulders">
+        <p style="font-size:0.85rem; color: var(--muted); margin-bottom: 14px;">Overhead pressing and bench volume without enough mobility work is a recipe for impingement. This is especially common in men returning to training after years away.</p>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Shoulder Dislocates (band or stick)</div>
+            <div class="rl-desc">Builds overhead range of motion and improves scapular control. Excellent pre-pressing primer.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=shoulder+dislocates+band+mobility" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Wall Slides</div>
+            <div class="rl-desc">Improves scapular upward rotation — directly addresses the pinching sensation many men feel in overhead positions.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=wall+slides+shoulder+mobility+tutorial" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-panel" id="panel-tspine">
+        <p style="font-size:0.85rem; color: var(--muted); margin-bottom: 14px;">Thoracic spine stiffness is almost universal in men with desk jobs. It restricts overhead reach, limits rotation, and pushes compensation down into the lower back and shoulders.</p>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Quadruped Thoracic Rotations</div>
+            <div class="rl-desc">The most direct drill for restoring rotational range through the mid-back.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=quadruped+thoracic+rotation+mobility" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Foam Roller T-Spine Extension</div>
+            <div class="rl-desc">Counters the rounded, slumped posture that builds up across a desk-bound day.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=foam+roller+thoracic+spine+extension" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-panel" id="panel-ankles">
+        <p style="font-size:0.85rem; color: var(--muted); margin-bottom: 14px;">Often overlooked, but limited ankle mobility is one of the most common hidden causes of poor squat depth, knee cave, and heel lift under load.</p>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Knee-to-Wall Ankle Mobilisation</div>
+            <div class="rl-desc">The standard diagnostic and fix for ankle dorsiflexion restriction. Do this before assuming a squat depth issue is a hip problem.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=knee+to+wall+ankle+mobility+test+stretch" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+        <div class="resource-link-card">
+          <span class="rl-icon">🎥</span>
+          <div>
+            <div class="rl-title">Weighted Ankle Stretch (loaded)</div>
+            <div class="rl-desc">A more advanced progression once basic dorsiflexion range is restored.</div>
+            <a class="rl-link" href="https://www.youtube.com/results?search_query=weighted+ankle+dorsiflexion+stretch" target="_blank">▶ Free tutorial on YouTube</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">For More Structure: Pliability</h2>
+      </div>
+      <p>The free resources above will genuinely build a complete and effective mobility practice — you don't need to spend money to do this properly. That said, if you want a fully structured, progressive programme with daily guided sessions rather than piecing routines together yourself, Pliability is the tool worth considering.</p>
+      <div class="pliability-card">
+        <p class="pc-label">Recommended Tool</p>
+        <h4>Pliability</h4>
+        <p>A dedicated mobility app with structured daily routines, targeted programmes for specific sticking points (hips, shoulders, squat depth, and more), and follow-along video sessions that take the guesswork out of what to do and in what order. Particularly useful if you want consistency without having to plan your own routine each day.</p>
+        <a class="pc-link" href="https://www.pliability.com" target="_blank">Visit Pliability →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+
+<script>
+function setArea(area, btn) {
+  document.querySelectorAll('.area-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.area-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + area).classList.add('active');
+}
+</script>
+</body>
+</html>
