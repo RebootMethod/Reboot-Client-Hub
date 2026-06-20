@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro & Calorie Calculator — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+.calc-form { padding: 32px 0 0; }
+.form-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 28px; margin-bottom: 24px; }
+
+.unit-toggle { display: flex; gap: 8px; margin-bottom: 24px; }
+.unit-btn {
+  flex: 1; background: var(--bg); border: 1px solid var(--border-light); border-radius: 3px;
+  color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; padding: 10px; cursor: pointer; transition: all 0.15s;
+}
+.unit-btn.active { background: var(--yellow); border-color: var(--yellow); color: #0a0a0a; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.field-row.single { grid-template-columns: 1fr; }
+.field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+.field input, .field select {
+  background: var(--bg); border: 1px solid var(--border-light); border-radius: 3px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+  padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%;
+}
+.field input:focus, .field select:focus { border-color: rgba(255,224,51,0.4); }
+.field select option { background: #1a1a1a; }
+
+.goal-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.goal-btn {
+  background: var(--bg); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.15s;
+}
+.goal-btn:hover { border-color: rgba(255,224,51,0.3); }
+.goal-btn.active { background: var(--yellow-dim); border-color: var(--yellow); }
+.goal-btn .gb-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.goal-btn.active .gb-title { color: var(--yellow); }
+.goal-btn .gb-desc { font-size: 0.65rem; color: var(--muted); line-height: 1.4; }
+
+.btn-calc {
+  background: var(--yellow); color: #0a0a0a; border: none; border-radius: 3px;
+  padding: 14px 36px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: opacity 0.2s; width: 100%; margin-top: 8px;
+}
+.btn-calc:hover { opacity: 0.88; }
+
+/* RESULTS */
+#results { display: none; padding: 0 0 80px; }
+#results.visible { display: block; }
+
+.verdict-banner {
+  border-radius: 4px; padding: 24px 28px; margin-bottom: 28px;
+  border: 1px solid var(--border-light); border-left: 3px solid var(--yellow);
+  background: var(--surface);
+}
+.verdict-banner .vb-headline { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; color: var(--yellow); }
+.verdict-banner p { font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.65; }
+.verdict-banner .highlight { color: var(--yellow); font-weight: 600; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 18px; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.stat-card.revealed { opacity: 1; transform: translateY(0); }
+.stat-card .sc-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; color: var(--yellow); line-height: 1; }
+.stat-card .sc-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+
+.macro-bars { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 24px 26px; margin-bottom: 24px; }
+.macro-bars h4 { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); margin-bottom: 18px; }
+.macro-row { margin-bottom: 16px; }
+.macro-row:last-child { margin-bottom: 0; }
+.macro-row-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+.macro-row-label strong { color: var(--text); }
+.macro-row-label span.val { color: var(--yellow); font-weight: 700; }
+.macro-bar-track { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.macro-bar-fill { height: 100%; background: var(--yellow); width: 0%; transition: width 0.8s ease; border-radius: 4px; }
+
+.decode-section { margin-bottom: 16px; }
+.decode-item { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 18px 22px; margin-bottom: 10px; }
+.decode-item .di-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+.decode-item p { font-size: 0.85rem; color: rgba(245,245,240,0.8); line-height: 1.6; }
+.decode-item strong { color: var(--text); }
+
+@media(max-width:600px){
+  .field-row, .field-row.triple, .stat-grid, .goal-select-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Nutrition Tool</p>
+    <h1>Macro & Calorie<br><em>Calculator</em></h1>
+    <p class="hero-intro">Built on the Harris-Benedict formula for metabolic rate, adjusted for your activity level and goal. Not a generic calculator — the numbers below are explained in Reboot terms, so you understand exactly why they're set where they are.</p>
+  </section>
+
+  <div class="calc-form">
+    <div class="form-card">
+
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="unit-metric" onclick="setUnits('metric')">Metric (kg/cm)</button>
+        <button class="unit-btn" id="unit-imperial" onclick="setUnits('imperial')">Imperial (lb/in)</button>
+      </div>
+
+      <div class="field-row triple">
+        <div class="field">
+          <label>Age</label>
+          <input type="number" id="age" placeholder="e.g. 42">
+        </div>
+        <div class="field">
+          <label id="weight-label">Weight (kg)</label>
+          <input type="number" id="weight" step="0.1" placeholder="e.g. 84">
+        </div>
+        <div class="field">
+          <label id="height-label">Height (cm)</label>
+          <input type="number" id="height" placeholder="e.g. 178">
+        </div>
+      </div>
+
+      <div class="field-row single">
+        <div class="field">
+          <label>Activity Level</label>
+          <select id="activity">
+            <option value="1.2">Sedentary — desk job, little to no exercise</option>
+            <option value="1.375">Lightly Active — light exercise 1-3 days/week</option>
+            <option value="1.55" selected>Moderately Active — training 3-5 days/week</option>
+            <option value="1.725">Very Active — training 6-7 days/week</option>
+            <option value="1.9">Extremely Active — physical job + daily training</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row single">
+        <div class="field">
+          <label>Your Goal</label>
+        </div>
+      </div>
+      <div class="goal-select-grid" id="goal-grid">
+        <div class="goal-btn" data-goal="cut" onclick="setGoal('cut', this)">
+          <div class="gb-title">Cut</div>
+          <div class="gb-desc">Fat loss priority</div>
+        </div>
+        <div class="goal-btn active" data-goal="recomp" onclick="setGoal('recomp', this)">
+          <div class="gb-title">Recomp</div>
+          <div class="gb-desc">Build muscle, lose fat</div>
+        </div>
+        <div class="goal-btn" data-goal="build" onclick="setGoal('build', this)">
+          <div class="gb-title">Build</div>
+          <div class="gb-desc">Lean mass priority</div>
+        </div>
+      </div>
+
+      <button class="btn-calc" onclick="calculate()">Calculate My Numbers</button>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="verdict-banner" id="verdict-banner"></div>
+
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="macro-bars">
+      <h4>Your Daily Macro Targets</h4>
+      <div class="macro-row">
+        <div class="macro-row-label"><strong>Protein</strong><span class="val" id="protein-val"></span></div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="protein-bar"></div></div>
+      </div>
+      <div class="macro-row">
+        <div class="macro-row-label"><strong>Carbohydrates</strong><span class="val" id="carb-val"></span></div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="carb-bar"></div></div>
+      </div>
+      <div class="macro-row">
+        <div class="macro-row-label"><strong>Fat</strong><span class="val" id="fat-val"></span></div>
+        <div class="macro-bar-track"><div class="macro-bar-fill" id="fat-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="decode-section" id="decode-section"></div>
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+
+<script>
+let units = 'metric';
+let goal = 'recomp';
+
+function setUnits(u) {
+  units = u;
+  document.getElementById('unit-metric').classList.toggle('active', u === 'metric');
+  document.getElementById('unit-imperial').classList.toggle('active', u === 'imperial');
+  document.getElementById('weight-label').textContent = u === 'metric' ? 'Weight (kg)' : 'Weight (lb)';
+  document.getElementById('height-label').textContent = u === 'metric' ? 'Height (cm)' : 'Height (in)';
+}
+
+function setGoal(g, btn) {
+  goal = g;
+  document.querySelectorAll('.goal-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function calculate() {
+  const age = parseFloat(document.getElementById('age').value);
+  let weight = parseFloat(document.getElementById('weight').value);
+  let height = parseFloat(document.getElementById('height').value);
+  const activityMult = parseFloat(document.getElementById('activity').value);
+
+  if (!age || !weight || !height) {
+    alert('Please fill in age, weight, and height.');
+    return;
+  }
+
+  // Convert to metric for calculation if needed
+  let weightKg = weight, heightCm = height;
+  if (units === 'imperial') {
+    weightKg = weight * 0.453592;
+    heightCm = height * 2.54;
+  }
+
+  // Harris-Benedict BMR (male formula, as this is a male-focused programme)
+  const bmr = 88.362 + (13.397 * weightKg) + (4.799 * heightCm) - (5.677 * age);
+  const tdee = Math.round(bmr * activityMult);
+
+  // Goal-adjusted calorie target
+  let targetCals, goalLabel;
+  if (goal === 'cut') {
+    targetCals = Math.round(tdee * 0.82); // ~18% deficit
+    goalLabel = 'Cut';
+  } else if (goal === 'build') {
+    targetCals = Math.round(tdee * 1.10); // 10% surplus
+    goalLabel = 'Build';
+  } else {
+    targetCals = tdee; // Recomp — at maintenance
+    goalLabel = 'Recomp';
+  }
+
+  // Macro split — protein priority at 2.2g/kg, fat at 25% of calories, carbs fill remainder
+  const proteinG = Math.round(weightKg * 2.2);
+  const proteinCals = proteinG * 4;
+  const fatCals = Math.round(targetCals * 0.25);
+  const fatG = Math.round(fatCals / 9);
+  const carbCals = targetCals - proteinCals - fatCals;
+  const carbG = Math.round(Math.max(carbCals, 0) / 4);
+
+  const proteinPct = Math.round((proteinCals / targetCals) * 100);
+  const carbPct = Math.round((carbCals / targetCals) * 100);
+  const fatPct = Math.round((fatCals / targetCals) * 100);
+
+  // ─ STATS ─
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card"><div class="sc-val">${Math.round(bmr)}</div><div class="sc-label">BMR (kcal)</div></div>
+    <div class="stat-card"><div class="sc-val">${tdee}</div><div class="sc-label">TDEE (kcal)</div></div>
+    <div class="stat-card"><div class="sc-val">${targetCals}</div><div class="sc-label">Target (kcal)</div></div>
+    <div class="stat-card"><div class="sc-val">${proteinG}g</div><div class="sc-label">Protein/Day</div></div>
+  `;
+
+  // ─ MACRO BARS ─
+  document.getElementById('protein-val').textContent = proteinG + 'g (' + proteinPct + '%)';
+  document.getElementById('carb-val').textContent = carbG + 'g (' + carbPct + '%)';
+  document.getElementById('fat-val').textContent = fatG + 'g (' + fatPct + '%)';
+
+  // ─ VERDICT ─
+  let verdictH, verdictB;
+  if (goal === 'cut') {
+    verdictH = 'CUTTING AT ' + targetCals.toLocaleString() + ' CALORIES — STRUCTURED, NOT STARVED';
+    verdictB = 'An <span class="highlight">18% deficit</span> below your TDEE of ' + tdee.toLocaleString() + ' kcal is the Reboot Cut target — aggressive enough to drive real fat loss, conservative enough to protect your metabolism and lean mass. <strong>Protein is held high at ' + proteinG + 'g daily</strong> specifically to preserve muscle while you\'re in a deficit. Crash dieting below this range is exactly what tanks metabolic rate in the first place — this is the boundary where fat loss happens without your body fighting back.';
+  } else if (goal === 'build') {
+    verdictH = 'BUILDING AT ' + targetCals.toLocaleString() + ' CALORIES — SMART, NOT SLOPPY';
+    verdictB = 'A <span class="highlight">' + (targetCals - tdee).toLocaleString() + ' kcal surplus</span> above your TDEE of ' + tdee.toLocaleString() + ' kcal is the Reboot Build target — enough to signal growth without piling on unnecessary body fat. Men over 40 often make one of two mistakes: eating too little to actually build, or bulking recklessly and spending months cutting back down. <strong>A lean, controlled surplus with high protein and progressive training is the only approach worth your time.</strong>';
+  } else {
+    verdictH = 'RECOMPING AT ' + targetCals.toLocaleString() + ' CALORIES — BUILD AND LOSE AT ONCE';
+    verdictB = 'Eating at your TDEE of <span class="highlight">' + tdee.toLocaleString() + ' kcal</span> — not above, not below — is the Reboot Recomp target. This is where simultaneous fat loss and muscle gain become possible, provided protein and training are both dialled in. <strong>You won\'t see dramatic scale movement — but you will see the mirror change.</strong> Body recomposition means building tissue while losing fat at the same time. It requires precision and progressive training stimulus, which is exactly what this programme is built around.';
+  }
+
+  document.getElementById('verdict-banner').innerHTML = `
+    <div class="vb-headline">${verdictH}</div>
+    <p>${verdictB}</p>
+  `;
+
+  // ─ DECODE SECTION ─
+  const mealCals = Math.round(targetCals / 4);
+  const mealProtein = Math.round(proteinG / 4);
+
+  document.getElementById('decode-section').innerHTML = `
+    <div class="decode-item">
+      <p class="di-label">What Your BMR Means</p>
+      <p>Your Basal Metabolic Rate of <strong>${Math.round(bmr)} kcal</strong> is the energy your body burns at complete rest — just to keep your heart beating, organs functioning, and cells repairing. This is calculated using the Harris-Benedict formula, factoring in your age, weight, and height. It is not your calorie target — it's the floor everything else is built on top of.</p>
+    </div>
+    <div class="decode-item">
+      <p class="di-label">Why TDEE Is the Real Number</p>
+      <p>Your Total Daily Energy Expenditure of <strong>${tdee.toLocaleString()} kcal</strong> takes your BMR and multiplies it by your activity level — accounting for training, daily movement, and general activity. This is your actual maintenance number: eat at this level and your weight stays stable. Every Reboot target is set relative to this figure, not some generic chart.</p>
+    </div>
+    <div class="decode-item">
+      <p class="di-label">Your Protein Target, Broken Down</p>
+      <p><strong>${proteinG}g of protein daily</strong> is set at 2.2g per kg of bodyweight — the high end of the evidence-backed range for men over 40 doing resistance training. Spread across 4 meals, that's roughly <strong>${mealProtein}g per meal</strong>. This level of protein intake is non-negotiable regardless of your goal — it's what protects and builds lean mass whether you're cutting, recomping, or building.</p>
+    </div>
+    <div class="decode-item">
+      <p class="di-label">Per-Meal Targets</p>
+      <p>Spread evenly across 4 meals, you're looking at roughly <strong>${mealCals} kcal and ${mealProtein}g of protein per meal</strong>. Use this as a rough anchor, not a rigid rule — your actual meal sizes should flex around training timing, with more carbohydrate around your sessions as covered in the Ignition Protocol guide.</p>
+    </div>
+  `;
+
+  // ─ SHOW RESULTS ─
+  const panel = document.getElementById('results');
+  panel.classList.add('visible');
+  setTimeout(() => {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.stat-card').forEach((c, i) => {
+      setTimeout(() => c.classList.add('revealed'), i * 120);
+    });
+    setTimeout(() => {
+      document.getElementById('protein-bar').style.width = proteinPct + '%';
+      document.getElementById('carb-bar').style.width = carbPct + '%';
+      document.getElementById('fat-bar').style.width = fatPct + '%';
+    }, 300);
+  }, 100);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>
