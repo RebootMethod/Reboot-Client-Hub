@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloodwork 101 — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+/* Marker table */
+.marker-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.82rem; }
+.marker-table thead tr { border-bottom: 1px solid var(--yellow); }
+.marker-table th { text-align: left; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); padding: 0 12px 10px 0; }
+.marker-table td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--border); color: rgba(245,245,240,0.8); line-height: 1.5; vertical-align: top; }
+.marker-table td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+.marker-table td .optimal { color: #6ee86e; font-size: 0.78rem; }
+.marker-table td .suboptimal { color: #FFE033; font-size: 0.78rem; }
+.marker-table td .flag { color: #ff7070; font-size: 0.78rem; }
+@media(max-width:600px){ .marker-table { display:block; overflow-x:auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Reference</p>
+    <h1>Bloodwork 101:<br><em>Read Your Own Results</em></h1>
+    <p class="hero-intro">Your doctor's "normal range" is built on population averages — including sick, sedentary, and metabolically compromised people. This guide tells you what optimal looks like for a high-functioning man over 40, what to watch, and when to act.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>Normal and optimal are not the same thing. Aim for optimal ranges, not just "not flagged."</li>
+      <li>Total testosterone without SHBG is an incomplete picture. Free testosterone is what matters.</li>
+      <li>T3 (active thyroid hormone) is rarely tested by GPs — request it specifically.</li>
+      <li>Ferritin and vitamin D are chronically low in active men and almost never checked proactively.</li>
+      <li>Bloodwork is a snapshot, not a verdict. Trend over time beats a single data point.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Testosterone & Sex Hormones</h2>
+      </div>
+      <p>Testosterone is the primary anabolic hormone in men — responsible for muscle mass, fat distribution, libido, mood, cognitive drive, and bone density. Total testosterone is the most commonly tested marker, but it is an incomplete picture without SHBG.</p>
+      <p><strong>Sex hormone-binding globulin (SHBG)</strong> is a protein that binds testosterone and renders it biologically inactive. A man can have a "normal" total testosterone but significantly suppressed free testosterone if SHBG is elevated. Free testosterone — the portion available for use by tissues — is the figure that actually matters.</p>
+      <table class="marker-table">
+        <thead><tr><th>Marker</th><th>Suboptimal</th><th>Optimal</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Total Testosterone</td><td class="suboptimal">400–600 ng/dL</td><td class="optimal">650–1000 ng/dL</td><td>Test fasting, 7–9am when levels peak</td></tr>
+          <tr><td>Free Testosterone</td><td class="suboptimal">&lt;15 pg/mL</td><td class="optimal">20–30 pg/mL</td><td>More clinically relevant than total</td></tr>
+          <tr><td>SHBG</td><td class="suboptimal">&gt;55 nmol/L</td><td class="optimal">20–40 nmol/L</td><td>Elevated SHBG suppresses free T</td></tr>
+          <tr><td>Oestradiol (E2)</td><td class="flag">&gt;40 pg/mL</td><td class="optimal">20–30 pg/mL</td><td>High E2 often accompanies high body fat</td></tr>
+          <tr><td>LH / FSH</td><td class="suboptimal">Low with low T</td><td class="optimal">Mid-range</td><td>Distinguishes primary vs. secondary hypogonadism</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Thyroid Panel</h2>
+      </div>
+      <p>Most GPs only test TSH — the pituitary signal telling the thyroid to produce hormones. This is like checking if the gas pedal is being pressed without checking whether the engine is responding. A full thyroid panel includes TSH, free T4, and — critically — <strong>free T3</strong>, the active hormone that drives cellular metabolism.</p>
+      <p>Many men with metabolic suppression, low waking temperature, poor body composition, fatigue, and brain fog have a TSH within range but suboptimal free T3. This is particularly common after periods of chronic calorie restriction, high stress, or poor sleep — all of which suppress T4-to-T3 conversion.</p>
+      <table class="marker-table">
+        <thead><tr><th>Marker</th><th>Suboptimal</th><th>Optimal</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>TSH</td><td class="suboptimal">&gt;2.5 mIU/L</td><td class="optimal">0.5–2.0 mIU/L</td><td>Lower end often feels better for active men</td></tr>
+          <tr><td>Free T4</td><td class="suboptimal">&lt;1.0 ng/dL</td><td class="optimal">1.2–1.8 ng/dL</td><td>Precursor — must convert to T3</td></tr>
+          <tr><td>Free T3</td><td class="suboptimal">&lt;3.0 pg/mL</td><td class="optimal">3.5–4.5 pg/mL</td><td>The active hormone. Request this specifically.</td></tr>
+          <tr><td>Reverse T3</td><td class="flag">Elevated</td><td class="optimal">Low-normal</td><td>Elevated rT3 blocks T3 receptors — a stress response</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p class="callout-label">What to Ask Your Doctor</p>
+        <p>"I'd like a full thyroid panel including free T3 and reverse T3, not just TSH." Most GPs will not order this by default. You need to ask for it specifically — or use a private lab.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Cortisol & Stress Markers</h2>
+      </div>
+      <p>Serum cortisol is a snapshot — it fluctuates significantly across the day and in response to acute stressors including the blood draw itself. A morning fasted cortisol (taken 7–9am) gives the most useful reading. Salivary cortisol testing across 4 time points (morning, noon, afternoon, evening) is the gold standard for identifying chronic dysregulation.</p>
+      <table class="marker-table">
+        <thead><tr><th>Marker</th><th>Flag</th><th>Optimal AM</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Serum Cortisol (AM)</td><td class="flag">&gt;25 mcg/dL or &lt;8 mcg/dL</td><td class="optimal">10–18 mcg/dL</td><td>Fasted, 7–9am draw</td></tr>
+          <tr><td>DHEA-S</td><td class="suboptimal">&lt;150 mcg/dL</td><td class="optimal">200–400 mcg/dL</td><td>Declines with age and chronic stress</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Metabolic & Nutrient Markers</h2>
+      </div>
+      <p>These are the markers most relevant to body composition, energy production, and long-term metabolic health. Most are routinely available but not always included in standard panels — request them specifically.</p>
+      <table class="marker-table">
+        <thead><tr><th>Marker</th><th>Suboptimal</th><th>Optimal</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Fasting Glucose</td><td class="suboptimal">100–125 mg/dL</td><td class="optimal">70–90 mg/dL</td><td>Above 100 indicates insulin resistance risk</td></tr>
+          <tr><td>HbA1c</td><td class="suboptimal">5.7–6.4%</td><td class="optimal">&lt;5.4%</td><td>3-month average glucose — important long-term marker</td></tr>
+          <tr><td>Ferritin</td><td class="suboptimal">&lt;50 ng/mL</td><td class="optimal">80–150 ng/mL</td><td>Low ferritin impairs energy, VO2 max, and recovery</td></tr>
+          <tr><td>Vitamin D (25-OH)</td><td class="suboptimal">&lt;40 ng/mL</td><td class="optimal">50–80 ng/mL</td><td>Deficiency extremely common. Directly affects testosterone.</td></tr>
+          <tr><td>Zinc</td><td class="suboptimal">&lt;70 mcg/dL</td><td class="optimal">80–120 mcg/dL</td><td>Essential for testosterone synthesis and immune function</td></tr>
+          <tr><td>Magnesium (RBC)</td><td class="suboptimal">&lt;5.5 mg/dL</td><td class="optimal">6.0–6.5 mg/dL</td><td>Serum magnesium is unreliable — request RBC magnesium</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">When to Act on Results</h2>
+      </div>
+      <p>A single out-of-range result is rarely an emergency — context matters. Before assuming a problem, consider: when was it drawn (time of day, fasted vs. fed), what was your stress load that week, are you mid-training block or post-deload, and have you had any illness recently?</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">→</span><span><strong>Retest before concluding anything.</strong> Confirm a pattern across two draws, ideally 6–8 weeks apart under similar conditions. One suboptimal result is a data point; two is a trend worth addressing.</span></li>
+        <li><span class="rule-badge">→</span><span><strong>Address lifestyle variables first.</strong> Low testosterone, suboptimal free T3, and elevated cortisol all respond significantly to sleep, nutrition, and stress interventions — before any pharmaceutical or hormonal approach is considered.</span></li>
+        <li><span class="rule-badge">→</span><span><strong>Bring results to your coach before your GP.</strong> Your coach can contextualise the results within your training and nutrition picture. GPs will often act on population-range flags that are not clinically meaningful for a well-trained, well-fuelled man.</span></li>
+        <li><span class="rule-badge">→</span><span><strong>Target the trend, not the snapshot.</strong> The goal is progressive improvement across quarterly testing — not perfection on a single panel.</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>

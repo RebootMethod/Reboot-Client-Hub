@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ignition Protocol: Why & How — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Nutrition System</p>
+    <h1>The Ignition Protocol:<br><em>Why & How</em></h1>
+    <p class="hero-intro">Most diets for men over 40 are built on restriction. Cut calories. Cut carbs. Cut fat. The result? A slower metabolism, lower testosterone, and a body that fights every step. The Ignition Protocol is built on an entirely different principle — fuel to function, not starve to shrink.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>Your metabolism is not broken — it is suppressed. The fix is fuel, not further restriction.</li>
+      <li>Carbohydrates are the primary driver of metabolic rate, thyroid output, and testosterone production.</li>
+      <li>Waking temperature and resting heart rate are your real-time metabolic readouts.</li>
+      <li>The Ignition Protocol is structured around four phases: Diagnose, Rebuild, Integrate, Compound.</li>
+      <li>Protein targets are set high to protect lean mass during the recomposition process.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">The Problem With Conventional Dieting</h2>
+      </div>
+      <p>By the time most men find the Reboot Method, they have spent years — sometimes decades — cycling through calorie-restricted diets that delivered short-term results and long-term damage. The pattern is predictable: restrict food, lose some weight (mostly muscle and water), plateau, restrict harder, feel worse. Repeat.</p>
+      <p>What is actually happening beneath the surface is a suppression of the metabolic rate. When calorie intake drops chronically below what the body requires to feel safe, the thyroid downregulates hormone output. <strong>T3 — the active thyroid hormone responsible for cellular energy production — falls.</strong> Cortisol rises. Testosterone drops. The body is doing exactly what it evolved to do: conserve energy in response to a perceived famine.</p>
+      <p>The result is a man who eats very little, trains hard, and still cannot shift body fat. His waking temperature is low (often below 36.3°C). His resting heart rate is sluggish. His sleep is poor. His libido is down. His energy is inconsistent. He is not lazy. His metabolism is suppressed — and restriction is the cause, not the cure.</p>
+      <div class="callout">
+        <p class="callout-label">The Core Insight</p>
+        <p>A low waking temperature is the body's honest report on metabolic health. It is not a fixed trait — it is a response to how you have been eating and living. It can be changed. That is what the Ignition Protocol is designed to do.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">The Pro-Metabolic Philosophy</h2>
+      </div>
+      <p>The Ignition Protocol is built on pro-metabolic nutrition principles — a framework informed by decades of physiological research, particularly the work of Ray Peat and the field of bioenergetic medicine. At its core, the philosophy is this: <strong>the body performs best when it has an abundance of the right fuel, not a scarcity of all fuel.</strong></p>
+      <p>The key drivers of a healthy, high-functioning metabolism are:</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">1</span><span><strong>Carbohydrates:</strong> The preferred fuel source for every cell in the body. Adequate carbohydrate intake supports thyroid conversion from T4 to the active T3, keeps cortisol controlled, and provides the glycogen required for productive training.</span></li>
+        <li><span class="rule-badge">2</span><span><strong>Protein:</strong> Essential for lean mass preservation, hormone production, and satiety. Set at 30% of total calories — higher than most conventional recommendations — to protect muscle during a body recomposition phase.</span></li>
+        <li><span class="rule-badge">3</span><span><strong>Saturated and monounsaturated fats:</strong> The preferred dietary fats in the pro-metabolic framework. Stable, non-inflammatory, and supportive of steroid hormone production including testosterone.</span></li>
+        <li><span class="rule-badge">4</span><span><strong>Micronutrient density:</strong> Adequate magnesium, zinc, vitamin D, B vitamins, and potassium are non-negotiable for enzymatic function, sleep quality, and testosterone output.</span></li>
+      </ul>
+      <p>Polyunsaturated fats — particularly excess linoleic acid from seed oils — are minimised. These fats compete with thyroid hormone at the receptor level, suppress mitochondrial function, and contribute to chronic low-grade inflammation.</p>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">How Macros Are Set</h2>
+      </div>
+      <p>The Ignition Protocol uses a target-based macro split calibrated to your bodyweight, training load, and metabolic status at intake. The default working split for body recomposition is:</p>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">55%</div>
+          <div class="pillar-name">Carbohydrates</div>
+          <div class="pillar-desc">Primary fuel. Supports thyroid, cortisol control, training performance, and glycogen replenishment.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">30%</div>
+          <div class="pillar-name">Protein</div>
+          <div class="pillar-desc">Lean mass protection, hormone precursors, satiety. Targets approximately 2.2g per kg of bodyweight.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">15%</div>
+          <div class="pillar-name">Fat</div>
+          <div class="pillar-desc">Hormone production, micronutrient absorption. Sourced from dairy, eggs, beef, coconut, and olive oil.</div>
+        </div>
+      </div>
+      <p>Total calorie targets are set at or slightly above maintenance — never in a significant deficit. The goal is metabolic restoration first, body recomposition second. As your metabolism recovers (evidenced by rising waking temperature), the body naturally shifts toward fat oxidation at the same intake level.</p>
+      <div class="callout">
+        <p class="callout-label">Nutrient Timing</p>
+        <p>Carbohydrates are front-loaded around training. An intra-workout window (fast-digesting carbs during training) and a post-train window (protein + carbs within 60 minutes) are built into your personalised meal plan. These windows have an outsized impact on recovery, muscle protein synthesis, and overnight cortisol control.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Tracking: Temperature & Resting Heart Rate</h2>
+      </div>
+      <p>The Ignition Protocol does not rely on weekly weigh-ins as its primary feedback mechanism. <strong>Scale weight is a lagging, noisy indicator</strong> — it fluctuates with water retention, glycogen loading, hormonal shifts, and bowel contents. It tells you very little about metabolic health.</p>
+      <p>The two primary tracking metrics used in the Reboot Method are:</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">🌡</span><span><strong>Waking Temperature:</strong> Taken orally within 5 minutes of waking, before getting out of bed. A healthy, well-fuelled metabolism produces a consistent waking temperature of 36.6–37.0°C. Readings below 36.3°C indicate metabolic suppression. Tracking this weekly gives a direct readout of whether your nutrition strategy is working.</span></li>
+        <li><span class="rule-badge">♥</span><span><strong>Resting Heart Rate:</strong> A rising RHR alongside a rising waking temperature indicates improved metabolic rate and thyroid output — a positive sign early in the protocol. A chronically suppressed RHR (below 55 bpm in non-endurance athletes) alongside low temps suggests metabolic suppression.</span></li>
+      </ul>
+      <p>Both metrics are logged weekly in your check-in. Your coach reviews the trend — not the individual data point — and adjusts your nutrition targets accordingly.</p>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">The Four Phases</h2>
+      </div>
+      <p>The Reboot Method is structured around a four-phase coaching framework. Each phase builds on the last — there are no shortcuts between them.</p>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">01</div>
+          <div class="pillar-name">Diagnose</div>
+          <div class="pillar-desc">Baseline metrics, bloodwork review, DEXA analysis, waking temp, lifestyle audit. Understand exactly where you are starting from.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">02</div>
+          <div class="pillar-name">Rebuild</div>
+          <div class="pillar-desc">Metabolic restoration through strategic fuelling, sleep optimisation, and stress load reduction. The protocol begins here.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">03</div>
+          <div class="pillar-name">Integrate</div>
+          <div class="pillar-desc">Carb cycling, refeed protocols, and training periodisation layered on top of a now-functional metabolic foundation.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">04</div>
+          <div class="pillar-name">Compound</div>
+          <div class="pillar-desc">Long-term systems. Making the protocol automatic — embedded in your lifestyle, not dependent on constant willpower.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>

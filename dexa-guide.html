@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding Your DEXA Results — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+.marker-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.82rem; }
+.marker-table thead tr { border-bottom: 1px solid var(--yellow); }
+.marker-table th { text-align: left; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); padding: 0 12px 10px 0; }
+.marker-table td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--border); color: rgba(245,245,240,0.8); line-height: 1.5; vertical-align: top; }
+.marker-table td:first-child { font-weight: 600; color: var(--text); }
+.optimal { color: #6ee86e; font-size: 0.78rem; }
+.suboptimal { color: #FFE033; font-size: 0.78rem; }
+.flag { color: #ff7070; font-size: 0.78rem; }
+@media(max-width:600px){ .marker-table { display:block; overflow-x:auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Reference</p>
+    <h1>Understanding<br><em>Your DEXA Results</em></h1>
+    <p class="hero-intro">A DEXA scan gives you the most accurate body composition data available outside of a research lab. Most people get the printout and have no idea what they are looking at. This guide walks through every key number — what it means, what is optimal, and how to use it.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>DEXA measures lean mass, fat mass, and bone mineral density — broken down by region of the body.</li>
+      <li>The scale cannot distinguish muscle from fat. DEXA can. This is why it is the gold-standard tracking tool for body recomposition.</li>
+      <li>Visceral fat (fat around organs) is more metabolically dangerous than subcutaneous fat and is measured separately.</li>
+      <li>A single scan is a baseline. The value is in comparing scans 3–6 months apart to track true progress.</li>
+      <li>Body fat percentage norms from BMI charts are not relevant to well-trained men. Use athlete-specific ranges.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">What DEXA Actually Measures</h2>
+      </div>
+      <p>Dual-energy X-ray absorptiometry (DEXA) works by passing two low-dose X-ray beams at different energy levels through your body. Different tissues — bone, lean soft tissue, and fat — absorb these beams differently. The software calculates the composition of each region based on those absorption ratios.</p>
+      <p>The result is a full-body breakdown of three compartments:</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">1</span><span><strong>Lean Mass:</strong> Everything that is not fat or bone — primarily muscle, but also organs, connective tissue, and water. This is your most important number for tracking recomposition progress.</span></li>
+        <li><span class="rule-badge">2</span><span><strong>Fat Mass:</strong> Total body fat in kilograms, broken down into subcutaneous fat (under the skin) and visceral fat (around organs).</span></li>
+        <li><span class="rule-badge">3</span><span><strong>Bone Mineral Density (BMD):</strong> The density of your bones. Less relevant to body composition but important for long-term health and injury risk.</span></li>
+      </ul>
+      <div class="callout">
+        <p class="callout-label">On DEXA Accuracy</p>
+        <p>DEXA has a margin of error of approximately 1–2% body fat. To minimise variability between scans: test at the same time of day, in a fasted state, after voiding, and with similar hydration. Glycogen loading before a scan will increase measured lean mass — not because you gained muscle, but because glycogen is stored with water in muscle tissue.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Body Fat Percentage: What's Actually Good</h2>
+      </div>
+      <p>Standard body fat percentage charts are built on population data that includes sedentary and clinically obese individuals. The "acceptable" ranges they list are not the ranges you should be targeting as an active, training man. Use athlete-specific benchmarks.</p>
+      <table class="marker-table">
+        <thead><tr><th>Category</th><th>Body Fat %</th><th>What It Looks Like</th></tr></thead>
+        <tbody>
+          <tr><td>Essential Fat</td><td>3–5%</td><td>Stage-competition lean. Not sustainable long-term.</td></tr>
+          <tr><td>Athletic</td><td class="optimal">6–13%</td><td>Visible abs, clear muscle definition. High performance.</td></tr>
+          <tr><td>Fit</td><td class="optimal">14–17%</td><td>Lean appearance, good muscle visibility. Sustainable target for most.</td></tr>
+          <tr><td>Average</td><td class="suboptimal">18–24%</td><td>Some muscle visible, moderate fat coverage. Room to improve.</td></tr>
+          <tr><td>Overweight</td><td class="flag">25%+</td><td>Health risk territory. Metabolic and hormonal consequences.</td></tr>
+        </tbody>
+      </table>
+      <p>For most Reboot clients, the working target during a body recomposition phase is the 14–17% range — lean, sustainable, and associated with strong hormonal markers. Sub-13% is achievable with a dedicated cut phase once the metabolic foundation is solid.</p>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Lean Mass: The Number That Matters Most</h2>
+      </div>
+      <p>During body recomposition — building muscle while losing fat simultaneously — scale weight can stay flat or even increase while your body composition is dramatically improving. <strong>Without DEXA, you cannot see this happening.</strong> This is why the scale is an unreliable guide to progress, and why DEXA scans are the primary body composition tracking tool in the Reboot Method.</p>
+      <p>Lean mass is reported in kilograms and broken down by body region: arms, legs, trunk, and total. The regional breakdown tells you whether your training programme is developing your physique evenly — or whether there are lagging regions that need addressing in programming.</p>
+      <table class="marker-table">
+        <thead><tr><th>Metric</th><th>How to Use It</th></tr></thead>
+        <tbody>
+          <tr><td>Total Lean Mass (kg)</td><td>Your primary recomp progress marker. Are you gaining lean mass scan to scan?</td></tr>
+          <tr><td>Lean Mass Index (LMI)</td><td>Lean mass relative to height. More useful than total lean mass for comparing across body sizes.</td></tr>
+          <tr><td>Appendicular Lean Mass</td><td>Lean mass in arms and legs — the best proxy for functional muscle mass.</td></tr>
+          <tr><td>Trunk Lean Mass</td><td>Core and torso musculature. High trunk lean mass relative to appendicular is common in desk workers.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Visceral Fat: The One to Watch</h2>
+      </div>
+      <p>Not all fat is created equal. Subcutaneous fat — the fat you can pinch under your skin — is metabolically relatively benign. <strong>Visceral fat</strong>, the fat stored around your abdominal organs, is a different story entirely. Elevated visceral fat is independently associated with insulin resistance, cardiovascular disease, suppressed testosterone, elevated oestrogen, and systemic inflammation.</p>
+      <p>DEXA reports visceral fat as a volume (cm³) or as a mass (grams). Some reports use a risk rating scale of 1–10 or 1–5. The specific numbers vary by machine and software — your coach will interpret the result in the context of your full scan.</p>
+      <div class="callout">
+        <p class="callout-label">Visceral Fat & Hormones</p>
+        <p>Visceral fat contains high concentrations of the enzyme aromatase, which converts testosterone into oestrogen. Reducing visceral fat is one of the most effective natural interventions for improving the testosterone-to-oestrogen ratio — without any pharmaceutical input.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Reading Progress Between Scans</h2>
+      </div>
+      <p>The real value of DEXA is in the delta — the change between two scans taken under similar conditions. Here is how to read progress correctly:</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">✓</span><span><strong>Lean mass up + fat mass down:</strong> True recomposition. The ideal outcome during a Reboot programme phase.</span></li>
+        <li><span class="rule-badge">✓</span><span><strong>Lean mass up + fat mass flat:</strong> Clean bulk. Muscle gained without meaningful fat accumulation. Acceptable and often appropriate early in the programme.</span></li>
+        <li><span class="rule-badge">→</span><span><strong>Lean mass flat + fat mass down:</strong> Fat loss without muscle gain. Often seen when calories are in a deficit. Reassess nutrition targets.</span></li>
+        <li><span class="rule-badge">✗</span><span><strong>Both down:</strong> Losing muscle and fat. Indicates under-eating, over-training, or inadequate protein. Requires immediate nutrition adjustment.</span></li>
+        <li><span class="rule-badge">✗</span><span><strong>Both up:</strong> Gaining muscle and fat. Usually means a calorie surplus without adequate protein timing or training stimulus. Reassess macro distribution and training.</span></li>
+      </ul>
+      <p>Bring your DEXA printout to your next coaching check-in. Your coach will contextualise every number within your current training block, nutrition targets, and metabolic tracking data.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>

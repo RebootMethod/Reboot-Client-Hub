@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reboot Method — Client Resources</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #1e1e1e;
+    --border-light: #282828;
+    --text: #f5f5f0;
+    --muted: rgba(245,245,240,0.45);
+    --muted2: rgba(245,245,240,0.2);
+    --yellow: #FFE033;
+    --yellow-dim: rgba(255,224,51,0.08);
+    --yellow-glow: rgba(255,224,51,0.15);
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+      var(--bg);
+  }
+
+  /* ── DOT GRID ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(245,245,240,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand-mark {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    color: var(--yellow);
+    opacity: 0.7;
+  }
+
+  .brand-handle {
+    font-size: 0.62rem;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 64px 0 56px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 20px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--yellow);
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--yellow);
+  }
+
+  .hero-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 520px;
+    line-height: 1.65;
+  }
+
+  /* ── VIDEO SECTION ── */
+  .video-section {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  .video-placeholder {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgba(255,224,51,0.03) 0%, transparent 60%),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.015) 20px,
+        rgba(255,255,255,0.015) 21px
+      );
+  }
+
+  .video-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .video-play-btn {
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--yellow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .video-placeholder:hover .video-play-btn {
+    background: var(--yellow-dim);
+    transform: scale(1.05);
+  }
+
+  .video-play-btn svg {
+    margin-left: 4px;
+  }
+
+  .video-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .video-swap-note {
+    margin-top: 12px;
+    font-size: 0.65rem;
+    color: var(--muted2);
+    font-style: italic;
+  }
+
+  /* ── RESOURCE GRID ── */
+  .resources-section {
+    padding: 48px 0 80px;
+  }
+
+  .resource-group {
+    margin-bottom: 52px;
+  }
+
+  .resource-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .group-count {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted2);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    display: block;
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    padding: 20px 22px;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--yellow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(255,224,51,0.2);
+    background: var(--surface2);
+    transform: translateY(-2px);
+  }
+
+  .card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    display: block;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  .card-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* Coach-only card variant */
+  .card.coach-only {
+    border-color: rgba(255,224,51,0.08);
+  }
+
+  .card.coach-only .card-tag {
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: var(--yellow);
+    opacity: 0.5;
+  }
+
+  .footer-copy {
+    font-size: 0.62rem;
+    color: var(--muted2);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .hero { padding: 48px 0 40px; }
+    header { padding: 20px 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card::after, .video-play-btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <span class="brand-mark">REBOOT METHOD</span>
+    <span class="brand-handle">@rebootwithdan</span>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">Client Resources</p>
+    <h1>Everything you need.<br><em>All in one place.</em></h1>
+    <p class="hero-sub">Your complete hub for tools, protocols, and calculators built on the Reboot Method system. Bookmark this page — it's updated as new resources are added.</p>
+  </section>
+
+  <!-- VIDEO -->
+  <section class="video-section">
+    <p class="section-label">Welcome</p>
+    <div class="video-placeholder" id="videoPlaceholder">
+      <div class="video-inner">
+        <div class="video-play-btn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M6 4l12 6-12 6V4z" fill="#FFE033"/>
+          </svg>
+        </div>
+        <span class="video-label">Welcome — Watch This First</span>
+      </div>
+    </div>
+    <p class="video-swap-note"><!-- To embed: replace the div above with: <iframe src="YOUR_LOOM_OR_YOUTUBE_EMBED_URL" width="100%" style="aspect-ratio:16/9;border:none;border-radius:4px;" allowfullscreen></iframe> --></p>
+  </section>
+
+  <!-- RESOURCES -->
+  <section class="resources-section">
+
+    <!-- GROUP 1: GETTING STARTED -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Getting Started</h2>
+        <span class="group-count">1 resource</span>
+      </div>
+      <div class="card-grid">
+        <a href="reboot-client-hub.html" class="card">
+          <span class="card-icon">🚀</span>
+          <p class="card-title">New Client Onboarding Hub</p>
+          <p class="card-desc">Your getting-started checklist, first steps, and everything you need to hit the ground running in your first two weeks.</p>
+          <span class="card-tag">Start Here</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP 2: EDUCATION -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Education</h2>
+        <span class="group-count">6 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="ignition-protocol-guide.html" class="card">
+          <span class="card-icon">🔥</span>
+          <p class="card-title">The Ignition Protocol: Why & How</p>
+          <p class="card-desc">The full breakdown of the pro-metabolic nutrition system — the philosophy, the macro structure, how tracking works, and the four phases.</p>
+          <span class="card-tag">Guide</span>
+        </a>
+        <a href="training-recovery-guide.html" class="card">
+          <span class="card-icon">🏋️</span>
+          <p class="card-title">Training & Recovery Over 40</p>
+          <p class="card-desc">Why the rules change after 40, how the Reboot training structure works, and the recovery hierarchy that determines whether your sessions actually pay off.</p>
+          <span class="card-tag">Guide</span>
+        </a>
+        <a href="healthy-lifestyle-guide.html" class="card">
+          <span class="card-icon">🌿</span>
+          <p class="card-title">Healthy Lifestyle Habits</p>
+          <p class="card-desc">Sleep, morning light, daily movement, alcohol, environment design — the lifestyle foundation that everything else is built on.</p>
+          <span class="card-tag">Guide</span>
+        </a>
+        <a href="bloodwork-guide.html" class="card">
+          <span class="card-icon">🩸</span>
+          <p class="card-title">Bloodwork 101</p>
+          <p class="card-desc">How to read the key markers — testosterone, SHBG, T3, cortisol, ferritin, vitamin D. What optimal looks like vs. "normal range," and when to act.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+        <a href="dexa-guide.html" class="card">
+          <span class="card-icon">📡</span>
+          <p class="card-title">Understanding Your DEXA Results</p>
+          <p class="card-desc">What every number on your DEXA printout means — lean mass, fat mass, visceral fat, bone density — and how to track real recomposition progress.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+        <a href="supplements-guide.html" class="card">
+          <span class="card-icon">💊</span>
+          <p class="card-title">Supplements: What Actually Works</p>
+          <p class="card-desc">A no-BS breakdown of the evidence-backed basics, what to skip, and the exact daily stack used in the Reboot Method.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP 3: TOOLS -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Tools & Calculators</h2>
+        <span class="group-count">2 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="weekly-checkin.html" class="card">
+          <span class="card-icon">📋</span>
+          <p class="card-title">Weekly Check-In</p>
+          <p class="card-desc">Complete your weekly self-assessment — waking temp, training quality, nutrition adherence, sleep, energy, stress — then generate and copy a formatted report for your coach.</p>
+          <span class="card-tag">Interactive</span>
+        </a>
+        <a href="training-calculator.html" class="card">
+          <span class="card-icon">⚡</span>
+          <p class="card-title">1RM & Training Load Calculator</p>
+          <p class="card-desc">Enter your weight and reps on any lift to get your estimated 1-rep max and working weights across every rep range in your programme.</p>
+          <span class="card-tag">Calculator</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP QUICK REFERENCE -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Quick Reference</h2>
+        <span class="group-count">2 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="glossary.html" class="card">
+          <span class="card-icon">📖</span>
+          <p class="card-title">The Reboot Glossary</p>
+          <p class="card-desc">Plain-English definitions of every term used in the programme — SHBG, T3, NEAT, double-progression, deload, and everything else. Searchable.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+        <a href="faq.html" class="card">
+          <span class="card-icon">💬</span>
+          <p class="card-title">FAQ</p>
+          <p class="card-desc">The 20 questions every new client asks in their first month — answered directly and without padding.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP 4: NUTRITION -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Nutrition</h2>
+        <span class="group-count">2 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="ignition-recipes-v2.html" class="card">
+          <span class="card-icon">🍳</span>
+          <p class="card-title">Ignition Protocol Recipe Library</p>
+          <p class="card-desc">265 pro-metabolic recipes across 9 categories. Searchable and filterable by meal type.</p>
+          <span class="card-tag">Interactive</span>
+        </a>
+        <a href="reboot-refeed-calculator.html" class="card">
+          <span class="card-icon">🌡️</span>
+          <p class="card-title">Carb Refeed Calculator</p>
+          <p class="card-desc">Enter your waking temperature, bodyweight, and activity level to get your personalised refeed targets and frequency.</p>
+          <span class="card-tag">Calculator</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP 3: RECOVERY & LIFESTYLE -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Recovery &amp; Lifestyle</h2>
+        <span class="group-count">3 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="reboot-stress-system.html" class="card">
+          <span class="card-icon">🧠</span>
+          <p class="card-title">Stress Management System</p>
+          <p class="card-desc">Breathwork protocols, meditation, cold exposure, sleep hygiene, and HRV tools — with a triage check-in to route you to the right tool.</p>
+          <span class="card-tag">Interactive</span>
+        </a>
+        <a href="reboot-hrv-guide.html" class="card">
+          <span class="card-icon">📈</span>
+          <p class="card-title">HRV — The Full Picture</p>
+          <p class="card-desc">What your HRV score actually means, how to interpret it, and a science-backed breakdown of everything that moves the number.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+        <a href="reboot-hrv-tool.html" class="card">
+          <span class="card-icon">⚙️</span>
+          <p class="card-title">HRV Improvement Plan Builder</p>
+          <p class="card-desc">Input your current HRV, age, training history, and lifestyle factors. Get a personalised weekly protocol to lift your baseline.</p>
+          <span class="card-tag">Tool</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- GROUP 4: TRACKING & PROGRESS -->
+    <div class="resource-group">
+      <div class="group-header">
+        <h2 class="group-title">Tracking &amp; Progress</h2>
+        <span class="group-count">2 resources</span>
+      </div>
+      <div class="card-grid">
+        <a href="reboot-temp-chart.html" class="card">
+          <span class="card-icon">📊</span>
+          <p class="card-title">Temperature Tracker</p>
+          <p class="card-desc">Log your waking temperature readings and visualise weekly trends. Track your metabolic recovery in real time.</p>
+          <span class="card-tag">Tracker</span>
+        </a>
+        <a href="reboot-body-comp.html" class="card">
+          <span class="card-icon">📐</span>
+          <p class="card-title">Body Composition Summary</p>
+          <p class="card-desc">Current vs. goal body composition breakdown. Corrected BF%, lean mass, fat mass, and recomp timeline.</p>
+          <span class="card-tag">Reference</span>
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

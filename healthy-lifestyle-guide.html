@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healthy Lifestyle Habits — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Lifestyle</p>
+    <h1>Healthy Lifestyle<br><em>Habits</em></h1>
+    <p class="hero-intro">The training and nutrition system only works on top of a stable lifestyle foundation. Most men want to optimise the 1% — the supplements, the macros, the training split — before they have the 99% locked in. This guide covers the fundamentals that deliver the majority of your results.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>Sleep, sunlight, daily movement, and stress management are the foundation. Everything else is built on top of these.</li>
+      <li>Alcohol is the most underestimated obstacle to body recomposition and testosterone production in men over 40.</li>
+      <li>Sunlight exposure in the morning sets your circadian rhythm and directly supports testosterone and melatonin production.</li>
+      <li>Your environment determines your behaviour more than your willpower does. Design it accordingly.</li>
+      <li>Social connection and a clear sense of purpose are legitimate health variables — not soft additions to the programme.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Sleep: The Foundation of Everything</h2>
+      </div>
+      <p>If you are only going to improve one thing, make it sleep. Nothing in this programme — not the nutrition protocol, not the training, not the supplementation — will produce its intended results on a foundation of chronic poor sleep. <strong>Sleep is not rest. It is active biological repair.</strong></p>
+      <p>What happens during quality sleep: testosterone is produced (90% of daily testosterone is manufactured during sleep), growth hormone is secreted, muscle tissue is repaired, cortisol is cleared, memory is consolidated, and metabolic rate is calibrated for the following day. Seven to nine hours is the target for active men. Less than 6 hours is a performance and health liability.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">✓</span><span><strong>Consistent sleep/wake times</strong> — even on weekends. Your circadian rhythm is a biological clock. Inconsistency fragments sleep architecture and suppresses the hormonal benefits of deep sleep.</span></li>
+        <li><span class="rule-badge">✓</span><span><strong>Cool, dark room</strong> — body temperature needs to drop 1–2°C to initiate and maintain deep sleep. A room temperature of 17–20°C is optimal.</span></li>
+        <li><span class="rule-badge">✓</span><span><strong>No screens 45–60 minutes before bed</strong> — blue light suppresses melatonin onset. If this is not realistic, use blue light glasses or switch to warm-toned lighting.</span></li>
+        <li><span class="rule-badge">✓</span><span><strong>Magnesium glycinate (300–400mg)</strong> taken 30–60 minutes before sleep. One of the most evidence-backed sleep quality interventions available.</span></li>
+        <li><span class="rule-badge">✗</span><span><strong>Alcohol within 3 hours of sleep.</strong> Even moderate alcohol dramatically fragments sleep architecture, suppresses REM sleep, and elevates overnight cortisol. It feels like it helps you relax — it doesn't help you recover.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Morning Light & Circadian Anchoring</h2>
+      </div>
+      <p>Getting natural sunlight into your eyes within 30–60 minutes of waking is one of the highest-leverage free interventions available for hormonal health, mood, and sleep quality. This is not about vitamin D — it is about circadian rhythm calibration.</p>
+      <p>Morning light exposure triggers a cascade: it sets the body's master clock (the suprachiasmatic nucleus), initiates the cortisol awakening response (which should peak in the first 30–45 minutes after waking and then decline — not drag on all day), and sets the timer for melatonin release approximately 12–16 hours later. <strong>Morning light is the anchor that makes everything else work properly.</strong></p>
+      <div class="callout">
+        <p class="callout-label">Practical Application</p>
+        <p>Step outside for 5–10 minutes after waking. You do not need direct sun — ambient outdoor light (even on an overcast day) is 10–50x brighter than indoor lighting and sufficient to trigger the circadian signal. Combine this with your morning walk, coffee, or pre-training warm-up.</p>
+      </div>
+      <p>Evening light matters too — minimising bright overhead lighting after 8pm and avoiding blue-light-emitting screens before bed supports the melatonin rise that drives sleep quality.</p>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Daily Movement Beyond Training</h2>
+      </div>
+      <p>Non-exercise activity thermogenesis (NEAT) — all the movement you do outside of formal training sessions — has an outsized impact on body composition that most men significantly underestimate. <strong>A sedentary man who trains 5 days per week can still have a very low NEAT output</strong> if he sits for 10+ hours on the days he trains.</p>
+      <p>Walking is the primary NEAT tool in the Reboot Method. It is low-cortisol, joint-friendly, genuinely restorative, and meaningfully contributes to daily calorie expenditure without competing with training recovery. A target of 8,000–10,000 steps per day is a useful benchmark.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">→</span><span>Take a 20–30 minute walk after your largest meal of the day. This blunts the postprandial blood glucose spike, improves insulin sensitivity, and supports digestion.</span></li>
+        <li><span class="rule-badge">→</span><span>Stand for at least 2 hours of your working day if you work at a desk. Prolonged sitting suppresses fat-burning enzymes regardless of whether you trained that morning.</span></li>
+        <li><span class="rule-badge">→</span><span>If you want more cardio output without the recovery cost, walk more. LISS at a conversational pace is the only cardio format that consistently adds to results without subtracting from training adaptation.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Alcohol: The Honest Conversation</h2>
+      </div>
+      <p>This section is not here to lecture. It is here because alcohol is, without question, the most commonly overlooked variable in men who are training hard, eating reasonably well, and still not getting the results they expect.</p>
+      <p>Alcohol directly suppresses testosterone production for 12–36 hours after consumption. It elevates oestrogen. It fragments sleep. It is calorie-dense with zero nutritional value. It spikes cortisol. It impairs muscle protein synthesis in the recovery window. <strong>Even two to three drinks, two to three nights per week, is enough to meaningfully blunt the results of an otherwise well-executed programme.</strong></p>
+      <p>The Reboot Method does not require total abstinence. What it does require is honesty about the trade-off. If results are the priority, alcohol is the biggest lever most men have not yet pulled.</p>
+      <div class="callout">
+        <p class="callout-label">Practical Framework</p>
+        <p>If you are going to drink, batch it — fewer occasions with a defined limit rather than frequent low-level consumption. Avoid training the morning after. Prioritise rehydration and a quality protein-rich meal the following day. And account for it honestly in your weekly check-in.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Environment Design & Identity</h2>
+      </div>
+      <p>Willpower is a finite and unreliable resource. The men who sustain this programme long-term are not the ones with the most discipline — they are the ones who have built an environment that makes the right behaviours easy and the wrong behaviours inconvenient.</p>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">🍽</div>
+          <div class="pillar-name">Food Environment</div>
+          <div class="pillar-desc">Stock the kitchen with protocol foods. If seed-oil-heavy processed food is not in the house, it cannot be a late-night default.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">📱</div>
+          <div class="pillar-name">Phone Hygiene</div>
+          <div class="pillar-desc">Charge your phone outside the bedroom. Remove social media apps from your home screen. Protect your sleep and your morning.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">👥</div>
+          <div class="pillar-name">Social Context</div>
+          <div class="pillar-desc">You become the average of the people you spend the most time with. This includes health behaviours. Choose your environment deliberately.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">🎯</div>
+          <div class="pillar-name">Identity</div>
+          <div class="pillar-desc">The Reboot Method is an identity shift, not a diet. "I am someone who trains and fuels well" is a more durable foundation than "I am trying to lose weight."</div>
+        </div>
+      </div>
+      <p>The goal of this programme is not to white-knuckle your way through six months. It is to build a lifestyle that runs on autopilot — where the healthy defaults are so embedded that deviation requires effort, not the other way around.</p>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Stress, Purpose & Psychological Health</h2>
+      </div>
+      <p>Cortisol is produced in response to all stressors — physical, psychological, and relational. A man who trains perfectly and eats perfectly but is living in chronic psychological stress will have hormonal markers that reflect that stress: low testosterone, elevated cortisol, poor sleep, suppressed immune function.</p>
+      <p>This is not soft coaching. <strong>It is endocrinology.</strong> Addressing the sources of chronic psychological stress — whether that is career, relationships, financial pressure, or lack of purpose — is a legitimate part of optimising the health outcomes this programme is designed to produce.</p>
+      <p>Tools that have the clearest evidence base for cortisol reduction and psychological resilience: daily breathwork (4-7-8 or box breathing for 5–10 minutes), cold water exposure, time in nature, and regular genuine social connection. These are not luxuries. They are recovery tools with measurable hormonal effects.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>
