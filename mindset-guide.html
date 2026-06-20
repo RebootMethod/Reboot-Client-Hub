@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindset — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Mindset</p>
+    <h1>The Mental Game<br><em>Behind the Method</em></h1>
+    <p class="hero-intro">Nutrition and training are the mechanics. What actually determines whether a man sticks with this for six months or six days is something underneath both of them. This is the part most programmes leave out.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>Motivation is unreliable by design — it was never meant to carry a six-month programme on its own.</li>
+      <li>Identity change ("I am someone who trains") is more durable than goal-chasing ("I'm trying to lose weight").</li>
+      <li>Many men hit this programme in their 40s during a quiet identity drift — and the physical work often becomes the entry point back to themselves.</li>
+      <li>The mental approach that builds the best physique is the same one that handles a bad week without spiralling.</li>
+      <li>Discipline is a skill built through repetition, not a trait you either have or don't.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Why Motivation Was Never the Plan</h2>
+      </div>
+      <p>Most men start a programme like this riding a wave of motivation — a bad bloodwork result, a photo that didn't sit right, a moment of genuinely deciding something needs to change. That motivation is real and it's useful. It's also, by its nature, temporary.</p>
+      <p><strong>Motivation is an emotional state. It fluctuates with sleep, stress, mood, and how your week is going — which means it was never a stable enough foundation to build a six-month transformation on.</strong> The men who actually get the results aren't the ones who feel motivated every day. They're the ones who built systems that don't require motivation to function.</p>
+      <div class="callout">
+        <p class="callout-label">The Reframe</p>
+        <p>Stop waiting to feel like training. Build a system where training happens regardless of how you feel — same time, same days, food prepped in advance, the decision already made before the moment arrives. Motivation gets you started. Systems are what get you to month six.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Identity Beats Goals</h2>
+      </div>
+      <p>There's a meaningful difference between "I'm trying to lose 10kg" and "I am someone who trains and fuels his body properly." The first is a goal — something you're reaching for, external to who you are right now, with an obvious endpoint where the pressure to maintain it can quietly evaporate. The second is an identity — something you carry into every decision, indefinitely, with no finish line to coast past.</p>
+      <p>Goals are useful for direction. They're poor at sustaining behaviour once they're hit — which is exactly why so many men who "succeed" at a transformation slide right back within a year. The goal was achieved. The identity never changed. Nothing was holding the new behaviour in place once the original target was gone.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">→</span><span>Notice the language you use with yourself. "I'm on a diet" implies a temporary state with an exit. "I eat this way" implies who you are.</span></li>
+        <li><span class="rule-badge">→</span><span>Every action is a vote for the identity you're building. Showing up to a session you don't feel like doing is not just about that one session — it's evidence to yourself about who you are.</span></li>
+        <li><span class="rule-badge">→</span><span>The goal might be 90 days out. The identity shift can start today, in how you talk to yourself about what you're doing and why.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">The Drift Period</h2>
+      </div>
+      <p>A lot of men arrive at this programme in their early-to-mid 40s during what's best described as a quiet drift — not a crisis, usually nothing dramatic, just a slow disconnection from who they used to be. Career has become routine rather than driving. The relationship with a partner has settled into something comfortable but distant. Identity that used to be tied to physical capability, ambition, or edge has softened without anyone really noticing it happen.</p>
+      <p>This drift rarely shows up as a single moment. It shows up as a low hum — a sense that something is missing without being able to name exactly what. For a lot of men, the physical reboot becomes the entry point back into themselves, not because the body is the actual problem, but because it's the most concrete, controllable lever available. <strong>You can't always fix a stale relationship or a flat career overnight. You can control what you eat today and whether you train this morning.</strong></p>
+      <div class="callout">
+        <p class="callout-label">An Honest Note</p>
+        <p>If this resonates, the physical changes from this programme are real and worth pursuing on their own terms. But if the drift runs deeper than body composition — into relationship, purpose, or identity more broadly — the training and nutrition can be a genuine starting point, not the whole answer. Some men find that rebuilding physical discipline is the first domino that makes the rest easier to look at directly.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Discipline Is a Skill, Not a Trait</h2>
+      </div>
+      <p>One of the most limiting beliefs a man can carry into this programme is "I'm just not a disciplined person." Discipline isn't a fixed personality trait some men are born with and others aren't — it's a skill, built the same way any other skill is built: through repetition, starting small, and accumulating evidence that you follow through on what you say you'll do.</p>
+      <p>The mistake most men make is starting with too much. They try to overhaul training, nutrition, sleep, and alcohol simultaneously in week one — and when the inevitable bad day hits, the whole thing collapses because there was no foundation of proven follow-through to fall back on.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">1</span><span><strong>Start with the smallest viable version</strong> of the habit you're building. A consistent wake time is a smaller ask than a complete diet overhaul — and it builds the same follow-through muscle.</span></li>
+        <li><span class="rule-badge">2</span><span><strong>Stack proof, not perfection.</strong> Every day you follow through, regardless of how small, is evidence you're someone who follows through. That evidence compounds.</span></li>
+        <li><span class="rule-badge">3</span><span><strong>Discipline gets easier with practice</strong> — not because willpower increases, but because the behaviour becomes more automatic and requires less conscious effort each time.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">The Mental Approach to Training Itself</h2>
+      </div>
+      <p>Beyond consistency, there's a specific mental approach inside the training session that separates men who make steady progress from men who plateau despite showing up.</p>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">🎯</div>
+          <div class="pillar-name">Presence Over Autopilot</div>
+          <div class="pillar-desc">Going through the motions while mentally elsewhere produces worse mind-muscle connection and weaker long-term results than the same sets done with full attention.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">📈</div>
+          <div class="pillar-name">Compete With Last Session</div>
+          <div class="pillar-desc">The only meaningful comparison is your own previous performance. Chasing other people's numbers in the gym is a losing mental game with no stable finish line.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">🧱</div>
+          <div class="pillar-name">Process Over Single Sessions</div>
+          <div class="pillar-desc">One bad session means almost nothing in isolation. The trend across weeks and months is what actually drives results — don't overreact to a single data point.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">🪞</div>
+          <div class="pillar-name">Honest Self-Assessment</div>
+          <div class="pillar-desc">The ability to honestly say "that set wasn't close to failure" or "I half-arsed that session" — without self-judgement, just accuracy — is what allows genuine progress tracking.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Handling the Bad Weeks Without Spiralling</h2>
+      </div>
+      <p>Every man on this programme will have weeks that fall apart — travel, work crises, illness, a stretch where nothing goes to plan. <strong>The outcome of the programme is determined far more by how you respond to those weeks than by how well you perform during the good ones.</strong></p>
+      <p>The most common failure mode isn't the bad week itself — it's the all-or-nothing thinking that follows it. One missed session becomes "I've already ruined the week," which becomes "I'll restart Monday," which becomes three lost weeks. The actual skill being built here is the ability to have an imperfect day and simply continue, without using it as evidence the whole effort was pointless.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">→</span><span>A missed session is one missed session. It is not a referendum on your character or your commitment to the programme.</span></li>
+        <li><span class="rule-badge">→</span><span>Return to the plan at the very next opportunity — the next meal, the next session — rather than waiting for a symbolic restart point like Monday.</span></li>
+        <li><span class="rule-badge">→</span><span>Log the bad week honestly in your check-in rather than hiding it. The data is more useful to your coach than a curated version of events.</span></li>
+      </ul>
+      <p style="margin-top:8px">For more on this in practice, see the <a href="faq.html" style="color:var(--yellow)">FAQ</a> section on what happens when life gets in the way.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>
