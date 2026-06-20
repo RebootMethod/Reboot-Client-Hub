@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carb Refeed Calculator — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+.calc-form { padding: 32px 0 0; }
+.form-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 28px; margin-bottom: 24px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.field-row.single { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+.field input, .field select {
+  background: var(--bg); border: 1px solid var(--border-light); border-radius: 3px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+  padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%;
+}
+.field input:focus, .field select:focus { border-color: rgba(255,224,51,0.4); }
+.field select option { background: #1a1a1a; }
+
+.btn-calc {
+  background: var(--yellow); color: #0a0a0a; border: none; border-radius: 3px;
+  padding: 14px 36px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: opacity 0.2s; width: 100%;
+}
+.btn-calc:hover { opacity: 0.88; }
+
+/* RESULTS */
+#results { display: none; padding: 0 0 80px; }
+#results.visible { display: block; }
+
+.tier-banner {
+  border-radius: 4px; padding: 22px 26px; margin-bottom: 28px;
+  border: 1px solid var(--border-light); border-left: 3px solid var(--yellow);
+  background: var(--surface);
+}
+.tier-banner .tier-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+.tier-banner .tier-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+.macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.macro-box { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 18px; text-align: center; }
+.macro-box .mb-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--yellow); line-height: 1; }
+.macro-box .mb-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+
+.refeed-detail { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 22px 26px; margin-bottom: 16px; }
+.refeed-detail h4 { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); margin-bottom: 10px; }
+.refeed-detail p { font-size: 0.88rem; color: rgba(245,245,240,0.8); line-height: 1.65; }
+
+@media(max-width:600px){ .field-row, .macro-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Nutrition Tool</p>
+    <h1>Carb Refeed<br><em>Calculator</em></h1>
+    <p class="hero-intro">Your waking temperature is the most honest readout of your metabolic state. Enter your numbers below to get a personalised carbohydrate refeed protocol based on where your metabolism actually sits today.</p>
+  </section>
+
+  <div class="calc-form">
+    <div class="form-card">
+      <div class="field-row">
+        <div class="field">
+          <label>Waking Temperature (°C)</label>
+          <input type="number" id="temp" step="0.1" placeholder="e.g. 36.2">
+        </div>
+        <div class="field">
+          <label>Bodyweight (kg)</label>
+          <input type="number" id="weight" step="0.5" placeholder="e.g. 82">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Activity Level</label>
+          <select id="activity">
+            <option value="1.3">Sedentary (desk job, minimal exercise)</option>
+            <option value="1.45" selected>Moderate (training 3-5x/week)</option>
+            <option value="1.6">High (training 5-6x/week + active job)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Current Daily Carb Intake (g)</label>
+          <input type="number" id="current-carbs" placeholder="e.g. 150">
+        </div>
+      </div>
+      <button class="btn-calc" onclick="calculate()">Calculate My Refeed Protocol</button>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="tier-banner" id="tier-banner"></div>
+    <div class="macro-grid" id="macro-grid"></div>
+    <div class="refeed-detail" id="refeed-detail"></div>
+    <div class="refeed-detail" id="protocol-notes"></div>
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+
+<script>
+const tiers = [
+  { max: 35.5, name: 'Severely Suppressed', carbMult: 4.5, fatPerKg: 0.5, freq: 'Daily elevated carbs — this is not an occasional refeed, this is your new baseline intake.',
+    notes: 'At this level your metabolism is significantly downregulated. Thyroid conversion is almost certainly impaired. The priority is consistent, daily carbohydrate sufficiency — not a once-a-week refeed. Expect 3-4 weeks of consistent intake before waking temperature begins climbing. Reduce training intensity temporarily if energy is very low. This is metabolic rebuilding, not fat loss — be patient.' },
+  { max: 36.1, name: 'Suppressed', carbMult: 4.0, fatPerKg: 0.6, freq: 'Elevated carbs 5-6 days per week, with 1-2 lower days.',
+    notes: 'Clear signs of metabolic suppression. Carbohydrate intake needs to increase substantially and consistently — this is a multi-week intervention, not a single refeed day. Track waking temperature weekly. You should see gradual improvement (0.1-0.2°C per week) once intake is consistent. Keep fat moderate-low to make room for the extra carbohydrate within a sensible calorie range.' },
+  { max: 36.5, name: 'Suboptimal', carbMult: 3.5, fatPerKg: 0.7, freq: '2-3 structured refeed days per week on training days.',
+    notes: 'You are trending in the right direction but not yet optimal. Structured refeeds on training days will support continued thyroid recovery while maintaining body composition progress. Continue tracking waking temperature — the goal is to see it stabilise above 36.5°C consistently before considering more aggressive fat loss phases.' },
+  { max: 37.0, name: 'Near Optimal', carbMult: 3.0, fatPerKg: 0.8, freq: '1-2 refeed days per week, primarily around your hardest training sessions.',
+    notes: 'Your metabolic rate is close to where it should be. At this level you have more flexibility — refeeds can be used strategically around your highest-volume training days rather than for general metabolic recovery. This is a good baseline to maintain through a body recomposition phase.' },
+  { max: 99, name: 'Optimal', carbMult: 2.8, fatPerKg: 1.0, freq: 'No special refeed protocol needed — maintain consistent daily carbohydrate intake.',
+    notes: 'Your metabolism is functioning well. At this level, the focus shifts from metabolic restoration to performance and body composition goals. Maintain your current carbohydrate intake consistently rather than cycling — your system has already adapted to a healthy baseline.' },
+];
+
+function calculate() {
+  const temp = parseFloat(document.getElementById('temp').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const activity = parseFloat(document.getElementById('activity').value);
+  const currentCarbs = parseFloat(document.getElementById('current-carbs').value) || 0;
+
+  if (!temp || !weight) {
+    alert('Please enter your waking temperature and bodyweight.');
+    return;
+  }
+
+  const tier = tiers.find(t => temp < t.max) || tiers[tiers.length-1];
+
+  const targetCarbs = Math.round(weight * tier.carbMult);
+  const finalCarbs = Math.max(targetCarbs, Math.round(currentCarbs * 1.15));
+  const protein = Math.round(weight * 2.2);
+  const fat = Math.round(weight * tier.fatPerKg);
+  const calories = Math.round(protein*4 + finalCarbs*4 + fat*9);
+
+  document.getElementById('tier-banner').innerHTML = `
+    <div class="tier-name">${tier.name}</div>
+    <div class="tier-desc">Based on a waking temperature of ${temp}°C. ${tier.freq}</div>
+  `;
+
+  document.getElementById('macro-grid').innerHTML = `
+    <div class="macro-box"><div class="mb-val">${calories}</div><div class="mb-label">Calories</div></div>
+    <div class="macro-box"><div class="mb-val">${finalCarbs}g</div><div class="mb-label">Carbs</div></div>
+    <div class="macro-box"><div class="mb-val">${protein}g</div><div class="mb-label">Protein</div></div>
+    <div class="macro-box"><div class="mb-val">${fat}g</div><div class="mb-label">Fat</div></div>
+  `;
+
+  const carbIncrease = finalCarbs - currentCarbs;
+  document.getElementById('refeed-detail').innerHTML = `
+    <h4>Your Refeed Target</h4>
+    <p>${currentCarbs ? `This represents an increase of approximately ${carbIncrease}g of carbohydrate above your current intake of ${currentCarbs}g.` : 'Enter your current carb intake above to see the exact increase required.'} Spread this across your meals with priority around training — pre and post-workout windows should carry the largest share of your daily carbohydrate.</p>
+  `;
+
+  document.getElementById('protocol-notes').innerHTML = `
+    <h4>Protocol Notes</h4>
+    <p>${tier.notes}</p>
+  `;
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

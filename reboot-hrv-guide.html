@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRV — The Full Picture — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+.hrv-range-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.82rem; }
+.hrv-range-table thead tr { border-bottom: 1px solid var(--yellow); }
+.hrv-range-table th { text-align: left; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); padding: 0 12px 10px 0; }
+.hrv-range-table td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--border); color: rgba(245,245,240,0.8); line-height: 1.5; }
+.hrv-range-table td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+@media(max-width:600px){ .hrv-range-table { display:block; overflow-x:auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Recovery</p>
+    <h1>HRV:<br><em>The Full Picture</em></h1>
+    <p class="hero-intro">Heart rate variability is one of the most useful — and most misunderstood — recovery metrics available to you. Here's what your number actually means and everything that moves it.</p>
+  </section>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>HRV measures the variation in time between heartbeats — higher variability generally indicates better autonomic recovery.</li>
+      <li>Your personal baseline matters more than population averages. Track your own trend over weeks.</li>
+      <li>Alcohol is the single most disruptive lifestyle factor for HRV, even in moderate amounts.</li>
+      <li>HRV naturally declines with age — a 45-year-old should not expect the same numbers as a 25-year-old.</li>
+      <li>Daily coherent breathing has the strongest evidence base for improving baseline HRV over time.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">What HRV Actually Measures</h2>
+      </div>
+      <p>Heart rate variability is not your heart rate. It's the variation in time between consecutive heartbeats — measured in milliseconds. A healthy, well-recovered autonomic nervous system produces more variability between beats. A stressed, fatigued, or under-recovered system produces a more rigid, metronomic rhythm with less variability.</p>
+      <p><strong>This variability is controlled by the balance between your sympathetic (fight-or-flight) and parasympathetic (rest-and-digest) nervous systems.</strong> When parasympathetic tone is strong relative to sympathetic drive, HRV rises. When you're under physical, psychological, or physiological stress, sympathetic drive dominates and HRV falls.</p>
+      <div class="callout">
+        <p class="callout-label">Why It Matters</p>
+        <p>HRV is one of the only widely accessible metrics that gives a same-day readout of your nervous system's readiness to handle stress — including training stress. It's the closest thing to a daily "battery level" reading available outside a lab.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Why Your Baseline Matters More Than Norms</h2>
+      </div>
+      <p>HRV is highly individual. Genetics, age, fitness level, and even measurement device all affect your absolute number. A "normal" HRV for one 40-year-old man might be 35ms; for another, equally healthy 40-year-old, it might be 70ms. <strong>Comparing your number to a population average or to someone else's number is close to meaningless.</strong></p>
+      <p>What matters is your own trend relative to your own baseline. Establish your baseline over the first 2-3 weeks of consistent measurement (same device, same time of day — ideally first thing on waking), then track weekly averages rather than obsessing over single-day fluctuations, which are heavily influenced by noise.</p>
+      <table class="hrv-range-table">
+        <thead><tr><th>Trend</th><th>What It Suggests</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Below baseline</td><td>Accumulated fatigue, poor sleep, high stress, illness onset, or excess alcohol</td><td>Reduce training intensity, prioritise sleep and stress tools</td></tr>
+          <tr><td>At baseline</td><td>Normal recovery state</td><td>Proceed with planned training and lifestyle as normal</td></tr>
+          <tr><td>Above baseline</td><td>Well recovered, good readiness for high-intensity stimulus</td><td>Good day for your hardest session of the week</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">What Moves HRV — Ranked by Impact</h2>
+      </div>
+      <ul class="rule-list">
+        <li><span class="rule-badge">1</span><span><strong>Alcohol:</strong> The single most disruptive factor. Even two to three standard drinks can suppress HRV measurably for 24-48 hours. This is disproportionate to how "fine" you might feel the next day.</span></li>
+        <li><span class="rule-badge">2</span><span><strong>Sleep duration and consistency:</strong> Both matter independently. Inconsistent sleep timing suppresses HRV even when total sleep duration is adequate.</span></li>
+        <li><span class="rule-badge">3</span><span><strong>Training load relative to recovery capacity:</strong> A single hard session typically suppresses HRV the following morning — this is normal and expected. Chronically suppressed HRV across multiple days indicates accumulated fatigue exceeding recovery capacity.</span></li>
+        <li><span class="rule-badge">4</span><span><strong>Chronic psychological stress:</strong> Sustained work or relationship stress keeps sympathetic tone elevated, suppressing HRV independent of physical training load.</span></li>
+        <li><span class="rule-badge">5</span><span><strong>Illness:</strong> Often the earliest warning sign of oncoming illness — a sudden, unexplained HRV drop frequently precedes other symptoms by 24-48 hours.</span></li>
+        <li><span class="rule-badge">6</span><span><strong>Hydration and nutrition:</strong> Dehydration and significant caloric deficits both suppress HRV.</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Improving Your Baseline Over Time</h2>
+      </div>
+      <p>While day-to-day HRV reflects acute recovery status, your baseline HRV (the average you trend around) can genuinely improve over months with consistent intervention. This is distinct from daily fluctuation — it's a true adaptation of autonomic nervous system function.</p>
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-num">🫁</div>
+          <div class="pillar-name">Daily Breathwork</div>
+          <div class="pillar-desc">Coherent breathing (5-6 breaths/min) for 10 minutes daily has the strongest evidence base for raising baseline HRV over 8-12 weeks.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">🏃</div>
+          <div class="pillar-name">Zone 2 Cardio</div>
+          <div class="pillar-desc">Low-intensity aerobic work (conversational pace) builds aerobic base and parasympathetic tone without adding significant recovery cost.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">😴</div>
+          <div class="pillar-name">Sleep Consistency</div>
+          <div class="pillar-desc">Same sleep/wake time daily is one of the most underrated levers for improving baseline autonomic function.</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-num">🧊</div>
+          <div class="pillar-name">Cold Exposure</div>
+          <div class="pillar-desc">Regular controlled cold exposure trains the nervous system's capacity to recover from acute stress, with downstream HRV benefits.</div>
+        </div>
+      </div>
+      <p>Expect meaningful baseline shifts over 8-12 weeks of consistent practice — not days. HRV is a lagging indicator of overall lifestyle quality, which is exactly what makes the trend so useful.</p>
+      <p style="margin-top:8px">Ready to build your own personalised improvement plan? Use the <a href="reboot-hrv-tool.html" style="color:var(--yellow)">HRV Improvement Plan Builder</a>.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>
