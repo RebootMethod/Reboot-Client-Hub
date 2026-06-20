@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding TRT — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+.disclaimer-box {
+  background: rgba(255,112,112,0.06); border: 1px solid rgba(255,112,112,0.2); border-left: 3px solid #ff7070;
+  border-radius: 4px; padding: 18px 22px; margin: 32px 0;
+}
+.disclaimer-box p { font-size: 0.8rem; color: rgba(245,245,240,0.75); line-height: 1.6; margin: 0; }
+.disclaimer-box strong { color: #ff8888; }
+
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+.compare-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 20px 22px; }
+.compare-card h4 { font-size: 0.78rem; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+.compare-card.natural h4 { color: var(--yellow); }
+.compare-card.trt h4 { color: rgba(245,245,240,0.7); }
+.compare-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.compare-card li { font-size: 0.82rem; color: rgba(245,245,240,0.78); line-height: 1.5; padding-left: 16px; position: relative; }
+.compare-card li::before { content: '•'; position: absolute; left: 0; color: var(--muted2); }
+
+.question-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.question-list li {
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 16px 20px; font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.6;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.question-list .q-num { font-family: 'Bebas Neue', sans-serif; color: var(--yellow); font-size: 1.1rem; flex-shrink: 0; opacity: 0.6; }
+
+@media(max-width:600px){ .compare-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Hormonal Health</p>
+    <h1>Understanding<br><em>TRT</em></h1>
+    <p class="hero-intro">Testosterone replacement therapy comes up a lot in conversations with men over 40 — usually after they've seen a bloodwork number that worried them, or a friend who started TRT and felt dramatically better. Here's how we think about it.</p>
+  </section>
+
+  <div class="disclaimer-box">
+    <p><strong>This page is educational, not medical advice.</strong> Reboot Method coaches are not doctors and do not prescribe, recommend dosages, or manage TRT. Any decision about TRT should be made with a qualified physician — ideally one experienced in men's hormonal health — based on your full clinical picture, not a single bloodwork number or this page.</p>
+  </div>
+
+  <div class="takeaways">
+    <p class="takeaways-label">Key Takeaways</p>
+    <ul>
+      <li>The Reboot position: exhaust natural optimisation first. Most men who think they need TRT are actually dealing with suppressed — not failed — testosterone production.</li>
+      <li>TRT is a lifelong commitment once started in most cases — it shuts down your body's own production.</li>
+      <li>Low testosterone on a single test is not the same as a diagnosis. Context, symptoms, and repeat testing all matter.</li>
+      <li>TRT can be the right call for some men — this isn't an anti-TRT page, it's a sequencing page.</li>
+      <li>If you do pursue TRT, ongoing bloodwork monitoring and a physician relationship are essential, not optional.</li>
+    </ul>
+  </div>
+
+  <div class="content-body">
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">What TRT Actually Is</h2>
+      </div>
+      <p>Testosterone replacement therapy is exactly what it sounds like — supplementing the body's own testosterone production with external testosterone, typically delivered via injection, gel, or pellet. It's a legitimate, well-established medical treatment for clinically diagnosed hypogonadism (genuinely low testosterone with corresponding symptoms).</p>
+      <p>Here's the part most men don't fully appreciate before starting: <strong>exogenous testosterone signals your brain to stop telling your testes to produce their own.</strong> Your hypothalamus and pituitary gland sense that testosterone levels are adequate (because they are — just from an external source) and reduce LH and FSH output accordingly. Over time, your natural production capacity can downregulate significantly. For most men, once started, TRT becomes a long-term or lifelong commitment — coming off it after extended use can mean a prolonged period of low testosterone while natural production attempts to restart, if it fully does at all.</p>
+      <div class="callout">
+        <p class="callout-label">Why This Matters Before You Start</p>
+        <p>This isn't a reason to avoid TRT if it's genuinely the right call for you. It's a reason to be certain — through proper testing, symptom tracking, and ruling out reversible causes — before committing to something that, for most men, isn't easily reversible.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">The Reboot Position: Sequencing, Not Opposition</h2>
+      </div>
+      <p>Reboot Method is built around natural hormone optimisation — the idea that for most men, testosterone, thyroid function, and overall hormonal health respond significantly to sleep, nutrition, training, and stress management before any pharmaceutical intervention is needed. This isn't an ideological stance against TRT. It's a sequencing stance.</p>
+      <p><strong>In our experience, a large proportion of men who believe they need TRT are dealing with suppressed — not failed — natural production.</strong> Chronic under-eating, poor sleep, high stress load, and inadequate carbohydrate intake all measurably suppress testosterone through mechanisms that are entirely reversible with the right intervention. Fixing those factors first does two things: it may resolve the issue without TRT at all, and if it doesn't, it gives you and your doctor a much clearer picture of whether what remains is a genuine production problem worth treating.</p>
+      <div class="compare-grid">
+        <div class="compare-card natural">
+          <h4>Natural Optimisation First</h4>
+          <ul>
+            <li>Addresses reversible causes (sleep, nutrition, stress, training)</li>
+            <li>Preserves your body's own production capacity</li>
+            <li>No ongoing medical dependency or monitoring required</li>
+            <li>Often takes 8-16 weeks to see the full effect</li>
+            <li>May fully resolve the issue without further intervention</li>
+          </ul>
+        </div>
+        <div class="compare-card trt">
+          <h4>TRT (When Appropriate)</h4>
+          <ul>
+            <li>Effective for genuine, confirmed hypogonadism</li>
+            <li>Suppresses natural production — typically long-term commitment</li>
+            <li>Requires ongoing physician relationship and bloodwork monitoring</li>
+            <li>Results often felt faster than natural optimisation</li>
+            <li>Right call for some men — not a failure to "go natural first"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Why One Low Number Isn't a Diagnosis</h2>
+      </div>
+      <p>Testosterone fluctuates — by time of day, sleep the night before, stress load, recent training, and even the specific lab and assay used. A single low reading, especially if it wasn't drawn fasted between 7-9am (when testosterone peaks), is not sufficient grounds for a TRT decision on its own.</p>
+      <p>Proper evaluation involves: at least two morning fasted readings to confirm a genuine trend, free testosterone alongside total (since SHBG can distort the picture — see our <a href="bloodwork-guide.html" style="color:var(--yellow)">Bloodwork 101</a> guide for the full breakdown), LH and FSH to distinguish primary from secondary causes, and a genuine symptom picture — low energy, low libido, poor recovery, mood changes — that correlates with the bloodwork rather than bloodwork in isolation.</p>
+      <div class="callout">
+        <p class="callout-label">A Common Pattern We See</p>
+        <p>A man gets bloodwork done, sees a testosterone number that looks low online, and immediately starts researching TRT clinics — without ever addressing that he's been sleeping five hours a night, training without adequate carbohydrate, and under significant work stress for the past six months. Fix the obvious, reversible factors first. Then reassess.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Questions to Work Through With Your Coach and Doctor</h2>
+      </div>
+      <p>If TRT is something you're genuinely considering, these are the questions worth working through — with your coach for the lifestyle and training side, and with a qualified doctor for the medical decision itself.</p>
+      <ul class="question-list">
+        <li><span class="q-num">01</span><span>Have I had at least two morning, fasted bloodwork panels confirming a genuine low-testosterone trend — not just one test?</span></li>
+        <li><span class="q-num">02</span><span>Have I given a structured natural optimisation protocol (sleep, nutrition, training, stress) a genuine 8-16 week trial first?</span></li>
+        <li><span class="q-num">03</span><span>Do my symptoms (energy, libido, recovery, mood) actually correlate with my bloodwork, or am I assuming a connection that isn't confirmed?</span></li>
+        <li><span class="q-num">04</span><span>Have I ruled out other causes — thyroid dysfunction, sleep apnoea, chronic stress, medication side effects — that can present with similar symptoms?</span></li>
+        <li><span class="q-num">05</span><span>Am I working with a doctor who specialises in men's hormonal health, or a general GP who may be less familiar with nuanced TRT management?</span></li>
+        <li><span class="q-num">06</span><span>Do I understand that this is likely a long-term or lifelong commitment once started, and am I genuinely comfortable with that?</span></li>
+        <li><span class="q-num">07</span><span>Have I discussed fertility implications with my doctor if having children (or more children) is a future consideration?</span></li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">What It Practically Involves</h2>
+      </div>
+      <p>If you and your doctor do decide TRT is the right path, here's what the ongoing reality typically looks like — at a high level, since the specifics are between you and your prescribing physician.</p>
+      <ul class="rule-list">
+        <li><span class="rule-badge">👨‍⚕️</span><span><strong>Finding the right doctor.</strong> Look for a physician with specific experience in men's hormonal health or andrology — not just a general GP. Some men work with endocrinologists or dedicated men's health clinics.</span></li>
+        <li><span class="rule-badge">🩸</span><span><strong>Regular bloodwork monitoring.</strong> Typically every 3-6 months once stable, more frequently during initial dose-finding. This tracks testosterone levels, haematocrit (TRT can elevate red blood cell count), oestradiol, and other markers your doctor will specify.</span></li>
+        <li><span class="rule-badge">📋</span><span><strong>An ongoing relationship, not a one-off prescription.</strong> TRT requires periodic dose adjustment and monitoring for side effects over years, not a single appointment and a repeat script.</span></li>
+        <li><span class="rule-badge">🏋️</span><span><strong>Your coaching doesn't stop.</strong> Training, nutrition, and sleep remain just as important on TRT as off it — TRT addresses the testosterone number, not your overall metabolic health, body composition, or recovery capacity.</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>
