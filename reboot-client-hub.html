@@ -322,12 +322,26 @@ footer {
 .video-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.06em; }
 .video-swap-note { margin-top: 12px; font-size: 0.65rem; color: var(--muted2); font-style: italic; }
 
-/* WEEK TIMELINE */
-.week-block { margin-bottom: 44px; }
-.week-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-.week-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--yellow); opacity: 0.4; }
-.week-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
-.week-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+/* PRIORITY TIER BLOCKS */
+.tier-block { margin-bottom: 52px; }
+.tier-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.tier-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 12px;
+}
+.tier-badge::before { content: ''; display: block; width: 18px; height: 1px; background: var(--yellow); }
+.tier-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+.tier-title em { font-style: italic; color: var(--yellow); }
+.tier-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.6; max-width: 560px; }
+
+/* THE ONLY THING THAT MATTERS callout */
+.focus-callout {
+  background: var(--yellow-dim); border: 1px solid rgba(255,224,51,0.2); border-left: 3px solid var(--yellow);
+  border-radius: 4px; padding: 20px 24px; margin-bottom: 24px;
+}
+.focus-callout .fc-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+.focus-callout p { font-size: 0.9rem; color: rgba(245,245,240,0.9); line-height: 1.6; font-weight: 500; }
 
 .checklist { display: flex; flex-direction: column; gap: 10px; }
 .check-item {
@@ -335,6 +349,7 @@ footer {
   background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
   padding: 16px 20px;
 }
+.check-item.priority { border-color: rgba(255,224,51,0.25); }
 .check-box {
   flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(--yellow);
   border-radius: 3px; margin-top: 1px;
@@ -343,6 +358,18 @@ footer {
 .check-text strong { color: var(--text); }
 .check-link { color: var(--yellow); text-decoration: none; }
 .check-link:hover { text-decoration: underline; }
+
+/* IGNORE FOR NOW */
+.ignore-box {
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 18px 22px; margin-top: 16px;
+}
+.ignore-box .ib-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.ignore-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.ignore-box li { font-size: 0.82rem; color: var(--muted); line-height: 1.5; padding-left: 16px; position: relative; }
+.ignore-box li::before { content: '—'; position: absolute; left: 0; color: var(--muted2); }
+.ignore-box li a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--border-light); }
+.ignore-box li a:hover { color: var(--yellow); }
 
 /* RESOURCE QUICK LINKS */
 .quick-links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; margin-top: 16px; }
@@ -355,13 +382,6 @@ footer {
 .ql-icon { font-size: 1.1rem; margin-bottom: 8px; display: block; }
 .ql-title { font-size: 0.82rem; font-weight: 700; color: var(--text); }
 .ql-desc { font-size: 0.72rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-
-/* WHAT TO EXPECT */
-.expect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 12px; margin: 20px 0; }
-.expect-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 18px 20px; }
-.expect-card .ec-week { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--yellow); opacity: 0.5; }
-.expect-card .ec-title { font-size: 0.82rem; font-weight: 700; margin: 6px 0; }
-.expect-card .ec-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
 
 .cta-banner { background: var(--yellow-dim); border: 1px solid rgba(255,224,51,0.2); border-left: 3px solid var(--yellow); border-radius: 4px; padding: 22px 26px; margin-top: 16px; }
 .cta-banner p { font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.6; }
@@ -382,7 +402,7 @@ footer {
   <section class="page-hero">
     <p class="hero-eyebrow">Start Here</p>
     <h1>Welcome to<br><em>The Reboot Method</em></h1>
-    <p class="hero-intro">You're in. This page is your roadmap for the first two weeks — what to do, in what order, and where everything lives. Bookmark it.</p>
+    <p class="hero-intro">This hub has a lot in it — that's by design, but it's not all meant to be absorbed at once. This page tells you exactly what to focus on right now, what comes next, and what you can safely ignore until you're further in. Everything else will still be here when you're ready for it.</p>
   </section>
 
   <section class="video-section">
@@ -400,68 +420,99 @@ footer {
 
   <div class="onboard-body">
 
-    <!-- WEEK 1 -->
-    <div class="week-block">
-      <div class="week-header">
-        <span class="week-num">01</span>
-        <div>
-          <div class="week-title">Week One — Get Oriented</div>
-          <div class="week-sub">Set up the basics. Don't try to perfect everything at once.</div>
-        </div>
+    <!-- TIER 1: WEEK 1 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <p class="tier-badge">Priority Tier One</p>
+        <h2 class="tier-title">Week One — <em>Just These Three Things</em></h2>
+        <p class="tier-sub">This is the entire job for week one. Not the recipe library, not the glossary, not every guide in the hub — just these three. Everything else is here when you need it, not before.</p>
       </div>
+
+      <div class="focus-callout">
+        <p class="fc-label">The Only Thing That Matters Right Now</p>
+        <p>Hit your macros, track your waking temperature every morning, and show up to your programmed training sessions. That's it. That's the whole job for the next seven days.</p>
+      </div>
+
       <div class="checklist">
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read the Ignition Protocol guide</strong> — understand the why before you worry about the how. <a class="check-link" href="ignition-protocol-guide.html">Read it here →</a></div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Start tracking your waking temperature</strong> every morning, before getting out of bed. Log it in the <a class="check-link" href="reboot-temp-chart.html">Temperature Tracker</a>.</div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Review your nutrition targets</strong> and get familiar with the <a class="check-link" href="ignition-recipes-v2.html">Recipe Library</a> — find 5-6 meals you'll actually want to repeat.</div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read Training & Recovery Over 40</strong> so you understand the structure behind your programme. <a class="check-link" href="training-recovery-guide.html">Read it here →</a></div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Set up your supplement stack</strong> — see <a class="check-link" href="supplements-guide.html">Supplements: What Actually Works</a> for the exact daily protocol.</div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>1. Hit your nutrition targets.</strong> You don't need to understand the full science yet — just hit the numbers your coach has given you. Use the <a class="check-link" href="ignition-recipes-v2.html">Recipe Library</a> to find 4-5 easy meals and repeat them. Repetition in week one is a feature, not a failure.</div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>2. Track your waking temperature.</strong> Every morning, before getting out of bed. Log it in the <a class="check-link" href="reboot-temp-chart.html">Temperature Tracker</a>. This is your single most important feedback metric — start the habit now.</div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>3. Show up to your training sessions.</strong> Exactly as programmed. Don't add to it, don't skip it. If you're unsure on form for anything, that's completely normal in week one — flag it in your check-in.</div></div>
         <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Complete your first Weekly Check-In</strong> at the end of the week. <a class="check-link" href="weekly-checkin.html">Open the Check-In form →</a></div></div>
       </div>
+
+      <div class="ignore-box">
+        <p class="ib-label">Ignore For Now</p>
+        <ul>
+          <li>The full <a href="ignition-protocol-guide.html">Ignition Protocol</a> science — you'll read this in week 2-4, not now</li>
+          <li>Supplements — not urgent in week one, comes in the next tier</li>
+          <li>The <a href="reboot-stress-system.html">Stress Management System</a> — bookmark it, you won't need it unless something specific comes up</li>
+          <li>1RM calculators, HRV tools, mobility work — all genuinely useful, all genuinely not urgent yet</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- WEEK 2 -->
-    <div class="week-block">
-      <div class="week-header">
-        <span class="week-num">02</span>
-        <div>
-          <div class="week-title">Week Two — Build the Habit</div>
-          <div class="week-sub">The novelty wears off here. This is where consistency starts to matter more than precision.</div>
-        </div>
+    <!-- TIER 2: WEEK 2-4 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <p class="tier-badge">Priority Tier Two</p>
+        <h2 class="tier-title">Week 2-4 — <em>Understand the Why</em></h2>
+        <p class="tier-sub">The three habits from week one should be running on autopilot by now. This tier is about understanding why you're doing what you're doing — which makes it much easier to stay consistent when motivation dips.</p>
       </div>
+
+      <div class="focus-callout">
+        <p class="fc-label">The Only Thing That Matters Right Now</p>
+        <p>Understand the system you're inside of, and start paying attention to your trends — not just logging data, but actually noticing whether your waking temp and training numbers are moving in the right direction.</p>
+      </div>
+
       <div class="checklist">
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read Healthy Lifestyle Habits</strong> and pick one lever to focus on this week — sleep, morning light, or alcohol. <a class="check-link" href="healthy-lifestyle-guide.html">Read it here →</a></div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Log your 1RMs</strong> for your main lifts so your training weights are dialled in. <a class="check-link" href="training-calculator.html">Open the 1RM Calculator →</a></div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>1. Read the Ignition Protocol guide.</strong> Now that the habit is running, understand the science behind it. <a class="check-link" href="ignition-protocol-guide.html">Read it here →</a></div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>2. Read Training & Recovery Over 40</strong> so you understand the structure behind your programme — including why form comes before load. <a class="check-link" href="training-recovery-guide.html">Read it here →</a></div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>3. Set up your supplement stack.</strong> See <a class="check-link" href="supplements-guide.html">Supplements: What Actually Works</a> for the exact daily protocol.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Log your 1RMs</strong> for your main lifts so your training weights are properly dialled in. <a class="check-link" href="training-calculator.html">Open the 1RM Calculator →</a></div></div>
         <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Check in on your waking temperature trend</strong> — is it moving? Flat? Don't panic either way, just note it in your check-in.</div></div>
         <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>If you're feeling overwhelmed or wired</strong>, run through the <a class="check-link" href="reboot-stress-system.html">Stress Management System</a> — start with the quick check-in at the top.</div></div>
-        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Complete your second Weekly Check-In</strong> — be honest about what's working and what isn't.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Keep completing your Weekly Check-In</strong> — be honest about what's working and what isn't.</div></div>
+      </div>
+
+      <div class="ignore-box">
+        <p class="ib-label">Ignore For Now</p>
+        <ul>
+          <li><a href="bloodwork-guide.html">Bloodwork 101</a> and <a href="dexa-guide.html">DEXA results</a> — relevant once you've actually got results to interpret, not before</li>
+          <li><a href="trt-guide.html">Understanding TRT</a> — not a week 2-4 conversation for almost anyone</li>
+          <li><a href="mobility-guide.html">Mobility</a> deep-dive — useful, but the daily basics matter more than the targeted work right now</li>
+        </ul>
       </div>
     </div>
 
-    <!-- WHAT TO EXPECT -->
-    <div class="week-block">
-      <div class="week-header">
-        <span class="week-num">→</span>
-        <div>
-          <div class="week-title">What to Expect</div>
-          <div class="week-sub">A rough timeline so you know what's normal.</div>
-        </div>
+    <!-- TIER 3: MONTH 2+ -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <p class="tier-badge">Priority Tier Three</p>
+        <h2 class="tier-title">Month Two Onward — <em>Refine & Go Deeper</em></h2>
+        <p class="tier-sub">By now the core habits should feel close to automatic. This is where you start refining the details and using the deeper resources in the hub — not because they weren't important before, but because they're far more useful once the fundamentals are locked in.</p>
       </div>
-      <div class="expect-grid">
-        <div class="expect-card"><div class="ec-week">WK 1-2</div><div class="ec-title">Adjustment</div><div class="ec-desc">More food than you're used to. Some bloating or water retention is normal as glycogen stores fill.</div></div>
-        <div class="expect-card"><div class="ec-week">WK 2-4</div><div class="ec-title">Early Signals</div><div class="ec-desc">Waking temperature should start trending up. Training performance usually improves first.</div></div>
-        <div class="expect-card"><div class="ec-week">WK 4-8</div><div class="ec-title">Momentum</div><div class="ec-desc">Energy and sleep typically stabilise. Body composition changes start becoming visible.</div></div>
-        <div class="expect-card"><div class="ec-week">WK 8-12</div><div class="ec-title">Clear Progress</div><div class="ec-desc">DEXA-confirmed recomposition. This is when most clients say it "clicks."</div></div>
+
+      <div class="focus-callout">
+        <p class="fc-label">The Only Thing That Matters Right Now</p>
+        <p>Consistency under real life — travel, bad weeks, busy periods — and starting to use the data you've built up (DEXA, bloodwork, training logs) to refine the programme with your coach.</p>
+      </div>
+
+      <div class="checklist">
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>1. Get a DEXA scan</strong> if you haven't already, and learn to read it properly. <a class="check-link" href="dexa-guide.html">Understanding Your DEXA Results →</a></div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>2. Get bloodwork done</strong> if it's due, and bring questions to your coach rather than self-diagnosing. <a class="check-link" href="bloodwork-guide.html">Bloodwork 101 →</a></div></div>
+        <div class="check-item priority"><div class="check-box"></div><div class="check-text"><strong>3. Read the Mental Game guide</strong> — this is where the all-or-nothing thinking that derails most men tends to show up. <a class="check-link" href="mindset-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read Healthy Lifestyle Habits</strong> and dial in sleep, alcohol, and environment design. <a class="check-link" href="healthy-lifestyle-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Build a daily mobility habit</strong> if you haven't already — non-negotiable for longevity. <a class="check-link" href="mobility-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>If non-standard hours are part of your life,</strong> adapt the principles to your schedule. <a class="check-link" href="shift-work-guide.html">Shift Work & Non-Standard Hours →</a></div></div>
       </div>
     </div>
 
     <!-- QUICK ACCESS -->
-    <div class="week-block">
-      <div class="week-header">
-        <span class="week-num">→</span>
-        <div>
-          <div class="week-title">Your Quick Access Toolkit</div>
-          <div class="week-sub">The resources you'll come back to most often.</div>
-        </div>
+    <div class="tier-block">
+      <div class="tier-header">
+        <p class="tier-badge">Always Available</p>
+        <h2 class="tier-title">Your Quick Access Toolkit</h2>
+        <p class="tier-sub">The resources you'll come back to regularly, regardless of which tier you're in.</p>
       </div>
       <div class="quick-links-grid">
         <a href="weekly-checkin.html" class="ql-card"><span class="ql-icon">📋</span><div class="ql-title">Weekly Check-In</div><div class="ql-desc">Complete every Sunday/Monday</div></a>
@@ -474,7 +525,7 @@ footer {
     </div>
 
     <div class="cta-banner">
-      <p>Questions that aren't answered in the <a class="check-link" href="faq.html">FAQ</a> or the <a class="check-link" href="glossary.html">Glossary</a>? Bring them to your next check-in or message your coach directly. <strong>There's no such thing as a dumb question in week one.</strong></p>
+      <p>Not sure which tier you're in, or what to focus on right now? <strong>Just ask your coach.</strong> This page is a guide, not a strict rulebook — and a quick "where should I be focusing right now?" question in your check-in will always get you a more accurate answer than guessing.</p>
     </div>
 
   </div>
