@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Client Onboarding — Reboot Method</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* Reboot Method — Shared Guide Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #1e1e1e;
+  --border-light: #282828;
+  --text: #f5f5f0;
+  --muted: rgba(245,245,240,0.45);
+  --muted2: rgba(245,245,240,0.2);
+  --yellow: #FFE033;
+  --yellow-dim: rgba(255,224,51,0.08);
+  --yellow-mid: rgba(255,224,51,0.15);
+}
+
+html { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(255,224,51,0.05) 0%, transparent 65%),
+    var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* NAV */
+.top-nav {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--yellow); }
+.back-link svg { transition: transform 0.2s; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+.brand-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  opacity: 0.65;
+}
+
+/* HERO */
+.page-hero {
+  padding: 56px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 18px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--yellow);
+}
+
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.page-hero h1 em { font-style: italic; color: var(--yellow); }
+
+.hero-intro {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 600px;
+  font-weight: 400;
+}
+
+/* KEY TAKEAWAYS BOX */
+.takeaways {
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.18);
+  border-left: 3px solid var(--yellow);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+.takeaways-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 14px;
+}
+.takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.takeaways ul li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+  padding-left: 20px;
+  position: relative;
+}
+.takeaways ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+/* CONTENT SECTIONS */
+.content-body { padding: 48px 0 80px; }
+
+.guide-section { margin-bottom: 52px; }
+.guide-section:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  opacity: 0.35;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.guide-section p {
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245,245,240,0.8);
+  margin-bottom: 16px;
+}
+.guide-section p:last-child { margin-bottom: 0; }
+
+.guide-section p strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUT BLOCK */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.callout p { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* PILLAR GRID */
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.5;
+}
+.pillar-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--yellow);
+  opacity: 0.2;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pillar-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pillar-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+
+/* RULE LIST */
+.rule-list { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+.rule-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(245,245,240,0.8);
+}
+.rule-list li .rule-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(255,224,51,0.2);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-top: 2px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  opacity: 0.5;
+}
+.footer-copy { font-size: 0.62rem; color: var(--muted2); }
+
+@media (max-width: 600px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+  .page-hero { padding: 40px 0 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-link svg { transition: none; }
+}
+
+.onboard-body { padding: 0 0 80px; }
+
+/* VIDEO */
+.video-section { padding: 32px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+.video-placeholder {
+  position: relative; width: 100%; aspect-ratio: 16/9;
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; overflow: hidden;
+}
+.video-placeholder::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,224,51,0.03) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 21px);
+}
+.video-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.video-play-btn { width: 64px; height: 64px; border: 2px solid var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.video-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.06em; }
+.video-swap-note { margin-top: 12px; font-size: 0.65rem; color: var(--muted2); font-style: italic; }
+
+/* WEEK TIMELINE */
+.week-block { margin-bottom: 44px; }
+.week-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.week-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--yellow); opacity: 0.4; }
+.week-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+.week-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+.checklist { display: flex; flex-direction: column; gap: 10px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 16px 20px;
+}
+.check-box {
+  flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(--yellow);
+  border-radius: 3px; margin-top: 1px;
+}
+.check-text { font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.5; }
+.check-text strong { color: var(--text); }
+.check-link { color: var(--yellow); text-decoration: none; }
+.check-link:hover { text-decoration: underline; }
+
+/* RESOURCE QUICK LINKS */
+.quick-links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; margin-top: 16px; }
+.ql-card {
+  display: block; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px;
+  padding: 16px 18px; transition: all 0.15s;
+}
+.ql-card:hover { border-color: rgba(255,224,51,0.25); transform: translateY(-2px); }
+.ql-icon { font-size: 1.1rem; margin-bottom: 8px; display: block; }
+.ql-title { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+.ql-desc { font-size: 0.72rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* WHAT TO EXPECT */
+.expect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 12px; margin: 20px 0; }
+.expect-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 18px 20px; }
+.expect-card .ec-week { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--yellow); opacity: 0.5; }
+.expect-card .ec-title { font-size: 0.82rem; font-weight: 700; margin: 6px 0; }
+.expect-card .ec-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+
+.cta-banner { background: var(--yellow-dim); border: 1px solid rgba(255,224,51,0.2); border-left: 3px solid var(--yellow); border-radius: 4px; padding: 22px 26px; margin-top: 16px; }
+.cta-banner p { font-size: 0.88rem; color: rgba(245,245,240,0.85); line-height: 1.6; }
+.cta-banner strong { color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Resources
+    </a>
+    <span class="brand-mark">REBOOT METHOD</span>
+  </nav>
+
+  <section class="page-hero">
+    <p class="hero-eyebrow">Start Here</p>
+    <h1>Welcome to<br><em>The Reboot Method</em></h1>
+    <p class="hero-intro">You're in. This page is your roadmap for the first two weeks — what to do, in what order, and where everything lives. Bookmark it.</p>
+  </section>
+
+  <section class="video-section">
+    <p class="section-label">Welcome Message</p>
+    <div class="video-placeholder" id="videoPlaceholder">
+      <div class="video-inner">
+        <div class="video-play-btn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 4l12 6-12 6V4z" fill="#FFE033"/></svg>
+        </div>
+        <span class="video-label">Welcome — Watch This First</span>
+      </div>
+    </div>
+    <p class="video-swap-note"><!-- To embed: replace the div above with: <iframe src="YOUR_LOOM_OR_YOUTUBE_EMBED_URL" width="100%" style="aspect-ratio:16/9;border:none;border-radius:4px;" allowfullscreen></iframe> --></p>
+  </section>
+
+  <div class="onboard-body">
+
+    <!-- WEEK 1 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">01</span>
+        <div>
+          <div class="week-title">Week One — Get Oriented</div>
+          <div class="week-sub">Set up the basics. Don't try to perfect everything at once.</div>
+        </div>
+      </div>
+      <div class="checklist">
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read the Ignition Protocol guide</strong> — understand the why before you worry about the how. <a class="check-link" href="ignition-protocol-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Start tracking your waking temperature</strong> every morning, before getting out of bed. Log it in the <a class="check-link" href="reboot-temp-chart.html">Temperature Tracker</a>.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Review your nutrition targets</strong> and get familiar with the <a class="check-link" href="ignition-recipes-v2.html">Recipe Library</a> — find 5-6 meals you'll actually want to repeat.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read Training & Recovery Over 40</strong> so you understand the structure behind your programme. <a class="check-link" href="training-recovery-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Set up your supplement stack</strong> — see <a class="check-link" href="supplements-guide.html">Supplements: What Actually Works</a> for the exact daily protocol.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Complete your first Weekly Check-In</strong> at the end of the week. <a class="check-link" href="weekly-checkin.html">Open the Check-In form →</a></div></div>
+      </div>
+    </div>
+
+    <!-- WEEK 2 -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">02</span>
+        <div>
+          <div class="week-title">Week Two — Build the Habit</div>
+          <div class="week-sub">The novelty wears off here. This is where consistency starts to matter more than precision.</div>
+        </div>
+      </div>
+      <div class="checklist">
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Read Healthy Lifestyle Habits</strong> and pick one lever to focus on this week — sleep, morning light, or alcohol. <a class="check-link" href="healthy-lifestyle-guide.html">Read it here →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Log your 1RMs</strong> for your main lifts so your training weights are dialled in. <a class="check-link" href="training-calculator.html">Open the 1RM Calculator →</a></div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Check in on your waking temperature trend</strong> — is it moving? Flat? Don't panic either way, just note it in your check-in.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>If you're feeling overwhelmed or wired</strong>, run through the <a class="check-link" href="reboot-stress-system.html">Stress Management System</a> — start with the quick check-in at the top.</div></div>
+        <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Complete your second Weekly Check-In</strong> — be honest about what's working and what isn't.</div></div>
+      </div>
+    </div>
+
+    <!-- WHAT TO EXPECT -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">→</span>
+        <div>
+          <div class="week-title">What to Expect</div>
+          <div class="week-sub">A rough timeline so you know what's normal.</div>
+        </div>
+      </div>
+      <div class="expect-grid">
+        <div class="expect-card"><div class="ec-week">WK 1-2</div><div class="ec-title">Adjustment</div><div class="ec-desc">More food than you're used to. Some bloating or water retention is normal as glycogen stores fill.</div></div>
+        <div class="expect-card"><div class="ec-week">WK 2-4</div><div class="ec-title">Early Signals</div><div class="ec-desc">Waking temperature should start trending up. Training performance usually improves first.</div></div>
+        <div class="expect-card"><div class="ec-week">WK 4-8</div><div class="ec-title">Momentum</div><div class="ec-desc">Energy and sleep typically stabilise. Body composition changes start becoming visible.</div></div>
+        <div class="expect-card"><div class="ec-week">WK 8-12</div><div class="ec-title">Clear Progress</div><div class="ec-desc">DEXA-confirmed recomposition. This is when most clients say it "clicks."</div></div>
+      </div>
+    </div>
+
+    <!-- QUICK ACCESS -->
+    <div class="week-block">
+      <div class="week-header">
+        <span class="week-num">→</span>
+        <div>
+          <div class="week-title">Your Quick Access Toolkit</div>
+          <div class="week-sub">The resources you'll come back to most often.</div>
+        </div>
+      </div>
+      <div class="quick-links-grid">
+        <a href="weekly-checkin.html" class="ql-card"><span class="ql-icon">📋</span><div class="ql-title">Weekly Check-In</div><div class="ql-desc">Complete every Sunday/Monday</div></a>
+        <a href="ignition-recipes-v2.html" class="ql-card"><span class="ql-icon">🍳</span><div class="ql-title">Recipe Library</div><div class="ql-desc">265 recipes, searchable</div></a>
+        <a href="reboot-temp-chart.html" class="ql-card"><span class="ql-icon">📊</span><div class="ql-title">Temperature Tracker</div><div class="ql-desc">Log daily on waking</div></a>
+        <a href="glossary.html" class="ql-card"><span class="ql-icon">📖</span><div class="ql-title">Glossary</div><div class="ql-desc">Don't recognise a term? Look it up</div></a>
+        <a href="faq.html" class="ql-card"><span class="ql-icon">💬</span><div class="ql-title">FAQ</div><div class="ql-desc">Most first-month questions answered</div></a>
+        <a href="reboot-stress-system.html" class="ql-card"><span class="ql-icon">🧠</span><div class="ql-title">Stress Management</div><div class="ql-desc">When things feel like too much</div></a>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <p>Questions that aren't answered in the <a class="check-link" href="faq.html">FAQ</a> or the <a class="check-link" href="glossary.html">Glossary</a>? Bring them to your next check-in or message your coach directly. <strong>There's no such thing as a dumb question in week one.</strong></p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-brand">REBOOT METHOD</span>
+    <span class="footer-copy">© 2026 The Reboot Method. All rights reserved.</span>
+  </footer>
+
+</div>
+</body>
+</html>
