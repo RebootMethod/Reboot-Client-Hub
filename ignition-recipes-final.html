@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignition Protocol — Recipe Database</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/Reboot-Client-Hub/assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/Reboot-Client-Hub/assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/Reboot-Client-Hub/assets/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" href="/Reboot-Client-Hub/assets/favicon.ico">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: rgba(255,255,255,0.06);
+    --text: #f5f5f0;
+    --muted: rgba(245,245,240,0.45);
+    --yellow: #FFE033;
+    --yellow-dim: rgba(255,224,51,0.12);
+    --yellow-hover: rgba(255,224,51,0.18);
+    --modal-bg: #131313;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  .header {
+    position: relative;
+    z-index: 1;
+    padding: 48px 40px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--yellow);
+    opacity: 0.55;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+  .header h1 span {
+    color: var(--yellow);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .recipe-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    color: var(--yellow);
+    line-height: 1;
+  }
+  .recipe-count small {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* SEARCH + FILTERS */
+  .controls {
+    position: relative;
+    z-index: 1;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .controls-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 16px 11px 40px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: rgba(255,224,51,0.4); }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .filter-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .filter-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .filter-btn.active {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+
+  /* GRID */
+  .grid-wrap {
+    position: relative;
+    z-index: 1;
+    padding: 28px 40px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .results-bar {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  /* RECIPE CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 18px 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--yellow);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(255,224,51,0.25);
+    background: var(--surface2);
+    transform: translateY(-1px);
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .tag-breakfast { background: rgba(255,180,50,0.12); color: rgba(255,180,50,0.85); }
+  .tag-lunch { background: rgba(80,180,255,0.12); color: rgba(80,180,255,0.85); }
+  .tag-dinner { background: rgba(160,100,255,0.12); color: rgba(160,100,255,0.85); }
+  .tag-lunch-dinner { background: rgba(80,200,120,0.12); color: rgba(80,200,120,0.85); }
+  .tag-snack { background: rgba(80,220,150,0.12); color: rgba(80,220,150,0.85); }
+  .tag-pre-workout { background: rgba(255,80,80,0.12); color: rgba(255,100,80,0.85); }
+  .tag-post-workout { background: rgba(50,220,200,0.12); color: rgba(50,220,200,0.85); }
+  .tag-pre-sleep { background: rgba(140,100,255,0.12); color: rgba(160,120,255,0.85); }
+  .tag-salad { background: rgba(80,200,120,0.12); color: #50c878; }
+  .tag-advanced { background: rgba(255,100,60,0.12); color: rgba(255,100,60,0.85); }
+
+  .card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+  }
+  .card-macros {
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+  }
+  .macro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .macro-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--text);
+    line-height: 1;
+  }
+  .macro-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .macro-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+    margin: 2px 0;
+  }
+  .card-cal {
+    margin-left: auto;
+    text-align: right;
+  }
+  .card-cal .macro-val { color: var(--yellow); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--modal-bg);
+    border: 1px solid rgba(255,224,51,0.15);
+    border-radius: 10px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-track { background: transparent; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .modal-header {
+    padding: 24px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--modal-bg);
+    z-index: 1;
+  }
+  .modal-tag { margin-bottom: 8px; }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+    padding-right: 32px;
+  }
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-macros {
+    padding: 14px 24px;
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .modal-macro {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .modal-macro .val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .modal-macro .val.yellow { color: var(--yellow); }
+  .modal-macro .lbl {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .modal-body {
+    padding: 20px 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .modal-section-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--yellow);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  /* INGREDIENTS TABLE */
+  .ingredients-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ingredients-table tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .ingredients-table tr:last-child { border-bottom: none; }
+  .ingredients-table td {
+    padding: 7px 0;
+    font-size: 0.82rem;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .ingredients-table td:first-child {
+    color: var(--muted);
+    width: 60px;
+    font-variant-numeric: tabular-nums;
+    padding-right: 12px;
+  }
+  .ingredients-table td:last-child {
+    color: var(--muted);
+    text-align: right;
+    width: 80px;
+    font-size: 0.72rem;
+  }
+
+  /* STEPS */
+  .steps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .steps-list li {
+    display: flex;
+    gap: 12px;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: rgba(245,245,240,0.8);
+  }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--yellow);
+    min-width: 20px;
+    line-height: 1.55;
+  }
+
+  /* COACH NOTE */
+  .coach-note {
+    background: var(--yellow-dim);
+    border-left: 2px solid var(--yellow);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: rgba(245,245,240,0.75);
+  }
+  .coach-note strong {
+    color: var(--yellow);
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .empty h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .header, .controls, .grid-wrap { padding-left: 20px; padding-right: 20px; }
+    .grid { grid-template-columns: 1fr; }
+    .modal-macros { gap: 12px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(10,10,10,0.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;color:rgba(245,245,240,0.45);text-decoration:none;letter-spacing:0.04em;transition:color 0.2s;" onmouseover="this.style.color='#FFE033'" onmouseout="this.style.color='rgba(245,245,240,0.45)'">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to Resources
+  </a>
+  <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.12em;color:#FFE033;opacity:0.65;">REBOOT METHOD</span>
+</div>
+<div style="height:52px;"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <div class="brand">@rebootwithdan — Ignition Protocol</div>
+      <h1>The <span>Recipe</span> Database</h1>
+    </div>
+    <div class="recipe-count" id="totalCount">—<small>PRO-METABOLIC RECIPES</small></div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search recipes, ingredients..." oninput="render()">
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Meal</span>
+      <button class="filter-btn active" onclick="setMeal('all',this)">ALL</button>
+      <button class="filter-btn" onclick="setMeal('breakfast',this)">BREAKFAST</button>
+      <button class="filter-btn" onclick="setMeal('pre-workout',this)">PRE-WORKOUT</button>
+      <button class="filter-btn" onclick="setMeal('post-workout',this)">POST-WORKOUT</button>
+      <button class="filter-btn" onclick="setMeal('lunch',this)">LUNCH</button>
+      <button class="filter-btn" onclick="setMeal('lunch-dinner',this)">LUNCH / DINNER</button>
+      <button class="filter-btn" onclick="setMeal('dinner',this)">DINNER</button>
+      <button class="filter-btn" onclick="setMeal('snack',this)">SNACK</button>
+      <button class="filter-btn" onclick="setMeal('pre-sleep',this)">PRE-SLEEP</button>
+      <button class="filter-btn" onclick="setMeal('salad',this)">🥗 SALADS</button>
+      <button class="filter-btn" onclick="setMeal('advanced',this)">ADVANCED</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="results-bar" id="resultsBar"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none">
+    <h3>No recipes found</h3>
+    <p>Try a different search or filter</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-tag" id="mTag"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-macros" id="mMacros"></div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+const RECIPES = [
+{name:"Eggs, Butter & Sourdough",meal:"breakfast",p:28,c:38,f:18,cal:428,ingredients:[{a:"3 large",i:"Eggs"},{a:"20g",i:"Butter"},{a:"2 slices",i:"Sourdough bread"},{a:"pinch",i:"Sea salt"}],steps:["Toast sourdough until golden.","Melt butter in a non-stick pan over low heat.","Crack eggs into the pan and cook to your preference.","Plate eggs on toast. Season with sea salt."],coach:"Simple. High-quality cholesterol from eggs and butter supports testosterone and steroid hormone production. Eggs are one of the highest bioavailable protein sources in the system \u2014 prioritise them at breakfast."},
+{name:"Scrambled Eggs with Parmigiano",meal:"breakfast",p:32,c:4,f:22,cal:344,ingredients:[{a:"4 large",i:"Eggs"},{a:"15g",i:"Butter"},{a:"30g",i:"Parmigiano Reggiano, grated"},{a:"pinch",i:"Sea salt"},{a:"pinch",i:"Black pepper"}],steps:["Beat eggs in a bowl with a pinch of salt.","Melt butter in a pan over very low heat.","Add eggs and stir slowly and continuously until just set.","Remove from heat while still slightly soft \u2014 residual heat will finish them.","Plate and top with grated Parmigiano Reggiano."],coach:"Parmigiano Reggiano is the preferred cheese in the system \u2014 aged 24+ months, virtually lactose-free, and loaded with tyrosine which supports dopamine production. Scrambled eggs with butter and Parmigiano is a tier-one breakfast."},
+{name:"Greek Yoghurt, Honey & Raw Carrot",meal:"breakfast",p:22,c:36,f:8,cal:308,ingredients:[{a:"200g",i:"Full-fat Greek yoghurt"},{a:"1 tbsp",i:"Raw honey"},{a:"1 medium",i:"Carrot, grated raw"},{a:"pinch",i:"Sea salt"}],steps:["Grate the carrot raw \u2014 do not cook it.","Spoon Greek yoghurt into a bowl.","Top with grated raw carrot.","Drizzle honey over the top and add a pinch of sea salt."],coach:"The raw carrot in this system is non-negotiable. Grated raw carrot contains unique, non-digestible fibres that bind to endotoxins and excess oestrogen in the gut and carry them out. Cooking destroys this mechanism \u2014 always grate and always eat raw."},
+{name:"Beef Mince & Eggs",meal:"breakfast",p:48,c:2,f:24,cal:420,ingredients:[{a:"200g",i:"Extra lean beef mince"},{a:"3 large",i:"Eggs"},{a:"15g",i:"Butter"},{a:"1 tsp",i:"Sea salt"}],steps:["Cook beef mince in a pan over medium heat until browned. Season with salt.","In a separate pan, melt butter over low heat and cook eggs to your preference.","Plate mince alongside eggs."],coach:"The highest protein breakfast in the system. Beef provides haem iron and zinc \u2014 two of the most critical minerals for testosterone production and thyroid function. Pair with a glass of OJ to enhance iron absorption."},
+{name:"Honey Glazed Salmon & Eggs",meal:"breakfast",p:42,c:18,f:22,cal:448,ingredients:[{a:"150g",i:"Salmon fillet"},{a:"2 large",i:"Eggs"},{a:"1 tbsp",i:"Raw honey"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Heat a pan over medium heat. Brush salmon with honey and cook 3\u20134 minutes each side.","In a separate pan, melt butter and cook eggs to your preference.","Plate salmon and eggs together. Season with sea salt."],coach:"Limit salmon to 2\u20133x per week due to PUFA accumulation. The honey glaze caramelises and reduces \u2014 the fructose in honey helps protect liver from the modest PUFA load."},
+{name:"Banana Honey Porridge",meal:"breakfast",p:16,c:68,f:10,cal:436,ingredients:[{a:"80g",i:"Rolled oats"},{a:"300ml",i:"Full-fat milk"},{a:"1 medium",i:"Banana, sliced"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Combine oats and milk in a saucepan over medium heat.","Stir continuously until oats are thick and creamy.","Spoon into a bowl and top with sliced banana.","Drizzle honey over the top. Add a pinch of sea salt."],coach:"Full-fat milk increases the caloric density and fat-soluble vitamin content of this breakfast significantly. The banana provides potassium and B6. This is a strong muscle-preserving breakfast for higher training volume phases."},
+{name:"Cottage Cheese & Fruit Bowl",meal:"breakfast",p:28,c:42,f:8,cal:360,ingredients:[{a:"250g",i:"Full-fat cottage cheese"},{a:"100g",i:"Mango, diced"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon cottage cheese into a bowl.","Top with diced mango.","Drizzle honey over the top.","Add a pinch of sea salt and serve."],coach:"Mango is high in B vitamins, particularly B1 (thiamine), which is essential for glucose metabolism. The combination of casein protein and simple fruit sugars makes this a well-timed morning meal."},
+{name:"Sourdough French Toast",meal:"breakfast",p:22,c:52,f:16,cal:448,ingredients:[{a:"2 slices",i:"Sourdough bread"},{a:"2 large",i:"Eggs"},{a:"50ml",i:"Full-fat milk"},{a:"15g",i:"Butter"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Whisk eggs and milk in a shallow bowl.","Dip sourdough slices in the egg mixture until soaked.","Melt butter in a pan over medium heat.","Cook sourdough 2\u20133 minutes each side until golden.","Serve with a drizzle of raw honey and a pinch of sea salt."],coach:"Sourdough's fermentation process reduces phytates and makes minerals more bioavailable. The egg coating adds protein and fat to slow glucose release from the bread \u2014 better than plain toast for blood sugar stability."},
+{name:"Full-Fat Yoghurt with Walnuts & Honey",meal:"breakfast",p:18,c:32,f:18,cal:368,ingredients:[{a:"200g",i:"Full-fat Greek yoghurt"},{a:"30g",i:"Walnuts, raw"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon yoghurt into a bowl.","Add walnuts.","Drizzle honey generously over the top.","Add a pinch of sea salt before serving."],coach:"Walnuts are the exception to the nut rule in this system \u2014 their PUFA content is offset by the polyphenols they contain. Limit to 30g per serving, 3\u20134x per week maximum."},
+{name:"Steak & Eggs",meal:"breakfast",p:52,c:4,f:22,cal:428,ingredients:[{a:"200g",i:"Rump steak, lean"},{a:"3 large",i:"Eggs"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Bring steak to room temperature. Season with sea salt.","Cook steak in a hot pan to desired doneness. Rest 5 minutes.","In the same pan, reduce heat, add butter and cook eggs.","Plate steak and eggs together."],coach:"The highest testosterone-supporting breakfast in the system. Red meat provides zinc, B12, carnitine and creatine \u2014 all critical for androgen production and muscle function in men over 40."},
+{name:"Mango & Milk Smoothie",meal:"breakfast",p:18,c:58,f:10,cal:404,ingredients:[{a:"200g",i:"Mango, frozen or fresh"},{a:"300ml",i:"Full-fat milk"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Add mango, milk, honey and salt to a blender.","Blend until completely smooth.","Pour into a glass and drink immediately."],coach:"Quick, liquid breakfast option. Full-fat milk slows the fructose spike from mango slightly. High B-vitamin content from mango supports energy metabolism. Add a raw carrot on the side."},
+{name:"Protein Oats",meal:"breakfast",p:34,c:71,f:6,cal:475,ingredients:[{a:"30g",i:"Whey protein isolate"},{a:"60g",i:"Quick oats"},{a:"1 medium",i:"Banana, sliced"},{a:"50g",i:"Strawberries"},{a:"20g",i:"Raw honey"}],steps:["Cook oats with water or full-fat milk until creamy.","Stir in whey protein until fully combined.","Top with sliced banana, strawberries and a drizzle of honey."]},
+{name:"Overnight Weetbix - Berry",meal:"breakfast",p:33,c:36,f:3,cal:306,ingredients:[{a:"31g",i:"Weet-Bix"},{a:"125ml",i:"Full-fat milk"},{a:"120g",i:"Full-fat strawberry yoghurt"},{a:"20g",i:"Whey protein isolate"},{a:"75g",i:"Frozen mixed berries"},{a:"5g",i:"Raw honey"}],steps:["Crush Weet-Bix and place in a container.","Pour milk until covered.","Mix protein with yoghurt, then layer on top.","Top with frozen berries and drizzle with honey.","Refrigerate overnight and serve chilled."]},
+{name:"Overnight Weetbix - Apple Crumble",meal:"breakfast",p:38,c:47,f:8,cal:416,ingredients:[{a:"33g",i:"Weet-Bix"},{a:"20g",i:"Sugar-free maple syrup"},{a:"100ml",i:"Full-fat milk"},{a:"120g",i:"Full-fat vanilla yoghurt"},{a:"125g",i:"Apple slices, canned"},{a:"25g",i:"Caramel syrup, sugar-free"},{a:"1",i:"Scotch Finger biscuit"},{a:"20g",i:"Whey protein isolate"}],steps:["Crush Weet-Bix and mix with milk, protein powder and maple syrup.","Spread yoghurt evenly over the top.","Layer apple slices on top of the yoghurt.","Drizzle caramel syrup over the apples.","Crush the Scotch Finger biscuit and sprinkle over the top.","Cover and refrigerate overnight. Serve chilled."]},
+{name:"Overnight Weetbix - Strawberry Cheesecake",meal:"breakfast",p:38,c:43,f:7,cal:387,ingredients:[{a:"33g",i:"Weet-Bix"},{a:"20g",i:"Sugar-free maple syrup"},{a:"100ml",i:"Full-fat milk"},{a:"120g",i:"Full-fat vanilla yoghurt"},{a:"20g",i:"Whey protein isolate"},{a:"80g",i:"Strawberries, fresh"},{a:"1",i:"Scotch Finger biscuit"}],steps:["Crush Weet-Bix in a bowl and mix with milk, protein powder and maple syrup.","Spread yoghurt evenly over the Weet-Bix mixture.","Slice strawberries and layer on top of the yoghurt.","Crush the Scotch Finger biscuit and sprinkle over the strawberries.","Cover and refrigerate overnight. Serve chilled."]},
+{name:"Overnight Weetbix - Peach",meal:"breakfast",p:32,c:43,f:2,cal:314,ingredients:[{a:"33g",i:"Weet-Bix"},{a:"160g",i:"Full-fat Greek yoghurt, plain"},{a:"20g",i:"Custard casein protein, vanilla"},{a:"100g",i:"Canned peaches in juice"}],steps:["Crush Weet-Bix into a bowl or jar.","Mix yoghurt and protein powder until smooth. Layer over Weet-Bix.","Top with sliced peaches and their juice.","Cover and refrigerate overnight. Serve chilled."]},
+{name:"Overnight Weetbix - Sticky Date",meal:"breakfast",p:34,c:53,f:12,cal:456,ingredients:[{a:"33g",i:"Weet-Bix"},{a:"15g",i:"Whey protein isolate"},{a:"1g",i:"Cinnamon"},{a:"25g",i:"Medjool date, chopped"},{a:"160g",i:"Full-fat vanilla yoghurt"},{a:"10g",i:"Biscoff spread"},{a:"10g",i:"Walnuts, raw"}],steps:["Crush Weet-Bix into a bowl or jar.","Mix protein powder and cinnamon into yoghurt. Layer over the Weet-Bix.","Chop date and walnuts. Sprinkle on top.","Drizzle with Biscoff spread.","Cover and refrigerate overnight. Serve chilled."]},
+{name:"Overnight Weetbix - Biscoff",meal:"breakfast",p:36,c:49,f:7,cal:408,ingredients:[{a:"33g",i:"Weet-Bix"},{a:"160g",i:"Full-fat salted caramel yoghurt"},{a:"20g",i:"Whey protein (choc chip)"},{a:"1",i:"Biscoff biscuit, crumbled"},{a:"5g",i:"Biscoff spread"},{a:"80ml",i:"Full-fat milk"}],steps:["Crush Weet-Bix into a bowl.","Mix protein powder with milk until smooth. Pour over Weet-Bix.","Layer yoghurt on top.","Crumble Biscoff biscuit over the yoghurt.","Slightly warm Biscoff spread and drizzle over the top."]},
+{name:"Overnight Weetbix - Mango & Passionfruit",meal:"breakfast",p:62,c:70,f:5,cal:570,ingredients:[{a:"40g",i:"Whey protein isolate"},{a:"5g",i:"Creatine"},{a:"64g",i:"Gluten-free Weet-Bix"},{a:"175g",i:"Mango passionfruit yoghurt"},{a:"80g",i:"Frozen mango"},{a:"30g",i:"Passionfruit pulp"},{a:"40ml",i:"Full-fat milk"}],steps:["Crush Weet-Bix into a bowl or jar.","Mix protein powder, creatine and milk, then pour over the Weet-Bix.","Layer with yoghurt, frozen mango and passionfruit pulp.","Cover and refrigerate overnight. Serve chilled."]},
+{name:"Overnight Oats - Carrot Cake",meal:"breakfast",p:41,c:29,f:13,cal:399,ingredients:[{a:"50ml",i:"Full-fat milk"},{a:"5g",i:"Chia seeds"},{a:"20g",i:"Carrot, baby, grated"},{a:"33g",i:"Whey protein isolate, salted caramel"},{a:"80g",i:"Full-fat salted caramel yoghurt"},{a:"10g",i:"Walnuts, raw"},{a:"5g",i:"Cinnamon"},{a:"35g",i:"Quick oats"}],steps:["Grate the carrot and set aside.","In a container, mix oats, chia seeds, protein powder, cinnamon, milk and grated carrot.","Stir in yoghurt until combined.","Top with walnuts and refrigerate overnight.","Serve chilled."]},
+{name:"Overnight Oats - LCMS",meal:"breakfast",p:14,c:59,f:11,cal:390,ingredients:[{a:"45g",i:"Quick oats"},{a:"1",i:"Medium egg"},{a:"20ml",i:"Full-fat milk"},{a:"90g",i:"Banana"},{a:"20g",i:"LCMS Choc Chip bar, crumbled"}],steps:["Mix oats, egg and milk in a bowl or jar.","Top with sliced banana and crumble the LCMS bar over the top.","Cover and refrigerate overnight.","Serve chilled or warm as desired."]},
+{name:"Overnight Oats - Biscoff",meal:"breakfast",p:41,c:56,f:18,cal:546,ingredients:[{a:"40g",i:"Rolled oats"},{a:"50g",i:"Banana, mashed"},{a:"40g",i:"Whey protein isolate"},{a:"5g",i:"Sugar-free maple syrup"},{a:"5g",i:"Vanilla bean paste"},{a:"100ml",i:"Full-fat milk"},{a:"30g",i:"Biscoff spread"},{a:"80g",i:"Raspberries, frozen"}],steps:["Mix oats, mashed banana, whey protein, maple syrup, vanilla paste and milk in a bowl.","Transfer to a container and top with Biscoff spread and frozen raspberries.","Cover and refrigerate overnight.","Serve straight from the fridge the next morning."]},
+{name:"Banana & Walnut Overnight Oats",meal:"breakfast",p:40,c:47,f:15,cal:480,ingredients:[{a:"50g",i:"Rolled oats"},{a:"5g",i:"Chia seeds"},{a:"150ml",i:"Full-fat milk"},{a:"50g",i:"Full-fat Greek yoghurt"},{a:"50g",i:"Banana, sliced"},{a:"10g",i:"Walnuts, raw"},{a:"5g",i:"Raw honey"},{a:"30g",i:"Whey protein isolate"}],steps:["Mix oats, chia seeds, protein powder and milk in a container.","Stir in Greek yoghurt and refrigerate overnight.","Before serving, top with banana slices, crushed walnuts and a drizzle of honey."]},
+{name:"Yoghurt, Berries & Eggs",meal:"breakfast",p:54,c:25,f:29,cal:580,ingredients:[{a:"5 large",i:"Eggs"},{a:"200g",i:"Full-fat Greek yoghurt"},{a:"75g",i:"Blueberries, frozen"},{a:"10g",i:"Raw honey"},{a:"5g",i:"Butter"}],steps:["Cook eggs in butter to your preference.","Spoon Greek yoghurt into a bowl.","Top with blueberries and drizzle with honey.","Serve eggs alongside."]},
+{name:"Eggs & Cottage Cheese on Sourdough",meal:"breakfast",p:47,c:59,f:17,cal:578,ingredients:[{a:"100g",i:"Sourdough bread"},{a:"2 large",i:"Eggs"},{a:"3 egg whites",i:"Egg whites"},{a:"5g",i:"Butter"},{a:"100g",i:"Full-fat cottage cheese"},{a:"15g",i:"Raw honey"}],steps:["Toast sourdough until golden.","Melt butter in a pan. Cook eggs and egg whites to your preference.","Spread cottage cheese thickly on toast.","Top with cooked eggs and drizzle honey over the top."]},
+{name:"Oats & Eggs",meal:"breakfast",p:43,c:41,f:23,cal:540,ingredients:[{a:"40g",i:"Quick oats"},{a:"120ml",i:"Full-fat milk"},{a:"3 large",i:"Eggs"},{a:"3 egg whites",i:"Egg whites"},{a:"5g",i:"Butter"},{a:"15g",i:"Raw honey"}],steps:["Cook oats with milk until creamy.","Melt butter in a pan. Cook eggs and egg whites together.","Drizzle honey over the oats.","Serve eggs alongside the oats."]},
+{name:"Ham & Egg Omelette Bake",meal:"breakfast",p:48,c:9,f:13,cal:345,ingredients:[{a:"1 large",i:"Egg"},{a:"120g",i:"Egg whites"},{a:"100g",i:"Full-fat cottage cheese"},{a:"25g",i:"Full-fat mozzarella"},{a:"60g",i:"Leg ham, thinly sliced"},{a:"40g",i:"Red capsicum"},{a:"20g",i:"Brown onion"},{a:"20g",i:"English spinach"}],steps:["Preheat oven to 180C and lightly grease a muffin tin.","Whisk whole egg, egg whites and cottage cheese in a bowl.","Dice ham, capsicum, onion and spinach. Mix into the egg mixture.","Pour the mixture evenly into muffin tin compartments.","Sprinkle mozzarella on top of each.","Bake 20-25 minutes until set and golden. Cool slightly before serving."]},
+{name:"Omelette Breakfast Bowl",meal:"breakfast",p:48,c:32,f:14,cal:445,ingredients:[{a:"1 large",i:"Egg"},{a:"120g",i:"Egg whites"},{a:"100g",i:"Full-fat cottage cheese"},{a:"25g",i:"Full-fat mozzarella"},{a:"30g",i:"Leg ham, thinly sliced"},{a:"40g",i:"Red capsicum"},{a:"20g",i:"Brown onion"},{a:"20g",i:"English spinach"},{a:"67g",i:"English muffin"}],steps:["Whisk whole egg, egg whites and cottage cheese in a bowl.","Dice ham, capsicum, onion and spinach. Stir into the egg mixture.","Pour into a heated non-stick pan and cook until set, folding gently.","Toast the muffin.","Serve the omelette alongside the toasted muffin. Sprinkle with mozzarella."]},
+{name:"Eggs & Avocado on Sourdough",meal:"breakfast",p:21,c:40,f:16,cal:387,ingredients:[{a:"3g",i:"Olive oil"},{a:"1 medium",i:"Egg"},{a:"60g",i:"Egg whites"},{a:"80g",i:"Sourdough bread"},{a:"40g",i:"Avocado"},{a:"15g",i:"Spinach"},{a:"15g",i:"BBQ sauce, reduced salt"}],steps:["Heat olive oil in a non-stick pan and cook egg and egg whites to your liking.","Toast the sourdough.","Mash avocado and spread evenly on the toast.","Top with cooked eggs and a handful of spinach.","Drizzle BBQ sauce over the top."]},
+{name:"Eggs & Smashed Avo on Toast",meal:"breakfast",p:20,c:34,f:22,cal:421,ingredients:[{a:"83g",i:"Traditional wholemeal bread"},{a:"90g",i:"Avocado"},{a:"2 medium",i:"Eggs"}],steps:["Toast bread slices until golden.","Mash avocado and spread evenly over the toast.","Cook egg to your preference and place on top.","Serve immediately."]},
+{name:"Bacon & Egg Wrap",meal:"breakfast",p:28,c:10,f:15,cal:286,ingredients:[{a:"1 medium",i:"Egg"},{a:"15g",i:"BBQ sauce, reduced salt"},{a:"40g",i:"Bacon, shortcut"},{a:"1",i:"Low-carb high-protein wrap"},{a:"15g",i:"Full-fat cheddar, shredded"}],steps:["Cook bacon in a non-stick pan until crispy. Set aside.","Scramble or fry the egg in the same pan.","Warm the wrap in a dry pan.","Assemble with egg, bacon, cheese and BBQ sauce.","Roll tightly and serve."]},
+{name:"Bacon & Egg Breaky Wraps",meal:"breakfast",p:44,c:41,f:47,cal:762,ingredients:[{a:"2 medium",i:"Eggs"},{a:"100g",i:"Middle rasher bacon"},{a:"30g",i:"Full-fat cheddar, grated"},{a:"71g",i:"Original wrap"},{a:"20g",i:"BBQ sauce, reduced salt"}],steps:["Cook bacon in a non-stick pan until crispy. Set aside.","Scramble or fry eggs to your preference.","Warm the wrap in a pan.","Layer bacon, eggs, cheese and BBQ sauce onto the wrap.","Fold and roll the wrap tightly. Serve."]},
+{name:"Quiche Taco Boats",meal:"breakfast",p:35,c:55,f:24,cal:574,ingredients:[{a:"96g",i:"Mini taco boats"},{a:"2",i:"Medium eggs"},{a:"50g",i:"Bacon, shortcut"},{a:"50g",i:"English spinach"},{a:"50g",i:"Brown onion"},{a:"15g",i:"Full-fat cheddar, shredded"}],steps:["Preheat oven to 180C.","Dice bacon and onion. Cook in a non-stick pan until browned. Add spinach and cook until wilted.","Whisk eggs and mix with cooked bacon, onion, spinach and cheese.","Fill each taco boat with the mixture.","Bake 15-20 minutes until egg is set and golden on top. Serve warm."]},
+{name:"Choc Banana Baked Oats",meal:"breakfast",p:29,c:46,f:12,cal:409,ingredients:[{a:"40g",i:"Rolled oats"},{a:"60g",i:"Banana, mashed"},{a:"20g",i:"Whey protein"},{a:"1 medium",i:"Egg"},{a:"50ml",i:"Full-fat milk"},{a:"10g",i:"Milk choc bits"},{a:"2g",i:"Baking powder"},{a:"25g",i:"Sugar-free maple syrup"}],steps:["Preheat oven to 180C.","Mash banana and mix with oats, whey, egg, milk, baking powder and maple syrup until combined.","Fold in chocolate bits.","Pour into a small oven-safe dish.","Bake 20-25 minutes until golden and set. Serve warm."]},
+{name:"French Toast with Ricotta, Strawberries & Blueberries",meal:"breakfast",p:24,c:53,f:7,cal:373,ingredients:[{a:"89g",i:"Country grains bread"},{a:"90ml",i:"Full-fat milk"},{a:"50g",i:"Egg whites"},{a:"3g",i:"Vanilla bean paste"},{a:"40g",i:"Full-fat ricotta"},{a:"60g",i:"Strawberries"},{a:"30g",i:"Blueberries"},{a:"15g",i:"Sugar-free maple syrup"},{a:"2g",i:"Cinnamon sugar"}],steps:["In a shallow bowl, whisk together milk, egg whites and vanilla paste.","Heat a non-stick pan over medium heat.","Dip the bread into the egg mixture, letting it fully absorb.","Cook 2-3 minutes per side until golden.","Transfer to a plate and top with ricotta, strawberries and blueberries.","Drizzle with maple syrup and sprinkle with cinnamon sugar."]},
+{name:"Veggie Scrambled Eggs",meal:"breakfast",p:24,c:2,f:4,cal:146,ingredients:[{a:"150g",i:"Egg whites"},{a:"1 medium",i:"Egg"},{a:"10g",i:"Baby spinach"},{a:"40g",i:"Mushroom"},{a:"6g",i:"Cherry tomatoes"},{a:"15g",i:"Red onion"}],steps:["Slice mushrooms, halve tomatoes and chop onion.","Saute onion, mushrooms and tomatoes in a non-stick pan until softened. Add spinach to wilt. Remove from pan.","Whisk egg whites and whole egg. Pour into the pan. Cook until almost set.","Place veggies on one side of the egg and fold the other side over.","Slide onto a plate and serve."]},
+{name:"Turmeric Scrambled Eggs with Spinach",meal:"breakfast",p:21,c:22,f:20,cal:351,ingredients:[{a:"100g",i:"Eggs, whole"},{a:"50g",i:"English spinach"},{a:"5g",i:"Olive oil"},{a:"2g",i:"Turmeric, ground"},{a:"1g",i:"Black pepper"},{a:"20g",i:"Full-fat feta"},{a:"50g",i:"Traditional wholemeal bread"}],steps:["Heat olive oil in a pan over medium heat.","Add spinach and cook until wilted.","Whisk eggs with turmeric and black pepper.","Pour the egg mixture into the pan and scramble until cooked.","Serve on wholemeal toast and crumble feta cheese on top."]},
+{name:"Cheese Omelette",meal:"breakfast",p:17,c:4,f:13,cal:199,ingredients:[{a:"2 medium",i:"Eggs"},{a:"2g",i:"Olive oil spray"},{a:"15g",i:"Full-fat cheddar, grated"},{a:"40g",i:"Rocket"},{a:"70g",i:"Cherry tomatoes"}],steps:["Whisk eggs in a bowl with a pinch of salt.","Heat pan over medium-low heat. Add olive oil spray.","Pour in eggs and swirl the pan so they coat the surface evenly.","Gently pull eggs from the edges toward the centre with a spatula.","After 2-3 minutes when eggs are mostly set, sprinkle cheese over one half.","Fold the omelette, turn off heat and rest 1 minute.","Slide onto a plate and serve with rocket and cherry tomatoes."]},
+{name:"Vegetable Frittata",meal:"breakfast",p:31,c:6,f:17,cal:306,ingredients:[{a:"150g",i:"Egg whites"},{a:"1 medium",i:"Egg"},{a:"50ml",i:"Full-fat milk"},{a:"50g",i:"Mushroom"},{a:"20g",i:"English spinach"},{a:"50g",i:"Tomato"},{a:"30g",i:"Full-fat feta"},{a:"5g",i:"Olive oil spray"}],steps:["Preheat oven to 180C and lightly grease a baking dish.","Whisk egg whites, egg and milk in a bowl.","Chop mushrooms, spinach and tomato. Add to the egg mixture.","Pour into the baking dish and crumble feta over the top.","Bake 25-30 minutes until set and golden.","Cool slightly before slicing and serving."]},
+{name:"Apple Cinnamon Protein Pancakes",meal:"breakfast",p:38,c:40,f:10,cal:401,ingredients:[{a:"50g",i:"Rolled oats (blended to flour)"},{a:"30g",i:"Whey protein isolate"},{a:"50g",i:"Whole egg"},{a:"3g",i:"Baking powder"},{a:"2g",i:"Cinnamon"},{a:"50g",i:"Apple sauce, no added sugar"},{a:"50ml",i:"Full-fat milk"},{a:"10g",i:"Raw honey"}],steps:["Mix oat flour, protein powder, baking powder and cinnamon in a bowl.","Whisk in egg, apple sauce and milk until smooth.","Heat a non-stick pan over medium heat. Pour batter to form pancakes.","Cook until bubbles form, then flip and cook the other side.","Drizzle with honey before serving."]},
+{name:"Protein Pancakes - Blueberry",meal:"breakfast",p:34,c:23,f:11,cal:325,ingredients:[{a:"30g",i:"Whey protein isolate"},{a:"1 medium",i:"Egg"},{a:"5g",i:"Vanilla extract"},{a:"5g",i:"Baking soda"},{a:"20g",i:"Plain flour"},{a:"100ml",i:"Full-fat milk"},{a:"5g",i:"Olive oil"},{a:"20g",i:"Sugar-free maple syrup"},{a:"60g",i:"Blueberries, fresh"}],steps:["In a bowl, mix protein powder, egg, vanilla extract, baking soda and flour.","Gradually add milk and mix until smooth.","Heat olive oil in a non-stick pan over medium heat.","Pour batter to form pancakes and cook until bubbles form. Flip and cook the other side.","Top with blueberries and drizzle with sugar-free maple syrup."]},
+{name:"Protein Pancakes",meal:"breakfast",p:21,c:53,f:4,cal:325,ingredients:[{a:"80g",i:"Protein pancake mix"},{a:"20g",i:"Whey protein blend"},{a:"75g",i:"Banana, sliced"},{a:"5g",i:"Canadian maple syrup"},{a:"2g",i:"Butter"},{a:"1g",i:"Cinnamon"},{a:"100ml",i:"Water"}],steps:["In a bowl, mix protein pancake mix, whey protein, cinnamon and water until smooth.","Heat butter in a non-stick pan over medium heat.","Pour batter to form pancakes. Cook until bubbles appear, then flip.","Serve pancakes topped with sliced banana and a drizzle of syrup."]},
+{name:"Banana Bread",meal:"breakfast",p:26,c:53,f:13,cal:440,ingredients:[{a:"85g",i:"Banana, mashed"},{a:"1 medium",i:"Egg"},{a:"60g",i:"Full-fat salted caramel yoghurt"},{a:"15g",i:"Sugar-free maple syrup"},{a:"15g",i:"Whey protein"},{a:"30g",i:"Wholemeal flour"},{a:"1g",i:"Baking powder"},{a:"1g",i:"Baking soda"},{a:"25g",i:"Milk choc bits"}],steps:["Preheat oven to 180C and line a small loaf tin.","Mash banana and mix with egg, yoghurt, maple syrup and whey until smooth.","Stir in flour, baking powder and baking soda until just combined.","Fold in chocolate bits.","Pour into the loaf tin and smooth the top.","Bake 25-30 minutes until a toothpick comes out clean.","Cool before slicing."]},
+{name:"Choc Chip Banana Bread",meal:"breakfast",p:43,c:238,f:108,cal:2100,ingredients:[{a:"300g",i:"Banana, mashed"},{a:"250g",i:"Wholemeal flour"},{a:"1g",i:"Salt"},{a:"2g",i:"Baking powder"},{a:"115g",i:"Butter"},{a:"80g",i:"Full-fat banana yoghurt"},{a:"3g",i:"Vanilla bean paste"},{a:"30g",i:"Milk choc bits"},{a:"120g",i:"Brown sugar alternative"}],steps:["Preheat oven to 180C and line a loaf pan with parchment paper.","Mash bananas in a large bowl.","Add flour, salt, baking powder and brown sugar alternative. Mix until combined.","Melt butter and stir in with yoghurt and vanilla bean paste.","Fold in chocolate bits.","Pour batter into the loaf pan and spread evenly.","Bake 50-60 minutes until a skewer inserted in the centre comes out clean.","Cool before slicing."],coach:"Batch recipe -- serves 8. Divide all macros by 8 for per-serve totals."},
+{name:"Bagel - Bacon & Hash Brown",meal:"breakfast",p:29,c:67,f:26,cal:618,ingredients:[{a:"90g",i:"Natural bagel"},{a:"1 medium",i:"Egg"},{a:"50g",i:"Bacon, shortcut"},{a:"16g",i:"Full-fat cheddar burger slice"},{a:"75g",i:"Hash brown"},{a:"15g",i:"Tomato chutney"},{a:"10g",i:"Chipotle mayonnaise"}],steps:["Toast the bagel halves lightly.","Cook hash brown and bacon in a non-stick pan until crispy.","Fry the egg to preferred doneness.","Spread tomato chutney on one half of the bagel and chipotle mayo on the other.","Assemble the bagel with bacon, egg, cheese and hash brown."]},
+{name:"Bagel - Avo, Cheese & Egg",meal:"breakfast",p:31,c:49,f:21,cal:508,ingredients:[{a:"90g",i:"Natural bagel"},{a:"50g",i:"Full-fat cottage cheese"},{a:"50g",i:"Avocado"},{a:"5g",i:"Everything bagel seasoning"},{a:"2 medium",i:"Eggs"}],steps:["Toast the bagel halves lightly.","Spread cottage cheese on one half and mashed avocado on the other.","Cook eggs to your preference.","Sprinkle bagel seasoning over the avocado.","Assemble the bagel with eggs in between."]},
+{name:"Eggs & Avo Bagel",meal:"breakfast",p:16,c:56,f:16,cal:435,ingredients:[{a:"1 medium",i:"Egg"},{a:"90g",i:"Plain bagel"},{a:"50g",i:"Avocado"},{a:"5g",i:"Butter"}],steps:["Slice the bagel in half and toast to desired crispness.","Cook egg your favourite way.","Mash avocado and spread evenly on the toasted bagel halves.","Top each half with egg. Serve immediately."]},
+{name:"Smoked Salmon Bagel",meal:"breakfast",p:25,c:34,f:11,cal:331,ingredients:[{a:"90g",i:"Low-carb bagel"},{a:"50g",i:"Smoked salmon"},{a:"30g",i:"Full-fat cottage cheese"},{a:"5g",i:"Baby capers"},{a:"3g",i:"Butter"},{a:"2g",i:"Fresh dill"}],steps:["Slice the bagel in half and toast to desired crispness.","Spread butter evenly on both halves.","Layer cottage cheese on each half.","Add slices of smoked salmon on top.","Sprinkle baby capers over the salmon. Garnish with fresh dill."]},
+{name:"Turkey & Cottage Cheese Bagel",meal:"breakfast",p:26,c:37,f:8,cal:324,ingredients:[{a:"90g",i:"Low-carb bagel"},{a:"60g",i:"Full-fat cottage cheese"},{a:"60g",i:"Turkey breast slices"},{a:"20g",i:"Mixed leafy greens"},{a:"5g",i:"Butter"}],steps:["Slice the bagel in half and toast to desired crispness.","Spread butter evenly on both halves.","Layer cottage cheese on each bagel half.","Add mixed leafy greens then turkey slices.","Assemble and enjoy."]},
+{name:"Bagel - Avocado, Egg, Turkey",meal:"breakfast",p:31,c:33,f:23,cal:462,ingredients:[{a:"90g",i:"Low-carb bagel"},{a:"90g",i:"Avocado"},{a:"2 medium",i:"Eggs"},{a:"50g",i:"Shaved turkey"},{a:"1g",i:"Olive oil spray"}],steps:["Slice the bagel in half and lightly toast.","Spray a pan with olive oil and cook eggs to preferred doneness.","Mash the avocado and spread evenly on one half of the bagel.","Layer shaved turkey and cooked eggs on top of the avocado. Assemble and serve."]},
+{name:"Bacon & Eggs on Toast",meal:"breakfast",p:35,c:69,f:26,cal:655,ingredients:[{a:"166g",i:"Traditional wholemeal bread"},{a:"60g",i:"Bacon, shortcut"},{a:"2 medium",i:"Eggs"},{a:"10g",i:"Butter"}],steps:["Toast bread and spread with butter.","Cook bacon in a non-stick pan until crispy.","Fry eggs to preferred doneness.","Assemble by placing bacon and eggs on the toasted bread."]},
+{name:"Pumpkin Brownies",meal:"breakfast",p:19,c:53,f:20,cal:467,ingredients:[{a:"250g",i:"Pumpkin, peeled"},{a:"40g",i:"Cocoa powder"},{a:"1 medium",i:"Egg"},{a:"65g",i:"Stevia"},{a:"40g",i:"Milk choc chips"},{a:"2g",i:"Baking powder"},{a:"5g",i:"Vanilla bean paste"}],steps:["Preheat oven to 180C and line a baking tray.","Steam or boil pumpkin until soft. Mash until smooth.","Mix mashed pumpkin, cocoa powder, egg, stevia, vanilla paste and baking powder until combined.","Fold in chocolate chips.","Pour into the prepared baking tray and spread evenly.","Bake 25-30 minutes until set.","Cool before slicing."],coach:"Batch recipe. Divide total macros by number of serves."},
+{name:"Ham & Cheese Melt Croissant",meal:"breakfast",p:20,c:20,f:14,cal:292,ingredients:[{a:"42g",i:"Plain croissant"},{a:"15g",i:"Full-fat ricotta"},{a:"17g",i:"Full-fat cheddar slice"},{a:"15g",i:"Dijon mustard"},{a:"50g",i:"Leg ham, thinly sliced"}],steps:["Slice the croissant in half lengthwise.","Spread mustard and ricotta evenly on the inside.","Layer ham and cheese on the bottom half.","Close the croissant and toast in a sandwich press or air fryer until golden and the cheese melts."]},
+{name:"Crumpet with Smoked Salmon and Cream Cheese",meal:"breakfast",p:14,c:20,f:8,cal:206,ingredients:[{a:"50g",i:"Round crumpet"},{a:"40g",i:"Smoked salmon"},{a:"15g",i:"Full-fat cream cheese"},{a:"2g",i:"Fresh dill"},{a:"2g",i:"Baby capers"}],steps:["Toast crumpets 2 minutes or as desired.","Spread cream cheese over the crumpet.","Lay smoked salmon on top.","Garnish with capers, dill or preferred toppings."]},
+{name:"Peanut Butter & Berry Protein Oats",meal:"breakfast",p:42,c:39,f:17,cal:475,ingredients:[{a:"50g",i:"Rolled oats"},{a:"30g",i:"Whey protein isolate"},{a:"15g",i:"Peanut butter"},{a:"150ml",i:"Full-fat milk"},{a:"100g",i:"Frozen mixed berries"}],steps:["Cook oats with milk until creamy.","Stir in protein powder until fully combined.","Top with peanut butter and frozen mixed berries.","Serve warm."]},
+{name:"Pre-Workout Energy Oats",meal:"pre-workout",p:28,c:62,f:8,cal:436,ingredients:[{a:"80g",i:"Rolled oats"},{a:"200ml",i:"Full-fat milk"},{a:"1 tbsp",i:"Raw honey"},{a:"1 tbsp",i:"Coconut oil"},{a:"1 tsp",i:"Sea salt"}],steps:["Combine oats and milk in a saucepan over medium heat.","Stir continuously until oats absorb the milk and reach a creamy consistency.","Remove from heat, stir in honey, coconut oil and a pinch of sea salt.","Serve immediately \u2014 eat 60\u201390 minutes before training."],coach:"Fast-digesting carbs from oats and honey prime glycogen stores. The honey provides fructose to top up liver glycogen \u2014 critical for maintaining training output. Keep fat minimal in this window."},
+{name:"Pre-Workout Fruit & Yoghurt Bowl",meal:"pre-workout",p:22,c:55,f:5,cal:352,ingredients:[{a:"200g",i:"Full-fat Greek yoghurt"},{a:"1 medium",i:"Banana, sliced"},{a:"100g",i:"Mango, diced"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon yoghurt into a bowl.","Top with sliced banana and mango.","Drizzle honey over the top.","Add a pinch of sea salt and serve."],coach:"Simple sugars from banana and mango absorb quickly \u2014 ideal 60 minutes before training. Greek yoghurt provides a fast protein hit without the fat load that would slow digestion."},
+{name:"Pre-Workout Rice Cake Stack",meal:"pre-workout",p:18,c:48,f:3,cal:296,ingredients:[{a:"4",i:"Rice cakes"},{a:"1 tbsp",i:"Raw honey"},{a:"100g",i:"Cottage cheese"},{a:"pinch",i:"Sea salt"}],steps:["Lay rice cakes flat on a plate.","Spread cottage cheese evenly across each.","Drizzle honey over the top.","Add a pinch of sea salt before serving."],coach:"Low-fat, fast-carb option. Rice cakes spike insulin mildly which helps drive amino acids into muscle pre-training. Cottage cheese provides casein \u2014 slower digesting but adequate for a 60-min pre-workout window."},
+{name:"Pre-Workout Banana & Milk",meal:"pre-workout",p:12,c:42,f:5,cal:265,ingredients:[{a:"2 medium",i:"Bananas"},{a:"250ml",i:"Full-fat milk"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Peel and slice bananas into a glass or bowl.","Pour cold full-fat milk alongside.","Drizzle honey over the bananas.","Add a pinch of sea salt. Eat bananas and drink milk together."],coach:"The simplest pre-workout meal in the system. Bananas are high in B6 which supports serotonin \u2014 keep this meal timed at 45\u201360 min pre-training so serotonin doesn't peak mid-session."},
+{name:"Pre-Workout Toast & Honey",meal:"pre-workout",p:14,c:52,f:6,cal:322,ingredients:[{a:"2 slices",i:"Sourdough bread"},{a:"1 tbsp",i:"Butter"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Toast sourdough until golden.","Spread butter generously across each slice while hot.","Drizzle raw honey over both slices.","Add a pinch of sea salt and serve immediately."],coach:"Sourdough is lower in antinutrients than standard bread due to fermentation. Butter adds a small fat buffer to slow glucose release slightly \u2014 ideal for a 90-minute pre-workout window."},
+{name:"Orange Juice & Honey Pre-Workout",meal:"pre-workout",p:2,c:38,f:0,cal:163,ingredients:[{a:"250ml",i:"Fresh orange juice"},{a:"15g",i:"Raw honey"},{a:"1g",i:"Sea salt, pinch"}],steps:["Squeeze oranges into a glass or use fresh-pressed juice.","Stir in raw honey and a pinch of sea salt until dissolved.","Drink 30-45 minutes before training."],coach:"Fast glucose from OJ + fructose from honey primes liver glycogen. The pinch of salt supports electrolyte balance during training. No fat, no fibre -- nothing to slow digestion."},
+{name:"Milk & Honey Pre-Workout",meal:"pre-workout",p:8,c:35,f:8,cal:246,ingredients:[{a:"300ml",i:"Full-fat milk"},{a:"20g",i:"Raw honey"},{a:"1g",i:"Sea salt, pinch"}],steps:["Warm milk gently -- do not boil.","Stir in honey and a pinch of sea salt until fully dissolved.","Drink 45-60 minutes before training."],coach:"Full-fat milk provides a slow glucose release via lactose, plus calcium and casein. The honey adds fast-acting fructose for immediate glycogen. Best when training is 60+ minutes out."},
+{name:"Mango & Coconut Water Pre-Workout",meal:"pre-workout",p:3,c:42,f:1,cal:186,ingredients:[{a:"200g",i:"Frozen mango chunks"},{a:"200ml",i:"Coconut water"},{a:"10g",i:"Raw honey"},{a:"1g",i:"Sea salt, pinch"}],steps:["Blend mango, coconut water, honey and salt until smooth.","Drink 30-45 minutes before training."],coach:"Mango is one of the highest-B1 (thiamine) fruits available -- rate-limiting for glucose metabolism. Coconut water provides potassium and natural electrolytes. Honey adds fructose for liver glycogen. Clean, digestion-friendly pre-training fuel."},
+{name:"Apple Juice & Salt Pre-Workout",meal:"pre-workout",p:1,c:34,f:0,cal:138,ingredients:[{a:"250ml",i:"Apple juice, fresh-pressed"},{a:"5g",i:"Raw honey"},{a:"1g",i:"Sea salt, pinch"}],steps:["Combine apple juice, honey and sea salt in a glass. Stir well.","Drink 20-30 minutes before training."],coach:"Apple juice provides fructose and glucose in a near 1:1 ratio -- ideal for both liver and muscle glycogen loading simultaneously. The fastest option in the pre-workout lineup. Best when training starts soon."},
+{name:"Banana & Warm Water Pre-Workout",meal:"pre-workout",p:2,c:30,f:0,cal:128,ingredients:[{a:"120g",i:"Ripe banana"},{a:"200ml",i:"Warm water"},{a:"5g",i:"Raw honey"},{a:"1g",i:"Sea salt, pinch"}],steps:["Blend banana, warm water, honey and salt until completely smooth and liquid.","Drink 30-45 minutes before training."],coach:"Blending banana with warm water creates a liquid meal that digests faster than eating the banana whole. The warm water temperature accelerates gastric emptying. Honey tops up liver glycogen. Ideal when you want food-source carbs without the bulk."},
+{name:"Post-Workout White Rice & Beef",meal:"post-workout",p:48,c:72,f:6,cal:542,ingredients:[{a:"300g",i:"Extra lean beef mince, cooked"},{a:"250g",i:"White rice, cooked"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook beef mince in a non-stick pan until browned. Season with salt.","Plate cooked white rice alongside the mince.","Drizzle honey over the rice.","Eat immediately \u2014 this is your post-training refeed window."],coach:"White rice is ideal post-training \u2014 no fibre to slow absorption, rapid glucose spike to drive insulin and shut down cortisol. Lean beef delivers branch-chain amino acids without excess fat to slow gastric emptying."},
+{name:"Post-Workout Milk & Honey",meal:"post-workout",p:16,c:38,f:8,cal:292,ingredients:[{a:"400ml",i:"Full-fat milk"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Warm the milk gently on the stove \u2014 do not boil.","Stir in honey and a pinch of sea salt until dissolved.","Drink immediately after training."],coach:"The fastest liquid post-workout option in the system. Milk lactose (glucose + galactose) replenishes liver glycogen specifically. Salt replaces what was lost in sweat. Zero-prep, zero excuses."},
+{name:"Post-Workout Banana Honey Shake",meal:"post-workout",p:24,c:58,f:4,cal:366,ingredients:[{a:"2 medium",i:"Bananas"},{a:"200ml",i:"Full-fat milk"},{a:"1 tbsp",i:"Raw honey"},{a:"1 scoop",i:"Whey protein isolate"},{a:"pinch",i:"Sea salt"}],steps:["Add all ingredients to a blender.","Blend for 30 seconds until smooth.","Drink immediately post-training."],coach:"WPI is justified here \u2014 post-workout is the one window where fast protein absorption genuinely matters. The low tryptophan:BCAA ratio of WPI means you get the amino acid spike without the serotonin load of whole food protein."},
+{name:"Post-Workout Orange Juice & Protein",meal:"post-workout",p:26,c:44,f:2,cal:306,ingredients:[{a:"300ml",i:"Fresh orange juice"},{a:"1 scoop",i:"Whey protein isolate"},{a:"pinch",i:"Sea salt"}],steps:["Pour fresh orange juice into a glass.","Stir in protein powder until dissolved.","Add a pinch of sea salt and drink immediately."],coach:"OJ provides fast-acting fructose to rapidly replenish liver glycogen \u2014 one of the most efficient liver refuelling strategies in the system. Combine with WPI for a complete post-training hit."},
+{name:"Post-Workout Cottage Cheese & Fruit",meal:"post-workout",p:30,c:46,f:6,cal:360,ingredients:[{a:"250g",i:"Full-fat cottage cheese"},{a:"1 medium",i:"Banana"},{a:"100g",i:"Mango, diced"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon cottage cheese into a bowl.","Top with sliced banana and diced mango.","Drizzle honey over the top.","Add a pinch of sea salt and eat immediately."],coach:"Cottage cheese is high in casein but also contains fast whey fractions \u2014 a solid whole-food post-workout option when you're not using WPI. The fruit load spikes insulin and drives nutrient uptake."},
+{name:"Post-Workout Rice Cakes, Peanut Butter & Protein Shake",meal:"post-workout",p:31,c:26,f:12,cal:339,ingredients:[{a:"25g",i:"Thin rice cakes"},{a:"20g",i:"Peanut butter, smooth"},{a:"31g",i:"Whey protein, vanilla"}],steps:["Spread peanut butter evenly over rice cakes.","Mix protein powder with cold water or full-fat milk in a shaker.","Eat rice cakes and drink protein shake together post-training."],coach:"Keep fat minimal in the immediate post-workout window. This combination covers fast carbs for glycogen and WPI for rapid amino acid delivery."},
+{name:"Mixed Berry Smoothie",meal:"post-workout",p:25,c:51,f:8,cal:374,ingredients:[{a:"20g",i:"Whey protein isolate"},{a:"150ml",i:"Full-fat milk"},{a:"50g",i:"Rolled oats"},{a:"20g",i:"Raw honey"},{a:"100g",i:"Frozen mixed berries"}],steps:["Add all ingredients to a blender.","Blend until smooth.","Pour into a glass and serve immediately."]},
+{name:"Biscoff Smoothie",meal:"post-workout",p:27,c:26,f:13,cal:325,ingredients:[{a:"20g",i:"Biscoff spread, smooth"},{a:"250ml",i:"Full-fat milk"},{a:"5g",i:"Chia seeds"},{a:"30g",i:"Whey protein isolate, salted caramel"},{a:"50g",i:"Banana"}],steps:["Blend all ingredients until smooth.","Pour into a glass or bowl.","Serve immediately or chill for a thicker texture."]},
+{name:"Banana Protein Smoothie",meal:"post-workout",p:26,c:54,f:10,cal:412,ingredients:[{a:"30g",i:"Protein powder"},{a:"300ml",i:"Full-fat milk"},{a:"150g",i:"Banana"},{a:"40g",i:"Rolled oats"}],steps:["Add all ingredients to a blender.","Blend until smooth and creamy.","Pour into a glass and serve immediately."]},
+{name:"Peanut Butter Protein Smoothie",meal:"post-workout",p:34,c:25,f:13,cal:349,ingredients:[{a:"30g",i:"Whey protein isolate, vanilla"},{a:"100g",i:"Banana"},{a:"20g",i:"Peanut butter, smooth"},{a:"200ml",i:"Full-fat milk"}],steps:["Add protein powder, banana, peanut butter and milk to a blender.","Blend until smooth and creamy.","Pour into a glass and serve."]},
+{name:"Beef & Rice Bowl",meal:"lunch",p:44,c:66,f:8,cal:524,ingredients:[{a:"200g",i:"Extra lean beef mince, cooked"},{a:"250g",i:"White rice, cooked"},{a:"pinch",i:"Sea salt"},{a:"1 tsp",i:"Raw honey"}],steps:["Cook beef mince in a non-stick pan until browned. Season with salt.","Plate cooked white rice and top with beef mince.","Drizzle honey over the top.","Serve immediately."],coach:"The simplest high-protein lunch in the system. White rice is preferred over brown in this system \u2014 lower in antinutrients, easier to digest, and faster-absorbing for glycogen replenishment."},
+{name:"Prawn & Rice Bowl",meal:"lunch",p:38,c:62,f:6,cal:464,ingredients:[{a:"200g",i:"Prawns, cooked"},{a:"250g",i:"Jasmine rice, cooked"},{a:"1 tbsp",i:"Butter"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook prawns in a pan with butter over medium heat until pink.","Drizzle honey over the prawns in the last 30 seconds.","Plate jasmine rice and top with honey butter prawns.","Season with sea salt and serve."],coach:"Prawns are one of the highest-protein, lowest-fat seafood options. The butter and honey glaze adds palatability while keeping fat sources clean."},
+{name:"Chicken Thigh & Rice",meal:"lunch",p:46,c:62,f:12,cal:540,ingredients:[{a:"250g",i:"Chicken thigh, skin-on, raw"},{a:"250g",i:"White rice, cooked"},{a:"15g",i:"Butter"},{a:"1 tsp",i:"Sea salt"}],steps:["Season chicken thigh with sea salt.","Cook skin-side down in a pan over medium heat until skin is crispy, 6\u20137 minutes.","Flip and cook another 4\u20135 minutes until cooked through.","Plate over white rice with a knob of butter."],coach:"Chicken thigh skin-on is acceptable 2\u20133x per week in the system. The skin provides fat and fat-soluble vitamins. Breast is avoided due to its high tryptophan:BCAA ratio which can blunt dopamine."},
+{name:"Lamb & Potato Bowl",meal:"lunch",p:42,c:48,f:16,cal:512,ingredients:[{a:"200g",i:"Lamb fillet, lean"},{a:"250g",i:"Potato, boiled"},{a:"20g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Season lamb with sea salt.","Cook in a hot pan to desired doneness. Rest 5 minutes.","Boil potato until tender. Toss with butter and salt.","Slice lamb and plate with potatoes."],coach:"Lamb is one of the richest sources of zinc and B12 in the system. Its conjugated linoleic acid (CLA) content supports body composition. Potato is the preferred starch \u2014 higher in potassium than rice."},
+{name:"Beef Liver & Onion",meal:"lunch",p:28,c:18,f:12,cal:296,ingredients:[{a:"150g",i:"Beef liver"},{a:"100g",i:"Brown onion, sliced"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Slice liver thinly. Season with salt.","Melt butter in a pan over medium heat. Cook onion until soft and golden.","Increase heat slightly and add liver. Cook 2\u20133 minutes per side \u2014 do not overcook.","Plate liver over onion."],coach:"Liver is the most nutrient-dense food in the system \u2014 bar none. It is the highest source of retinol (true Vitamin A), B12, folate, copper, and CoQ10. Eat liver at minimum once per week."},
+{name:"Salmon & Potato",meal:"lunch",p:38,c:44,f:18,cal:490,ingredients:[{a:"200g",i:"Salmon fillet"},{a:"250g",i:"Potato, boiled"},{a:"20g",i:"Butter"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Season salmon with salt.","Cook in a pan with butter over medium heat, 3\u20134 minutes per side.","Boil potatoes until tender, toss with butter and salt.","Plate salmon alongside potatoes. Drizzle honey over salmon."],coach:"Salmon 2\u20133x per week maximum due to PUFA load. Potato provides the starch buffer to balance the PUFA \u2014 carbohydrates help mitigate lipid peroxidation."},
+{name:"Kangaroo & Sweet Potato Bowl",meal:"lunch",p:44,c:52,f:6,cal:444,ingredients:[{a:"200g",i:"Kangaroo mince or steak"},{a:"200g",i:"Sweet potato, cubed"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Preheat oven to 200\u00b0C. Toss sweet potato with butter and salt on a tray. Roast 20\u201325 minutes.","Cook kangaroo in a pan over medium-high heat. Season with salt.","Plate sweet potato and top with cooked kangaroo."],coach:"Kangaroo is the lowest-fat red meat in the system and one of the highest in haem iron. Its wild-harvested nature means it's free of the omega-6 load found in grain-fed beef. Excellent for body recomposition phases."},
+{name:"Pork & Apple",meal:"lunch",p:38,c:36,f:14,cal:432,ingredients:[{a:"200g",i:"Pork tenderloin"},{a:"1 medium",i:"Apple, sliced"},{a:"1 tbsp",i:"Raw honey"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Season pork with salt. Cook in a pan with butter over medium heat 4\u20135 minutes per side.","In the same pan, add apple slices and drizzle with honey. Cook 2\u20133 minutes until caramelised.","Rest pork 5 minutes then slice.","Plate pork with caramelised apple alongside."],coach:"Pork tenderloin is one of the leanest red meat options. Apple provides pectin \u2014 a prebiotic fibre that feeds beneficial gut bacteria and helps lower endotoxin load. The honey-apple combination is a classic system pairing."},
+{name:"Beef & Sweet Potato Bowl",meal:"lunch",p:42,c:52,f:8,cal:460,ingredients:[{a:"200g",i:"Extra lean beef mince"},{a:"200g",i:"Sweet potato, boiled"},{a:"15g",i:"Butter"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook beef mince in a non-stick pan until browned. Season with salt.","Boil sweet potato until tender. Mash with butter and salt.","Plate mashed sweet potato and top with beef mince.","Drizzle honey over the top."],coach:"Sweet potato is high in beta-carotene which converts to Vitamin A \u2014 however in this system, retinol from liver is preferred. Sweet potato's starch profile is well-suited to post-workout lunch timing."},
+{name:"Chicken Wrap",meal:"lunch",p:37,c:36,f:20,cal:476,ingredients:[{a:"71g",i:"Lite wrap"},{a:"80g",i:"Chicken thigh, skin-on, cooked"},{a:"21g",i:"Full-fat cheddar slice"},{a:"1 handful",i:"Mixed leafy greens"},{a:"40g",i:"Avocado"},{a:"10g",i:"Kewpie mayonnaise"}],steps:["Warm the wrap in a pan or microwave for roughly 30 seconds.","Spread mayonnaise over the wrap. Layer greens, chicken, cheese and avocado.","Roll tightly, toast if preferred, then serve."]},
+{name:"Chicken, Rice & Veg",meal:"lunch",p:38,c:58,f:18,cal:548,ingredients:[{a:"100g",i:"Chicken thigh, skin-on, cooked"},{a:"150g",i:"Mixed vegetables, frozen"},{a:"10g",i:"Gravy powder"},{a:"125g",i:"White rice, cooked"},{a:"80g",i:"Avocado"}],steps:["Heat mixed vegetables in a microwave or pan.","Prepare gravy according to package instructions.","Plate cooked rice, add chicken and vegetables on top.","Drizzle gravy over the dish.","Add sliced avocado on the side."]},
+{name:"Chicken, Rice & Avo",meal:"lunch",p:41,c:71,f:17,cal:606,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"200g",i:"Jasmine rice, cooked"},{a:"75g",i:"Avocado"},{a:"10g",i:"Sriracha mayo"}],steps:["Cook chicken thigh in a non-stick pan until fully cooked, then slice.","Plate cooked jasmine rice, sliced chicken and avocado.","Drizzle sriracha mayo over the chicken or serve as a side dip."]},
+{name:"Easy Tomato Chicken Panini",meal:"lunch",p:45,c:60,f:22,cal:632,ingredients:[{a:"95g",i:"White panini roll"},{a:"100g",i:"Chicken thigh, cooked"},{a:"30g",i:"Sun-dried tomatoes"},{a:"20g",i:"Italian olive dip"},{a:"10g",i:"Balsamic glaze"},{a:"15g",i:"Full-fat cheddar, grated"}],steps:["Slice the panini roll in half and spread the olive dip on one side.","Layer cooked chicken, sun-dried tomatoes and grated cheese on the roll.","Drizzle balsamic glaze over the filling.","Toast in a sandwich press or oven until the cheese melts and the bread is golden."]},
+{name:"Tuna Avocado Quinoa Salad",meal:"lunch",p:36,c:33,f:25,cal:499,ingredients:[{a:"100g",i:"Quinoa, cooked"},{a:"50g",i:"Cherry tomatoes"},{a:"50g",i:"Cucumber"},{a:"50g",i:"Avocado"},{a:"100g",i:"Chickpeas, canned"},{a:"5g",i:"Extra virgin olive oil"},{a:"10g",i:"Lemon juice"},{a:"95g",i:"Chilli tuna"}],steps:["In a bowl, combine quinoa, cherry tomatoes, cucumber, avocado, chickpeas and tuna.","Drizzle with olive oil and lemon juice.","Season with salt and pepper. Toss well and serve chilled."]},
+{name:"Easy Chicken Nachos",meal:"lunch",p:45,c:43,f:33,cal:660,ingredients:[{a:"120g",i:"Pulled chicken, roasted"},{a:"46g",i:"Corn tortilla chips"},{a:"75g",i:"Black beans"},{a:"30g",i:"Full-fat cheddar, shredded"},{a:"60g",i:"Mild salsa"},{a:"50g",i:"Avocado"}],steps:["Spread tortilla chips on a plate or baking tray.","Layer shredded chicken, black beans and salsa evenly over the chips.","Sprinkle shredded cheese on top and place under a grill until cheese melts.","Add smashed avocado on top before serving."]},
+{name:"Tuna Cous Cous Salad",meal:"lunch",p:30,c:43,f:13,cal:405,ingredients:[{a:"40g",i:"Couscous, dry"},{a:"2g",i:"Stock cube"},{a:"75g",i:"Peas, frozen"},{a:"70g",i:"Chilli tuna"},{a:"60g",i:"Cherry tomatoes"},{a:"100g",i:"Cucumber"},{a:"5g",i:"Extra virgin olive oil"},{a:"2g",i:"Dijon mustard"},{a:"25g",i:"Lemon juice"}],steps:["Boil water, mix with couscous and stock in a bowl, cover 5 minutes, then fluff with a fork.","Boil peas 2 minutes. Drain and rinse under cold water.","Mix olive oil, mustard, lemon juice, salt and pepper in a jar to make dressing.","In a bowl, combine couscous, peas, tuna, tomatoes, cucumber and spring onions.","Pour dressing over salad and mix gently."]},
+{name:"Chicken Crackers",meal:"lunch",p:49,c:31,f:16,cal:465,ingredients:[{a:"25g",i:"Original cruskits"},{a:"50g",i:"Avocado"},{a:"50g",i:"Cucumber"},{a:"20g",i:"Celery"},{a:"20g",i:"Brown onion"},{a:"50g",i:"Tzatziki"},{a:"150g",i:"Slow-cooked pulled chicken"},{a:"10g",i:"Balsamic glaze"}],steps:["Spread tzatziki evenly over cruskits.","Top with pulled chicken, sliced cucumber, celery and onion.","Add avocado slices and drizzle with balsamic glaze."]},
+{name:"Battered Fish Sliders",meal:"lunch",p:10,c:25,f:17,cal:291,ingredients:[{a:"50g",i:"Crispy light batter hoki"},{a:"40g",i:"Sourdough bread"},{a:"15g",i:"Tartare sauce"},{a:"30g",i:"Iceberg lettuce"},{a:"30g",i:"English spinach"}],steps:["Cook battered fish according to package instructions.","Slice sourdough into slider-sized pieces and lightly toast.","Spread tartare sauce onto the toasted bread.","Place cooked fish onto the bread and assemble the sliders.","Add lettuce and spinach. Serve immediately."]},
+{name:"Thai Battered Fish Burger",meal:"lunch",p:10,c:29,f:10,cal:239,ingredients:[{a:"50g",i:"Crispy light batter hoki"},{a:"20g",i:"Sweet chilli sauce"},{a:"40g",i:"Traditional wholemeal bread"},{a:"30g",i:"Asian style salad mix"}],steps:["Cook battered fish according to package instructions.","Toast the wholemeal bread to desired crispness.","Spread sweet chilli sauce onto one side of each bread slice.","Place cooked fish on one slice and top with salad mix.","Close sandwich and serve immediately."]},
+{name:"Ham, Cheese & Tomato Toastie",meal:"lunch",p:30,c:34,f:14,cal:378,ingredients:[{a:"80g",i:"White sandwich bread"},{a:"75g",i:"Leg ham"},{a:"40g",i:"Tomato"},{a:"30g",i:"Full-fat mozzarella, shredded"},{a:"5g",i:"Butter"}],steps:["Butter one side of each bread slice.","Layer ham, sliced tomato and cheese on the unbuttered side of one slice.","Top with the other slice, buttered side facing out.","Cook in a pan or sandwich press until golden and cheese is melted. Serve immediately."]},
+{name:"Pesto Chicken Toastie",meal:"lunch",p:35,c:36,f:23,cal:494,ingredients:[{a:"80g",i:"White sandwich bread"},{a:"75g",i:"Chicken thigh, skin-on"},{a:"30g",i:"Basil pesto"},{a:"30g",i:"Full-fat mozzarella, shredded"},{a:"20g",i:"Sun-dried tomato strips"},{a:"5g",i:"Butter"}],steps:["Cook chicken thigh until fully cooked. Slice or shred.","Butter one side of each bread slice.","Spread basil pesto on the unbuttered side of one slice.","Layer chicken, sun-dried tomatoes and mozzarella on top.","Top with the other slice, buttered side facing out.","Cook in a pan or sandwich press until golden and cheese is melted."]},
+{name:"Ham & Cheese Muffin",meal:"lunch",p:35,c:27,f:8,cal:317,ingredients:[{a:"67g",i:"English muffin"},{a:"100g",i:"Egg whites"},{a:"80g",i:"Leg ham, thinly sliced"},{a:"20g",i:"Full-fat cheddar, shredded"},{a:"10g",i:"Tangy tomato sauce"}],steps:["Toast the English muffin halves until golden.","Cook egg whites in a non-stick pan until set.","Heat ham slices until warmed through.","Assemble the muffin with ham, egg whites, shredded cheese and tomato sauce. Serve immediately."]},
+{name:"Ham, Cheese & Mayo Sandwich",meal:"lunch",p:33,c:74,f:12,cal:536,ingredients:[{a:"166g",i:"Traditional wholemeal bread"},{a:"10g",i:"99% fat-free mayo"},{a:"80g",i:"Shaved leg ham"},{a:"20g",i:"Tomato"},{a:"15g",i:"Lettuce, shredded"},{a:"21g",i:"Full-fat cheddar, shredded"}],steps:["Spread mayo on one slice of bread.","Layer ham, tomato slices, shredded lettuce and cheese on top.","Place the second slice of bread on top, press gently, and serve."]},
+{name:"Simple Chicken & Rice with Tzatziki",meal:"lunch",p:27,c:39,f:2,cal:283,ingredients:[{a:"100g",i:"Chicken thigh, skin-on"},{a:"100g",i:"White rice, cooked"},{a:"60g",i:"Cherry tomatoes"},{a:"60g",i:"Cucumber"},{a:"15g",i:"Tzatziki"}],steps:["Cook chicken thigh until fully cooked, then slice.","Cook rice as per package instructions.","Slice cherry tomatoes and cucumber.","Serve chicken and rice with sliced tomatoes, cucumber and a dollop of tzatziki on the side."]},
+{name:"Chicken Katsu Sandwich",meal:"lunch",p:20,c:47,f:18,cal:433,ingredients:[{a:"100g",i:"Chicken schnitzel"},{a:"74g",i:"White sandwich bread"},{a:"10g",i:"Tonkatsu sauce"},{a:"10g",i:"Kewpie mayonnaise"},{a:"40g",i:"White cabbage"}],steps:["Cook chicken schnitzel per package instructions.","Toast bread lightly.","Spread tonkatsu sauce and mayo on bread.","Add chicken and cabbage, then close sandwich and serve."]},
+{name:"Crispy Chicken & Slaw Sandwich",meal:"lunch",p:25,c:43,f:20,cal:456,ingredients:[{a:"100g",i:"Chicken schnitzel"},{a:"50g",i:"Brioche hamburger bun"},{a:"50g",i:"Fine cut coleslaw"},{a:"10g",i:"Burger pickles"},{a:"20g",i:"Full-fat cheddar slice"},{a:"10g",i:"Mayonnaise"}],steps:["Cook chicken schnitzel until golden and fully cooked.","Toast brioche bun lightly.","Layer coleslaw on bun base, top with chicken.","Add cheese, pickles and mayo. Add bun lid and serve."]},
+{name:"Spicy Beef Sandwich",meal:"lunch",p:42,c:34,f:19,cal:474,ingredients:[{a:"150g",i:"Beef rump steak, lean"},{a:"72g",i:"Sourdough bread"},{a:"20g",i:"Jalapeno, raw"},{a:"20g",i:"Full-fat cheddar, reduced fat"},{a:"15g",i:"Chipotle mayonnaise"}],steps:["Season and cook beef to desired doneness. Slice thinly.","Toast sourdough lightly.","Spread chipotle mayo on bread.","Layer beef, jalapeno and cheese slices. Close sandwich and serve."]},
+{name:"Grilled Chicken Sandwich",meal:"lunch",p:45,c:47,f:13,cal:482,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"100g",i:"Turkish roll"},{a:"40g",i:"Cos lettuce"},{a:"40g",i:"Tomato"},{a:"10g",i:"Garlic aioli"}],steps:["Pound chicken thigh flat. Cook in a pan until golden and cooked through.","Lightly toast Turkish roll.","Spread aioli on roll. Add chicken, lettuce and tomato. Close and serve."]},
+{name:"Prawn Rice Paper Rolls",meal:"lunch",p:16,c:31,f:2,cal:209,ingredients:[{a:"40g",i:"Rice paper wrappers"},{a:"50g",i:"Prawns, cooked"},{a:"15g",i:"Vermicelli rice noodles"},{a:"20g",i:"Iceberg lettuce"},{a:"2g",i:"Fresh mint"},{a:"20g",i:"Bean sprouts"},{a:"15g",i:"Hoisin sauce"},{a:"2g",i:"Garlic, fresh"}],steps:["Mix hoisin sauce, a splash of water and garlic. Microwave 15-20 seconds. Stir until smooth.","Slice prawns in half lengthwise. Soak vermicelli in warm water 2 minutes. Drain.","Dip one rice paper sheet in warm water 2-3 seconds. Place on a clean surface.","Lay prawns near the top. Add lettuce, noodles, bean sprouts and mint in the centre.","Fold in the sides, then roll tightly from the bottom up.","Serve with hoisin dipping sauce."]},
+{name:"Kangaroo Burger",meal:"lunch-dinner",p:46,c:42,f:10,cal:448,ingredients:[{a:"200g",i:"Kangaroo mince"},{a:"1",i:"Brioche or sourdough bun"},{a:"1 tbsp",i:"Raw honey"},{a:"1 slice",i:"Full-fat cheddar"},{a:"lettuce, tomato",i:"For serving"},{a:"pinch",i:"Sea salt"}],steps:["Mix kangaroo mince with salt and form into a patty.","Cook in a pan over medium-high heat, 3\u20134 minutes per side.","Place cheese on patty in the last minute to melt.","Toast bun. Assemble burger with lettuce, tomato and a drizzle of honey."],coach:"Kangaroo is the highest-protein, lowest-fat burger in the system. The full-fat cheddar provides calcium and fat-soluble vitamins. Honey on a burger sounds unusual \u2014 it's excellent."},
+{name:"Honey Soy Chicken Bowl",meal:"lunch-dinner",p:46,c:73,f:12,cal:590,ingredients:[{a:"160g",i:"Chicken thigh, skin-on"},{a:"125g",i:"White rice, cooked"},{a:"30g",i:"Honey soy sauce"},{a:"100g",i:"Broccoli"},{a:"100g",i:"Brown onion"},{a:"100g",i:"Red capsicum"},{a:"15g",i:"Kewpie mayonnaise"}],steps:["Cook chicken thigh skin-side down for 5-6 minutes until golden and crispy.","Flip and cook a further 4 minutes. Add vegetables and cook 1 minute.","Pour honey soy sauce into pan and cook until thickened.","Serve rice in a bowl, top with chicken, steamed broccoli and a dollop of mayo."]},
+{name:"Beef Stir Fry Noodles",meal:"lunch-dinner",p:55,c:90,f:10,cal:672,ingredients:[{a:"150g",i:"Lean beef stir-fry strips"},{a:"220g",i:"Hokkien noodles"},{a:"37g",i:"Teriyaki marinade"},{a:"150g",i:"Oriental stir-fry vegetables"},{a:"100g",i:"Brown onion"},{a:"100g",i:"Red capsicum"},{a:"5g",i:"Olive oil"}],steps:["Heat olive oil in a wok over medium-high heat.","Add beef strips and cook until browned, 2-3 minutes.","Add oriental vegetables and cook a further 2 minutes.","Stir in teriyaki marinade and cook until beef is fully cooked.","Add noodles and toss to combine. Cook 1-2 minutes until heated through."]},
+{name:"Beef Burrito Bowl",meal:"lunch-dinner",p:48,c:58,f:22,cal:628,ingredients:[{a:"140g",i:"Extra lean beef mince"},{a:"125g",i:"White rice, cooked"},{a:"5g",i:"Old El Paso spice mix"},{a:"75g",i:"Black beans"},{a:"25g",i:"Parmigiano Reggiano, grated"},{a:"50g",i:"Avocado"},{a:"30g",i:"Lettuce"},{a:"50g",i:"Tomato"}],steps:["Cook beef mince in a pan over medium heat until browned.","Add spice mix and stir to coat. Cook 1-2 minutes.","Assemble bowl: rice as the base, then beef, black beans, lettuce, tomato and avocado.","Top with grated Parmigiano Reggiano."],coach:"Parmigiano Reggiano is the preferred cheese -- aged, low-lactose, high in tyrosine which supports dopamine production."},
+{name:"Beef Nachos",meal:"lunch-dinner",p:46,c:44,f:36,cal:700,ingredients:[{a:"120g",i:"Extra lean beef mince"},{a:"46g",i:"Corn tortilla chips"},{a:"75g",i:"Black beans"},{a:"30g",i:"Parmigiano Reggiano, grated"},{a:"50g",i:"Avocado"},{a:"5g",i:"Old El Paso spice mix"}],steps:["Cook beef mince with spice mix until browned and cooked through.","Spread tortilla chips on a plate or baking tray.","Layer cooked beef and black beans evenly over the chips.","Sprinkle Parmigiano over the top and place under a grill until melted.","Add smashed avocado on top before serving."]},
+{name:"Honey Chipotle Bowls",meal:"lunch-dinner",p:39,c:44,f:15,cal:468,ingredients:[{a:"136g",i:"Beef tenderloin steak"},{a:"260g",i:"Potato, new"},{a:"9g",i:"Chipotle in adobo sauce"},{a:"50g",i:"Full-fat Greek yoghurt"},{a:"3g",i:"Garlic, minced"},{a:"6g",i:"Raw honey"},{a:"1g",i:"Avocado oil"}],steps:["Cut potatoes into wedges, coat with avocado oil and season. Air fry until golden.","Season steak and cook in a pan until desired doneness. Rest before slicing.","Mix chipotle, honey and garlic in a small bowl to make a sauce.","Add potato wedges to a bowl and layer steak slices on top.","Pour sauce over steak and finish with a dollop of Greek yoghurt."]},
+{name:"Crispy Salt & Pepper Chicken & Chips",meal:"lunch-dinner",p:44,c:30,f:5,cal:341,ingredients:[{a:"175g",i:"Chicken thigh, skin-on"},{a:"200g",i:"Spudlite potato"},{a:"4g",i:"Dark soy sauce"},{a:"6g",i:"Cornflour"},{a:"1g",i:"Olive oil"},{a:"38g",i:"Brown onion"},{a:"50g",i:"Green capsicum"},{a:"50g",i:"Red capsicum"}],steps:["Cut potatoes into chips, coat with olive oil and air fry until crispy.","Toss diced chicken thigh with cornflour and soy sauce, then cook in a pan until crispy.","Saute sliced onion and capsicums in the same pan.","Serve chicken and veggies with chips."]},
+{name:"Beef Chilli Con Carne",meal:"lunch-dinner",p:39,c:24,f:7,cal:315,ingredients:[{a:"125g",i:"Lean beef mince"},{a:"100g",i:"Crushed tomatoes"},{a:"100g",i:"Red kidney beans"},{a:"50g",i:"Brown onion"},{a:"50g",i:"Red capsicum"},{a:"1g",i:"Olive oil"},{a:"1g",i:"Garlic, minced"}],steps:["Heat olive oil in a pan and saute garlic and diced onion until softened.","Add beef mince and cook until browned.","Stir in chopped capsicum, tomatoes and kidney beans.","Simmer until sauce thickens and flavours combine.","Serve with potatoes, rice or wrap of choice."]},
+{name:"Honey Buffalo Chicken Tenders",meal:"lunch-dinner",p:36,c:21,f:7,cal:286,ingredients:[{a:"125g",i:"Chicken thigh, skin-on"},{a:"1",i:"Egg, medium"},{a:"20g",i:"Crunchy corn flakes, crushed"},{a:"25g",i:"Buffalo hot sauce"},{a:"5g",i:"Raw honey"}],steps:["Preheat oven to 180C and line a baking tray.","Crush corn flakes into fine crumbs. Whisk egg in a bowl.","Dip chicken into egg, then coat with crushed corn flakes.","Bake 15-20 minutes until golden and cooked through.","Heat hot sauce and honey in a small saucepan until combined.","Serve chicken tenders with sauce drizzled over."]},
+{name:"Chicken Pasta Bake",meal:"lunch-dinner",p:48,c:64,f:30,cal:740,ingredients:[{a:"125g",i:"Chicken thigh, skin-on"},{a:"200g",i:"Crushed tomatoes"},{a:"37g",i:"Brown onion"},{a:"1g",i:"Garlic, minced"},{a:"7g",i:"Olive oil"},{a:"75g",i:"Penne pasta"},{a:"22g",i:"Mascarpone"},{a:"17g",i:"Full-fat cheddar"},{a:"12g",i:"Full-fat mozzarella"}],steps:["Cook penne according to package instructions. Drain.","Saute garlic and diced onion in olive oil until softened.","Add diced chicken thigh and cook until browned.","Stir in crushed tomatoes and simmer until sauce thickens.","Mix in mascarpone, cheddar and mozzarella until melted.","Toss cooked penne with the sauce and serve warm."]},
+{name:"Pesto Chicken Bagel",meal:"lunch-dinner",p:52,c:60,f:18,cal:620,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"20g",i:"Basil pesto"},{a:"30g",i:"Full-fat thickened cream"},{a:"90g",i:"Plain bagel"},{a:"20g",i:"Prosciutto"},{a:"50g",i:"Red capsicum"}],steps:["Cook chicken thigh until golden and cooked through, then slice.","In the same pan, heat basil pesto and cream, stirring until combined into a sauce.","Toast the bagel halves until golden.","Layer prosciutto, sliced chicken and capsicum on one half of the bagel.","Drizzle with pesto cream sauce and top with the other half."]},
+{name:"Philly Cheesesteak Bagel",meal:"lunch-dinner",p:57,c:65,f:22,cal:690,ingredients:[{a:"90g",i:"Plain bagel"},{a:"150g",i:"Lean beef stir-fry strips"},{a:"50g",i:"Brown onion"},{a:"50g",i:"Jalapeno, raw"},{a:"50g",i:"Red capsicum"},{a:"20g",i:"Full-fat cheddar"},{a:"10g",i:"Garlic aioli"}],steps:["Toast bagel halves until golden.","Cook beef strips in a pan until browned. Set aside.","In the same pan, saute sliced onion, capsicum and jalapeno until softened.","Return beef to the pan and mix with vegetables.","Layer beef mixture on the bottom half of the bagel, top with cheese and melt under a grill.","Spread garlic aioli on the top half, then assemble and serve."]},
+{name:"Spaghetti Bolognese",meal:"lunch-dinner",p:57,c:69,f:22,cal:705,ingredients:[{a:"200g",i:"Extra lean beef mince"},{a:"80g",i:"Pasta shells"},{a:"20g",i:"Full-fat cheddar, sliced"},{a:"15g",i:"Brown onion"},{a:"40g",i:"Carrot"},{a:"80g",i:"Bolognese pasta sauce"}],steps:["Cook pasta shells according to package instructions. Drain.","Saute diced onion and grated carrot until softened.","Add beef mince and cook until browned.","Stir in pasta sauce and simmer until heated through.","Fill cooked pasta shells with the beef mixture.","Top with cheese slices and place under a grill until melted."]},
+{name:"Lamb Steak Wrap",meal:"lunch-dinner",p:51,c:33,f:32,cal:650,ingredients:[{a:"200g",i:"Lamb fillet, lean"},{a:"71g",i:"Spinach wrap"},{a:"15g",i:"Full-fat cheddar, grated"},{a:"15g",i:"Brown onion"},{a:"15g",i:"Garlic aioli"}],steps:["Cook lamb steak in a pan until desired doneness, then slice thinly.","Spread garlic aioli over the wrap.","Add sliced onion, grated cheese and lamb slices to the centre of the wrap.","Roll tightly, toast if preferred, then serve."]},
+{name:"Scotch Fillet & Rice",meal:"lunch-dinner",p:68,c:71,f:28,cal:836,ingredients:[{a:"250g",i:"Beef scotch fillet, lean"},{a:"200g",i:"Jasmine rice, cooked"},{a:"10g",i:"Kewpie mayonnaise"},{a:"80g",i:"Asparagus, green"},{a:"10g",i:"Ghee"}],steps:["Cook scotch fillet steak in a pan with ghee until desired doneness, then rest before slicing.","Steam or pan-fry asparagus until tender.","Serve cooked jasmine rice topped with sliced steak and asparagus.","Drizzle with mayonnaise before serving."]},
+{name:"Butter Chicken",meal:"lunch-dinner",p:35,c:52,f:10,cal:440,ingredients:[{a:"125g",i:"Chicken thigh, skin-on"},{a:"125g",i:"Butter chicken simmer sauce"},{a:"50g",i:"White rice, uncooked"},{a:"100g",i:"Mixed vegetables, frozen"}],steps:["Cook rice as per package instructions.","Cook diced chicken thigh in a pan, then add simmer sauce and heat through.","Steam or microwave vegetables.","Serve chicken over rice with vegetables."]},
+{name:"Beef Enchiladas",meal:"lunch-dinner",p:54,c:27,f:22,cal:530,ingredients:[{a:"150g",i:"Extra lean beef mince"},{a:"10g",i:"Taco spice mix"},{a:"20g",i:"Full-fat cheddar, grated"},{a:"50g",i:"Low-carb wholemeal wrap"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Black beans"},{a:"20g",i:"Corn kernels"},{a:"20g",i:"Mild salsa"}],steps:["Cook beef mince in a pan with taco spice mix until browned.","Add black beans, diced capsicum, corn and salsa. Cook until heated through.","Spoon beef mixture onto wrap, roll tightly and place seam-side down in a baking dish.","Sprinkle grated cheese over the wraps and bake at 180C until cheese melts."]},
+{name:"Kangaroo Burger & Chips",meal:"lunch-dinner",p:35,c:64,f:14,cal:526,ingredients:[{a:"34g",i:"Burger thin bun"},{a:"110g",i:"Kangaroo burger pattie"},{a:"17g",i:"Full-fat cheddar slice"},{a:"100g",i:"Mixed vegetables, frozen"},{a:"5g",i:"Extra virgin olive oil"},{a:"400g",i:"Spudlite potato"},{a:"30g",i:"Tomato sauce, reduced salt"}],steps:["Cut potatoes into chips, coat with olive oil and air fry or bake until golden.","Cook kangaroo pattie in a pan until browned and cooked through.","Toast burger bun and assemble with pattie, cheese and tomato sauce.","Steam mixed vegetables and serve alongside burger with chips."]},
+{name:"Satay Chicken",meal:"lunch-dinner",p:29,c:47,f:18,cal:462,ingredients:[{a:"87g",i:"Chicken thigh, skin-on"},{a:"5g",i:"Extra virgin olive oil"},{a:"8g",i:"Satay recipe base"},{a:"55ml",i:"Salt-reduced chicken stock"},{a:"55g",i:"Light coconut cream"},{a:"10g",i:"Peanut butter"},{a:"109g",i:"Mixed vegetables, frozen"},{a:"100g",i:"Jasmine rice, cooked"}],steps:["Cook chicken thigh in a pan with olive oil until browned.","Add satay base, chicken stock, coconut cream and peanut butter. Stir until combined.","Simmer until sauce thickens and chicken is cooked through.","Steam mixed vegetables.","Serve chicken and sauce over cooked rice with vegetables on the side."]},
+{name:"Chicken Schnitzel Wrap",meal:"lunch-dinner",p:32,c:55,f:19,cal:523,ingredients:[{a:"150g",i:"Chicken thigh schnitzel"},{a:"71g",i:"Original wrap"},{a:"30g",i:"Lettuce, shredded"},{a:"60g",i:"Cucumber"},{a:"60g",i:"Red capsicum"},{a:"20g",i:"Tomato sauce, reduced salt"}],steps:["Cook chicken schnitzel and slice into strips.","Lay the wrap flat and spread sauce evenly.","Add lettuce, cucumber and capsicum to the centre of the wrap.","Place sliced schnitzel on top.","Wrap tightly and serve."]},
+{name:"Chicken Burger",meal:"lunch-dinner",p:42,c:40,f:14,cal:458,ingredients:[{a:"40g",i:"Sandwich thin bun"},{a:"3g",i:"Olive oil"},{a:"125g",i:"Chicken thigh, skin-on"},{a:"15g",i:"Lettuce, shredded"},{a:"50g",i:"Tomato"},{a:"2g",i:"Burger pickles"},{a:"25g",i:"Full-fat cheddar, shredded"},{a:"20g",i:"BBQ sauce, reduced salt"},{a:"100g",i:"Potato, pale skin"}],steps:["Slice potato into wedges, toss with olive oil and bake at 200C for 25-30 minutes.","Cook chicken thigh in a non-stick pan or grill until fully cooked.","Toast the sandwich thin lightly.","Assemble the burger with lettuce, tomato, pickles, chicken, cheese and BBQ sauce.","Serve with potato wedges on the side."]},
+{name:"Lasagne",meal:"lunch-dinner",p:43,c:81,f:24,cal:712,ingredients:[{a:"63g",i:"Lasagne sheet"},{a:"100g",i:"Extra lean beef mince"},{a:"20g",i:"Red onion"},{a:"50g",i:"Zucchini"},{a:"50g",i:"Carrot"},{a:"50g",i:"Diced tomatoes"},{a:"10g",i:"Tomato paste"},{a:"5g",i:"Olive oil"},{a:"25g",i:"Full-fat cheddar, shredded"}],steps:["Preheat oven to 180C.","Heat olive oil in a pan, cook beef mince until browned. Add diced onion, grated zucchini and carrot. Cook until softened.","Stir in diced tomatoes and tomato paste. Simmer 5-7 minutes.","Layer lasagne sheets, meat sauce and shredded cheese in a baking dish. Repeat, finishing with cheese on top.","Bake 25-30 minutes until golden and bubbling. Rest 5 minutes before serving."]},
+{name:"Mac and Cheese",meal:"lunch-dinner",p:47,c:77,f:18,cal:670,ingredients:[{a:"125g",i:"Chicken thigh, skin-on"},{a:"20g",i:"Full-fat cheddar, shredded"},{a:"100g",i:"Pasta elbows"},{a:"80g",i:"Three cheese pasta bake sauce"}],steps:["Cook pasta according to package instructions. Drain and set aside.","Dice chicken thigh and cook in a non-stick pan until fully cooked.","In the same pan, add pasta bake sauce and heat through.","Combine cooked pasta, chicken and sauce in a baking dish.","Sprinkle shredded cheese on top and bake at 180C for 10-15 minutes until cheese is melted and golden."]},
+{name:"Shepherd's Pie",meal:"lunch-dinner",p:44,c:29,f:14,cal:430,ingredients:[{a:"150g",i:"Extra lean beef mince"},{a:"150g",i:"Spudlite potato"},{a:"100g",i:"Peas, corn & capsicum mix"},{a:"50g",i:"Brown onion"},{a:"15g",i:"Full-fat cheddar, shredded"}],steps:["Boil and mash potatoes. Set aside.","Cook beef mince, onion and vegetables in a pan until softened.","Layer beef mixture in a dish, top with mashed potato and cheese.","Bake at 180C for 20-25 minutes until golden.","Serve warm."]},
+{name:"Peri Peri Chicken Pizza",meal:"lunch-dinner",p:52,c:34,f:26,cal:590,ingredients:[{a:"100g",i:"High-protein thin crust pizza base"},{a:"40g",i:"Pizza sauce"},{a:"100g",i:"Chicken thigh, skin-on"},{a:"40g",i:"Red capsicum"},{a:"40g",i:"Mushroom"},{a:"40g",i:"Full-fat mozzarella, shredded"},{a:"10g",i:"Spinach"},{a:"10g",i:"Perinaise sauce"},{a:"10g",i:"BBQ sauce"}],steps:["Preheat oven to 200C.","Spread pizza sauce evenly over the pizza base.","Cook and dice chicken thigh, then layer on the base along with sliced capsicum, mushroom, spinach and cheese.","Drizzle with Perinaise and BBQ sauce.","Bake 10-12 minutes until cheese is melted and golden."]},
+{name:"Chicken Buddha Bowl",meal:"lunch-dinner",p:58,c:26,f:16,cal:490,ingredients:[{a:"220g",i:"Chicken thigh, skin-on"},{a:"100g",i:"Quinoa, cooked"},{a:"100g",i:"Cucumber"},{a:"100g",i:"Cherry tomatoes"},{a:"100g",i:"Green beans, boiled"},{a:"85g",i:"Avocado"},{a:"20g",i:"Light soy sauce"}],steps:["Cook chicken thigh skin-side down until crispy, then flip and finish cooking. Slice.","Cook quinoa and place in a bowl as the base.","Arrange cucumber, tomatoes, green beans and avocado around the bowl.","Place sliced chicken on top and drizzle with soy sauce."]},
+{name:"Beef Souvlaki Wraps",meal:"lunch-dinner",p:59,c:39,f:10,cal:482,ingredients:[{a:"160g",i:"Lean beef stir-fry strips"},{a:"1",i:"Souvlaki bread"},{a:"50g",i:"Baby spinach"},{a:"50g",i:"Cherry tomatoes"},{a:"40g",i:"Red onion"},{a:"70g",i:"Full-fat Greek yoghurt"},{a:"20g",i:"Lemon juice"},{a:"50g",i:"Cucumber"}],steps:["Season beef strips and cook in a pan until browned and cooked through.","Mix yoghurt and lemon juice to make a sauce. Season with salt.","Warm the souvlaki bread.","Layer spinach, tomatoes, cucumber, onion and beef in the bread.","Drizzle yoghurt sauce over and wrap to serve."]},
+{name:"Asian Beef Noodles",meal:"lunch-dinner",p:44,c:58,f:11,cal:504,ingredients:[{a:"150g",i:"Extra lean beef mince"},{a:"20g",i:"Stir-fry marinade sauce"},{a:"165g",i:"Golden hokkien noodles"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Zucchini"},{a:"50g",i:"Mushroom"},{a:"3g",i:"Sesame seeds"}],steps:["Cook noodles according to package instructions. Set aside.","Cook beef mince in a pan until browned.","Add capsicum, zucchini and mushrooms. Cook until tender.","Stir in stir-fry sauce and mix well.","Combine noodles with the beef mixture and toss to coat.","Serve sprinkled with sesame seeds."]},
+{name:"Sticky Chicken Rice Bowl",meal:"lunch-dinner",p:46,c:94,f:24,cal:796,ingredients:[{a:"100g",i:"Chicken thigh, skin-on, cooked"},{a:"250g",i:"Long grain white rice, cooked"},{a:"10g",i:"Sesame oil"},{a:"1",i:"Medium egg"},{a:"180g",i:"Mixed vegetables, frozen"},{a:"15g",i:"Soy sauce"},{a:"5g",i:"Cornflour"},{a:"20g",i:"Raw honey"},{a:"8g",i:"Rice wine vinegar"}],steps:["Heat rice and set aside. Scramble the egg and set aside.","Stir-fry mixed vegetables in a non-stick pan until tender.","Mix soy sauce, honey, rice vinegar and cornflour to form a slurry.","Add cooked chicken and sauce mixture to the pan, stirring until sauce thickens.","Assemble the bowl with rice, vegetables, chicken and scrambled egg.","Drizzle sesame oil on top before serving."]},
+{name:"Turkey Mince Stir Fry",meal:"lunch-dinner",p:57,c:29,f:16,cal:490,ingredients:[{a:"200g",i:"Turkey mince"},{a:"160g",i:"Red capsicum"},{a:"160g",i:"Bok choy"},{a:"8g",i:"Sesame oil"},{a:"270g",i:"Konjac noodles"},{a:"72g",i:"Chicken & cashew stir-fry sauce"}],steps:["Heat sesame oil in a wok over medium-high heat.","Add turkey mince and cook until browned, breaking it apart as it cooks.","Add bok choy and capsicum and stir-fry until tender.","Drain and rinse konjac noodles and add to the pan.","Pour in stir-fry sauce and toss everything to combine. Serve immediately."]},
+{name:"Beef, Veg & Rice Stir Fry",meal:"lunch-dinner",p:44,c:69,f:4,cal:489,ingredients:[{a:"130g",i:"Lean beef stir-fry strips"},{a:"125g",i:"White rice, cooked"},{a:"25g",i:"Teriyaki beef sauce"},{a:"200g",i:"Oriental stir-fry vegetables"}],steps:["Stir-fry beef strips in a hot pan until browned.","Add oriental stir-fry vegetables and cook until tender.","Stir in teriyaki sauce and heat through.","Serve stir-fry over cooked rice."]},
+{name:"Beef, Veg & Noodles Stir Fry",meal:"lunch-dinner",p:50,c:84,f:5,cal:586,ingredients:[{a:"130g",i:"Lean beef stir-fry strips"},{a:"200g",i:"Golden hokkien noodles"},{a:"25g",i:"Teriyaki beef sauce"},{a:"200g",i:"Oriental stir-fry vegetables"}],steps:["Stir-fry beef strips in a hot pan until browned.","Add oriental stir-fry vegetables and cook until tender.","Add hokkien noodles to the pan and stir to combine.","Pour in teriyaki sauce and cook until evenly coated and heated through."]},
+{name:"Chicken Parmigiana",meal:"lunch-dinner",p:58,c:41,f:24,cal:622,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"10g",i:"Plain flour"},{a:"25g",i:"Egg, whole"},{a:"2g",i:"Garlic, fresh"},{a:"40g",i:"Panko breadcrumbs"},{a:"40g",i:"Full-fat mozzarella, shredded"},{a:"10g",i:"Avocado oil"},{a:"50g",i:"Passata"},{a:"20g",i:"Brown onion"},{a:"125ml",i:"Beef stock, salt reduced"}],steps:["Make sauce: heat oil, cook garlic and onion until browned. Add passata and stock. Simmer 10 minutes.","Season chicken thigh with salt.","Coat chicken in flour, then egg, then breadcrumbs.","Shallow-fry in oil 2 minutes per side. Drain.","Place on tray, top with sauce and mozzarella.","Bake 15 minutes at 200C."]},
+{name:"Pesto Chicken Pasta",meal:"lunch-dinner",p:42,c:34,f:16,cal:452,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"10g",i:"Basil pesto"},{a:"25g",i:"Full-fat thickened cream"},{a:"20g",i:"Red onion"},{a:"50g",i:"Zucchini"},{a:"50g",i:"Broccolini"},{a:"40g",i:"Penne pasta"},{a:"3g",i:"Olive oil"}],steps:["Cook penne according to package instructions. Set aside.","Heat olive oil in a pan and cook diced chicken thigh until browned.","Add chopped onion, zucchini and broccolini. Cook until tender.","Stir in basil pesto and cream. Mix well to coat.","Combine with the cooked pasta and serve warm."]},
+{name:"Prawn Asian Noodles",meal:"lunch-dinner",p:42,c:58,f:10,cal:496,ingredients:[{a:"150g",i:"Prawns, raw"},{a:"165g",i:"Golden hokkien noodles"},{a:"20g",i:"Stir-fry sauce"},{a:"3g",i:"Sesame oil"},{a:"10g",i:"Spring onion"},{a:"50g",i:"Zucchini"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Baby corn"},{a:"3g",i:"Olive oil"}],steps:["Cook noodles according to package instructions. Set aside.","Heat olive oil in a pan and cook prawns until pink. Remove and set aside.","Add zucchini, capsicum and baby corn to the pan and stir-fry until tender.","Return prawns to the pan and stir in stir-fry sauce.","Toss noodles into the pan until evenly coated.","Serve drizzled with sesame oil and garnished with spring onion."]},
+{name:"Chicken Fajita Wrap",meal:"lunch-dinner",p:46,c:28,f:17,cal:456,ingredients:[{a:"48g",i:"Original flour tortilla"},{a:"3g",i:"Olive oil"},{a:"150g",i:"Chicken thigh, skin-on"},{a:"3g",i:"Fajita seasoning"},{a:"20g",i:"Red onion"},{a:"20g",i:"Lettuce, shredded"},{a:"50g",i:"Tomato"},{a:"50g",i:"Cucumber"},{a:"25g",i:"Full-fat cheddar, shredded"}],steps:["Slice chicken into strips, toss with olive oil and fajita seasoning. Cook in a pan until fully cooked.","Add sliced onion and cook until softened.","Warm the tortilla in a dry pan.","Assemble with lettuce, tomato, cucumber, chicken, onion and cheese.","Roll tightly and serve."]},
+{name:"Beef & Sweet Potato Stir-Fry",meal:"lunch-dinner",p:45,c:27,f:9,cal:370,ingredients:[{a:"150g",i:"Lean beef stir-fry strips"},{a:"150g",i:"Sweet potato, peeled"},{a:"50g",i:"Red capsicum"},{a:"20g",i:"Light soy sauce"},{a:"5g",i:"Garlic, minced"},{a:"5g",i:"Sesame oil"}],steps:["Heat sesame oil in a pan, then cook beef until browned.","Add garlic, capsicum and sweet potato.","Stir in soy sauce and cook until sweet potato softens.","Serve hot."]},
+{name:"Mongolian Beef & Rice",meal:"lunch-dinner",p:46,c:55,f:9,cal:486,ingredients:[{a:"150g",i:"Lean beef stir-fry strips"},{a:"100g",i:"White rice, cooked"},{a:"30g",i:"Spring onion"},{a:"5g",i:"Garlic, minced"},{a:"5g",i:"Ginger, fresh"},{a:"20g",i:"Light soy sauce"},{a:"10g",i:"Raw honey"},{a:"10g",i:"Cornflour"},{a:"50ml",i:"Water"},{a:"5g",i:"Sesame oil"}],steps:["Coat beef strips in cornflour and set aside.","Heat sesame oil in a pan and cook beef until browned. Remove and set aside.","In the same pan, saute garlic and ginger until fragrant.","Mix soy sauce, honey and water, then pour into the pan.","Return beef and simmer until sauce thickens.","Serve over cooked rice. Top with spring onion and sesame seeds."]},
+{name:"Garlic Butter Chicken & Rice",meal:"lunch-dinner",p:41,c:37,f:11,cal:412,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"100g",i:"Brown rice, cooked"},{a:"5g",i:"Garlic, minced"},{a:"10g",i:"Butter"},{a:"50g",i:"Broccoli"},{a:"30g",i:"Carrot"}],steps:["Heat butter in a pan over medium heat.","Add garlic and diced chicken thigh. Cook until golden brown.","Toss in broccoli and carrot. Cook 3 minutes.","Serve over cooked brown rice."]},
+{name:"Mince & Sweet Potato",meal:"lunch-dinner",p:41,c:37,f:8,cal:387,ingredients:[{a:"160g",i:"Extra lean beef mince"},{a:"250g",i:"Sweet potato, orange flesh"},{a:"80g",i:"Asparagus, green"}],steps:["Peel and dice sweet potato, then steam or boil until tender.","Cook beef mince in a non-stick pan until browned. Season with salt.","Steam asparagus until tender-crisp.","Plate sweet potato, beef mince and asparagus."]},
+{name:"Chicken Thigh & Veggies",meal:"lunch-dinner",p:56,c:37,f:13,cal:490,ingredients:[{a:"250g",i:"Chicken thigh, skin-on"},{a:"150g",i:"Sweet potato, orange flesh, cooked"},{a:"100g",i:"Broccolini, boiled"},{a:"100g",i:"Spudlite potato"},{a:"4g",i:"Extra virgin olive oil"}],steps:["Preheat oven to 200C. Season chicken thigh and place in a baking dish. Drizzle with olive oil.","Bake 25-30 minutes until golden and cooked through.","Steam broccolini and boil or roast potato and sweet potato.","Plate everything together and serve."]},
+{name:"Chicken & Veggie Stir Fry",meal:"lunch-dinner",p:44,c:57,f:11,cal:510,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"40g",i:"Teriyaki stir-fry base"},{a:"75g",i:"Oriental stir-fry vegetables"},{a:"150g",i:"Golden hokkien noodles"},{a:"5g",i:"Oil"}],steps:["Heat oil in a wok over medium-high heat.","Add chicken thigh and cook until fully cooked through.","Add oriental stir-fry vegetables and cook until tender-crisp.","Stir in teriyaki stir-fry base and mix well.","Add hokkien noodles and toss until evenly coated and heated through."]},
+{name:"Chicken Mexican Bowl",meal:"lunch-dinner",p:56,c:59,f:25,cal:692,ingredients:[{a:"200g",i:"Chicken thigh, skin-on"},{a:"50g",i:"Baby spinach"},{a:"40g",i:"Cherry tomatoes"},{a:"40g",i:"Cucumber"},{a:"50g",i:"Corn kernels"},{a:"50g",i:"Red kidney beans"},{a:"125g",i:"Jasmine rice, microwaved"},{a:"20g",i:"Kewpie mayonnaise"},{a:"20g",i:"Sriracha sauce"}],steps:["Cook chicken thigh until fully cooked. Slice.","Heat rice according to package instructions.","Arrange spinach, cherry tomatoes, cucumber, corn and kidney beans in a bowl.","Add rice and sliced chicken on top.","Drizzle with mayonnaise and sriracha sauce."]},
+{name:"Taco Bowl - Chicken & Rice",meal:"lunch-dinner",p:42,c:50,f:21,cal:568,ingredients:[{a:"5g",i:"Extra virgin olive oil"},{a:"125g",i:"Chicken thigh, skin-on"},{a:"150g",i:"Mixed leafy greens"},{a:"40g",i:"Black beans"},{a:"125g",i:"Long grain white rice, cooked"},{a:"10g",i:"Kewpie mayonnaise"},{a:"15g",i:"Full-fat mozzarella"},{a:"10g",i:"Taco seasoning"},{a:"40g",i:"Corn kernels"}],steps:["Heat olive oil in a pan. Add chicken thigh and taco seasoning. Cook until golden.","Arrange leafy greens in a bowl as a base.","Add rice, seasoned chicken, black beans and corn kernels on top.","Sprinkle with mozzarella and drizzle with mayonnaise."]},
+{name:"Crispy Chicken Bowl",meal:"lunch-dinner",p:38,c:36,f:22,cal:500,ingredients:[{a:"100g",i:"Oriental stir-fry vegetables"},{a:"20g",i:"Kewpie mayonnaise"},{a:"30g",i:"Green jalapeno chilli sauce"},{a:"1",i:"Medium egg"},{a:"120g",i:"Chicken thigh, skin-on"},{a:"15g",i:"Crunchy corn flakes"},{a:"20g",i:"Corn chips"}],steps:["Preheat oven to 200C and line a baking tray.","Crush corn flakes and corn chips into fine crumbs.","Dip chicken into beaten egg, then coat with the crumb mixture.","Bake 20-25 minutes until crispy and cooked through.","Cook vegetables as per package instructions.","Assemble the bowl with vegetables and crispy chicken.","Drizzle with mayo and jalapeno chilli sauce."]},
+{name:"Chilli Tuna, Rice & Veg",meal:"lunch-dinner",p:28,c:70,f:30,cal:672,ingredients:[{a:"75g",i:"Chilli tuna"},{a:"250g",i:"Long grain white rice, microwaved"},{a:"100g",i:"Mixed vegetables, frozen"},{a:"60g",i:"Avocado"},{a:"10g",i:"Kewpie mayonnaise"}],steps:["Microwave rice according to package instructions.","Steam or microwave mixed vegetables until tender.","Plate rice, then top with chilli tuna, vegetables and sliced avocado.","Drizzle with mayonnaise before serving."]},
+{name:"Greek Chicken Salad",meal:"lunch-dinner",p:39,c:2,f:23,cal:380,ingredients:[{a:"100g",i:"Pulled chicken, slow-cooked"},{a:"5g",i:"Extra virgin olive oil"},{a:"10g",i:"White wine vinegar"},{a:"200g",i:"Mixed leafy greens"},{a:"40g",i:"Olives"},{a:"5g",i:"Dried oregano"},{a:"30g",i:"Full-fat feta"}],steps:["In a small bowl, mix olive oil, white wine vinegar and oregano to make a dressing.","Arrange mixed leafy greens on a plate.","Top with pulled chicken, olives and crumbled feta.","Drizzle dressing over the salad and serve."]},
+{name:"Steak with Mixed Veg Salad & Feta",meal:"lunch-dinner",p:48,c:19,f:22,cal:472,ingredients:[{a:"125g",i:"Beef tenderloin steak, lean, cooked"},{a:"300g",i:"Mixed vegetables, frozen"},{a:"50g",i:"Olives"},{a:"10g",i:"Full-fat feta"}],steps:["Cook steak to desired doneness, then slice thinly.","Steam mixed vegetables until tender. Let cool slightly.","Arrange vegetables on a plate. Top with sliced steak.","Scatter olives and crumbled feta over the top."]},
+{name:"Supreme Pizza on Souvlaki",meal:"lunch-dinner",p:40,c:43,f:28,cal:600,ingredients:[{a:"64g",i:"Souvlaki bread"},{a:"30g",i:"Classic pizza sauce"},{a:"50g",i:"Bacon, shortcut"},{a:"25g",i:"Pepperoni slices"},{a:"50g",i:"Extra lean beef mince"},{a:"50g",i:"Mushroom"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Pineapple, canned"},{a:"25g",i:"Full-fat mozzarella, shredded"}],steps:["Preheat oven to 200C.","Spread pizza sauce evenly over the souvlaki bread.","Cook beef mince in a non-stick pan until browned.","Top the bread with bacon, pepperoni, cooked mince, sliced mushrooms, capsicum and pineapple.","Sprinkle shredded mozzarella over the toppings.","Bake 10-15 minutes until cheese is melted and golden."]},
+{name:"Sauteed Green Beans, Mince & Rice",meal:"lunch-dinner",p:34,c:54,f:17,cal:513,ingredients:[{a:"100g",i:"Green beans, fresh"},{a:"125g",i:"Extra lean beef mince"},{a:"5g",i:"Dark soy sauce"},{a:"5g",i:"Rice wine vinegar"},{a:"10g",i:"Oil"},{a:"5g",i:"Ginger, fresh"},{a:"5g",i:"Garlic, fresh"},{a:"50g",i:"Brown onion"},{a:"60g",i:"White rice, uncooked"}],steps:["Cook rice according to package instructions and set aside.","Heat oil in a large pan. Saute garlic, ginger and onion until fragrant.","Add beef mince and cook until browned.","Stir in green beans and cook until tender-crisp.","Add soy sauce and rice wine vinegar. Mix well to coat.","Serve over cooked rice."]},
+{name:"One Pot Apricot Chicken Rice",meal:"lunch-dinner",p:39,c:65,f:21,cal:610,ingredients:[{a:"60g",i:"White rice, uncooked"},{a:"150g",i:"Chicken thigh, skin-on"},{a:"75ml",i:"Salt-reduced chicken stock"},{a:"5g",i:"Olive oil"},{a:"100g",i:"Apricot, canned"},{a:"5g",i:"Shallot"},{a:"10g",i:"Parsnip"},{a:"50g",i:"Broccolini"},{a:"15g",i:"Almonds, roasted"},{a:"10g",i:"Apricot chicken recipe base"}],steps:["Preheat oven to 220C. Microwave rice as per packet instructions.","Mix apricot chicken base, stock and water in a bowl to make the sauce.","Heat oil in an ovenproof pan. Brown chicken thigh 2-3 minutes per side. Set aside.","Place apricots cut-side down in the pan. Add sauce and stir 2 minutes.","Mix rice and shallots into the pan. Top with chicken.","Bake 15-20 minutes.","Garnish with broccolini and almonds."]},
+{name:"Chicken Chasseur",meal:"lunch-dinner",p:27,c:13,f:4,cal:195,ingredients:[{a:"125g",i:"Chicken thigh, skin-on"},{a:"50g",i:"Brown onion"},{a:"35g",i:"Mushroom"},{a:"30g",i:"Carrot"},{a:"8g",i:"Tomato paste"},{a:"65ml",i:"Water"},{a:"10g",i:"Chicken Chasseur recipe base"}],steps:["Brown the chicken thigh in a pan with oil until golden.","Add onion, mushrooms and carrot. Cook 2 minutes.","Mix tomato paste, water and recipe base. Add to the pan and bring to a boil while stirring.","Cover and cook on low heat 30 minutes, stirring occasionally, until chicken is fully cooked."]},
+{name:"Air Fried Meatballs",meal:"lunch-dinner",p:190,c:66,f:80,cal:1760,ingredients:[{a:"400g",i:"Extra lean sausages"},{a:"500g",i:"Extra lean beef mince"},{a:"100g",i:"Brown onion"},{a:"50g",i:"Parmigiano Reggiano, grated"},{a:"50g",i:"Panko breadcrumbs"},{a:"5g",i:"Parsley"},{a:"50g",i:"Egg, whole"}],steps:["Squeeze sausage meat into a bowl.","Add all remaining ingredients, season with salt and pepper and mix well with your hands.","Roll into 20-25 meatballs and chill for 20 minutes.","Preheat air-fryer to 180C.","Cook meatballs 10-12 minutes until golden, shaking halfway.","Serve with sauce and pasta or in a sub."],coach:"Batch recipe -- serves 4. Divide all macros by 4 for per-serve totals."},
+{name:"Chicken Corn Soup",meal:"lunch-dinner",p:34,c:24,f:9,cal:315,ingredients:[{a:"250ml",i:"Salt-reduced chicken stock"},{a:"250g",i:"Corn kernels"},{a:"3g",i:"Soy sauce"},{a:"7g",i:"Chinese cooking wine"},{a:"2g",i:"Ginger, fresh"},{a:"2g",i:"Garlic, minced"},{a:"2g",i:"Cornflour"},{a:"25g",i:"Egg, whole"},{a:"100g",i:"Chicken thigh, skin-on"},{a:"5g",i:"Shallot"}],steps:["Combine broth, corn, soy sauce, cooking wine, ginger, garlic and cornflour mixed with water in a saucepan.","Bring to a boil, then simmer a few minutes until slightly thickened.","Turn off the heat. Slowly pour in whisked egg while stirring to create ribbons.","Add shredded chicken thigh and season with salt and white pepper.","Pour into a bowl and garnish with spring onions."]},
+{name:"Fish Tacos",meal:"lunch-dinner",p:33,c:36,f:15,cal:413,ingredients:[{a:"120g",i:"Barramundi fillet"},{a:"50g",i:"Mini taco tortilla"},{a:"40g",i:"Red cabbage"},{a:"30g",i:"Carrot"},{a:"40g",i:"Full-fat Greek yoghurt"},{a:"10g",i:"Lime juice"},{a:"8g",i:"Taco spice mix"},{a:"5g",i:"Olive oil"}],steps:["Coat fish with olive oil and taco seasoning.","Cook in a non-stick pan 2-3 minutes each side until cooked through.","Mix Greek yoghurt and lime juice to make a sauce.","Warm tortillas in a dry pan.","Assemble tortillas with cabbage, carrot, fish and yoghurt sauce."]},
+{name:"Lamb Tacos",meal:"lunch-dinner",p:33,c:35,f:14,cal:396,ingredients:[{a:"120g",i:"Lamb fillet, lean"},{a:"50g",i:"Mini taco tortilla"},{a:"40g",i:"Cucumber"},{a:"30g",i:"Red onion"},{a:"40g",i:"Full-fat Greek yoghurt"},{a:"10g",i:"Lemon juice"},{a:"8g",i:"Taco spice mix"},{a:"5g",i:"Olive oil"}],steps:["Slice lamb into strips and coat with olive oil and taco seasoning.","Cook lamb in a non-stick pan 2-3 minutes each side.","Mix Greek yoghurt and lemon juice to make a sauce.","Warm tortillas in a dry pan.","Assemble tortillas with cucumber, onion, lamb and yoghurt sauce."]},
+{name:"Pork San Choy Bow",meal:"lunch-dinner",p:20,c:8,f:11,cal:209,ingredients:[{a:"5g",i:"Light soy sauce"},{a:"5g",i:"Oyster sauce"},{a:"1g",i:"Sesame oil"},{a:"1g",i:"Cornflour"},{a:"5g",i:"Olive oil"},{a:"100g",i:"Extra lean pork mince"},{a:"15g",i:"Brown onion"},{a:"15g",i:"Carrot"},{a:"35g",i:"Iceberg lettuce"}],steps:["Mix cornflour with water, then stir in soy sauce, oyster sauce and sesame oil.","Heat oil in a pan. Add garlic and onion. Stir-fry 1 minute.","Add pork mince and cook until browned, 3-4 minutes.","Stir in carrot and cook 2 more minutes.","Pour in the sauce. Cook 1-2 minutes until thickened.","Spoon into lettuce leaves and serve."]},
+{name:"Beef Mince Korean Fried Rice",meal:"lunch-dinner",p:34,c:62,f:8,cal:456,ingredients:[{a:"125g",i:"Extra lean beef mince"},{a:"125g",i:"White rice, cooked"},{a:"10g",i:"Dark soy sauce"},{a:"10g",i:"Light soy sauce"},{a:"5g",i:"Raw honey"},{a:"5g",i:"Gochujang"},{a:"2g",i:"Garlic, fresh"},{a:"40g",i:"Brown onion"},{a:"40g",i:"Mixed vegetables, frozen"},{a:"1g",i:"Olive oil spray"}],steps:["Combine dark soy, light soy, honey, gochujang and garlic in a small bowl. Set aside.","Heat pan and spray with olive oil. Cook beef mince until browned.","Add diced onion and pour 3/4 of the sauce over the mince. Mix and simmer until onions soften.","Add frozen vegetables and cook until tender.","Add cooked rice and remaining sauce. Stir-fry 2-3 minutes until heated through.","Top with spring onions and sesame seeds if desired."]},
+{name:"Creamy Steak Pasta",meal:"lunch-dinner",p:37,c:51,f:21,cal:546,ingredients:[{a:"2g",i:"Olive oil spray"},{a:"110g",i:"Beef rump steak, lean"},{a:"5g",i:"Butter"},{a:"10g",i:"Garlic, minced"},{a:"60g",i:"Penne pasta"},{a:"50g",i:"Light cooking cream"},{a:"10g",i:"Parmigiano Reggiano, shaved"},{a:"50g",i:"Mushroom"}],steps:["Season steak with salt and pepper. Cook in a hot pan 2-3 minutes per side. Slice thinly.","Boil pasta until al dente. Drain, reserving 60ml pasta water.","In the same pan, melt butter over medium heat. Saute garlic 30 seconds.","Add cream and simmer 1-2 minutes. Stir in Parmigiano and pasta water to loosen sauce.","Toss pasta and steak slices into the sauce.","Season with salt and pepper. Serve topped with extra Parmigiano."]},
+{name:"Bulgogi Beef Fried Rice",meal:"lunch-dinner",p:39,c:48,f:5,cal:396,ingredients:[{a:"125g",i:"Lean beef stir-fry strips"},{a:"100g",i:"White rice, cooked"},{a:"50g",i:"Mixed vegetables, frozen"},{a:"20g",i:"Bulgogi sauce"},{a:"2g",i:"Olive oil spray"}],steps:["Heat a pan over medium-high heat, spray with olive oil and stir-fry beef strips 2-3 minutes until browned.","Add mixed vegetables and cook 2 minutes.","Stir in cooked rice and bulgogi sauce.","Mix well and cook 1-2 minutes. Serve hot."]},
+{name:"Steak Sandwich",meal:"lunch-dinner",p:60,c:54,f:14,cal:584,ingredients:[{a:"200g",i:"Beef sirloin steak, lean"},{a:"100g",i:"Turkish roll"},{a:"50g",i:"Brown onion"},{a:"30g",i:"Rocket"},{a:"100g",i:"Tomato"},{a:"10g",i:"Garlic aioli"},{a:"10g",i:"Dijon mustard"}],steps:["Season the steak with salt and pepper.","Cook steak in a hot pan 3-4 minutes each side. Rest 5 minutes.","Slice onion and caramelise in the same pan until soft and golden.","Slice tomato into rounds.","Slice Turkish roll in half and lightly toast.","Spread garlic aioli on one half and Dijon on the other.","Layer rocket, tomato, caramelised onion and sliced steak. Close and serve."]},
+{name:"Garlic Butter Shrimp & Rice",meal:"lunch-dinner",p:33,c:56,f:17,cal:510,ingredients:[{a:"125g",i:"Prawns, raw"},{a:"125g",i:"White rice, cooked"},{a:"50g",i:"Mixed vegetables, frozen"},{a:"30g",i:"Brown onion"},{a:"10g",i:"Garlic, minced"},{a:"50g",i:"Crushed tomatoes"},{a:"10g",i:"Butter"},{a:"5g",i:"Lemon juice"},{a:"50ml",i:"Salt-reduced chicken stock"},{a:"5g",i:"Extra virgin olive oil"}],steps:["Finely chop onion and cook in olive oil with garlic until soft.","Add vegetables and crushed tomatoes. Stir in cooked rice and stock. Simmer until heated.","In another pan, cook prawns in butter until lightly golden.","Add lemon juice to the prawns and cook 1-2 more minutes.","Combine prawns and garlic butter with the rice mixture. Serve warm."]},
+{name:"High Protein Meatlover Pizza",meal:"lunch-dinner",p:55,c:44,f:30,cal:665,ingredients:[{a:"100g",i:"High-protein thin crust pizza base"},{a:"100g",i:"Extra lean beef mince"},{a:"20g",i:"Pepperoni salami"},{a:"20g",i:"Diced bacon"},{a:"30g",i:"BBQ sauce"},{a:"30g",i:"Full-fat mozzarella, shredded"},{a:"100g",i:"Red capsicum"},{a:"30g",i:"Pizza sauce"}],steps:["Spread the pizza sauce evenly over the pizza base.","Sprinkle mozzarella as the first layer.","Cook beef mince until browned. Distribute evenly with pepperoni, bacon and capsicum.","Drizzle BBQ sauce over the toppings.","Bake at 220C for 12-15 minutes until crust is golden and cheese is melted."]},
+{name:"Beef Mince, Rice & Beans",meal:"lunch-dinner",p:55,c:51,f:11,cal:533,ingredients:[{a:"180g",i:"Extra lean beef mince"},{a:"100g",i:"Full-fat cottage cheese"},{a:"150g",i:"Basmati rice, cooked"},{a:"100g",i:"Green beans, frozen, boiled"},{a:"25g",i:"Buffalo hot sauce"}],steps:["Cook beef mince in a non-stick pan until browned. Season with salt.","Heat green beans.","Plate rice, top with mince, green beans and cottage cheese.","Drizzle buffalo sauce over the top."]},
+{name:"Beef Mince, Sweet Potato & Beans",meal:"lunch-dinner",p:56,c:54,f:12,cal:545,ingredients:[{a:"180g",i:"Extra lean beef mince"},{a:"100g",i:"Full-fat cottage cheese"},{a:"150g",i:"Basmati rice, cooked"},{a:"100g",i:"Green beans, frozen, boiled"},{a:"25g",i:"Sriracha sauce"}],steps:["Cook beef mince in a non-stick pan until browned.","Heat green beans.","Plate rice, top with mince, green beans and cottage cheese.","Drizzle sriracha over the top."]},
+{name:"Asian Tuna Pasta Salad",meal:"lunch-dinner",p:44,c:48,f:7,cal:428,ingredients:[{a:"40g",i:"Protein pasta spirals"},{a:"120g",i:"Tuna in spring water"},{a:"30g",i:"Sweet chilli sauce"},{a:"30g",i:"Cherry tomatoes"},{a:"30g",i:"Cucumber"},{a:"100g",i:"Asian style salad mix"},{a:"20g",i:"Sriracha sauce"},{a:"5g",i:"Seasoning"}],steps:["Cook pasta according to package instructions. Drain and cool.","In a bowl, combine pasta, tuna, cherry tomatoes, cucumber and salad mix.","Add sweet chilli sauce, sriracha and seasoning. Toss to combine.","Serve chilled or at room temperature."]},
+{name:"Teriyaki Chicken Sushi Bowl",meal:"lunch-dinner",p:53,c:59,f:19,cal:624,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"125g",i:"Jasmine rice, microwaved"},{a:"15g",i:"Teriyaki sauce"},{a:"40g",i:"Cucumber"},{a:"125g",i:"Edamame beans"},{a:"30g",i:"Red cabbage"},{a:"1 sheet",i:"Nori, yaki"},{a:"10g",i:"Kewpie mayonnaise"},{a:"5g",i:"Seasoning"}],steps:["Cook chicken thigh in a pan. Add teriyaki sauce and toss to coat.","Heat rice according to package instructions.","Slice cucumber and shred cabbage.","Assemble a bowl with rice, chicken, edamame, cucumber and cabbage.","Crumble nori sheet over the top and sprinkle with seasoning.","Drizzle with mayo before serving."]},
+{name:"Chicken & Quinoa Power Bowl",meal:"lunch-dinner",p:40,c:27,f:14,cal:394,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"150g",i:"Quinoa, cooked"},{a:"50g",i:"Cherry tomatoes"},{a:"50g",i:"Cucumber"},{a:"10g",i:"Olive oil"},{a:"10g",i:"Lemon juice"}],steps:["Cook chicken thigh until golden and cooked through. Slice.","Combine all ingredients in a bowl.","Drizzle with olive oil and lemon juice. Mix well and serve."]},
+{name:"Basil & Tomato Protein Pasta",meal:"lunch-dinner",p:50,c:59,f:15,cal:573,ingredients:[{a:"100g",i:"Protein penne pasta"},{a:"85g",i:"Basil & tomato pasta sauce"},{a:"100g",i:"Lean beef mince"},{a:"80g",i:"Mixed vegetables, frozen"},{a:"5g",i:"Extra virgin olive oil"}],steps:["Cook pasta according to package instructions. Drain.","Heat olive oil in a pan and cook beef mince until browned.","Add mixed vegetables and cook until heated through.","Stir in pasta sauce and simmer briefly.","Toss cooked pasta with the sauce and serve."]},
+{name:"Chicken Quesadilla",meal:"lunch-dinner",p:46,c:49,f:15,cal:524,ingredients:[{a:"100g",i:"Chicken thigh, skin-on"},{a:"71g",i:"Original wrap"},{a:"30g",i:"Full-fat cheddar, grated"},{a:"70g",i:"Black beans"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Tomato"},{a:"20g",i:"Corn kernels"},{a:"5g",i:"Taco spice mix"}],steps:["Cook chicken thigh with spice mix until fully cooked. Shred.","Dice capsicum and tomato.","On one half of the wrap, layer chicken, black beans, capsicum, tomato, corn and grated cheese.","Fold the wrap in half and cook in a non-stick pan until golden and cheese is melted.","Slice into wedges and serve."]},
+{name:"Chicken Pesto Pasta",meal:"lunch-dinner",p:39,c:54,f:17,cal:535,ingredients:[{a:"65g",i:"Spiral pasta"},{a:"120g",i:"Chicken thigh, skin-on"},{a:"4g",i:"Extra virgin olive oil"},{a:"47g",i:"Basil pesto"},{a:"60g",i:"Green beans, fresh"},{a:"60g",i:"Cherry tomatoes"}],steps:["Cook pasta according to package instructions. Drain.","Steam green beans until tender-crisp.","In a pan, heat olive oil and toss cooked chicken, green beans and cherry tomatoes until warmed.","Stir in basil pesto, then combine with cooked pasta. Serve immediately."]},
+{name:"Big Mac Bowl",meal:"lunch-dinner",p:55,c:36,f:11,cal:458,ingredients:[{a:"200g",i:"Extra lean beef mince"},{a:"200g",i:"Spudlite potato"},{a:"40g",i:"Iceberg lettuce"},{a:"50g",i:"Cherry tomatoes"},{a:"30g",i:"Burger pickles"},{a:"20g",i:"Red onion"},{a:"80g",i:"Full-fat Greek yoghurt"},{a:"20g",i:"Tomato sauce"},{a:"20g",i:"Sweet mustard pickles"}],steps:["Cut potato into small cubes and air fry or oven roast until crispy.","Cook beef mince with seasoning of choice until browned.","Chop lettuce, tomato, onion and pickles into small pieces.","Mix Greek yoghurt, tomato sauce, sweet mustard pickles and a splash of vinegar to make the sauce.","Add crispy potato to a bowl, top with mince.","Spread lettuce, tomato, onion and pickles over the top.","Drizzle the sauce over."]},
+{name:"Loaded Potatoes",meal:"lunch-dinner",p:38,c:23,f:16,cal:392,ingredients:[{a:"200g",i:"Spudlite potato"},{a:"125g",i:"Extra lean beef mince"},{a:"25g",i:"Full-fat cheddar, shredded"},{a:"50g",i:"Lettuce, shredded"},{a:"20g",i:"Brown onion"},{a:"20g",i:"Burger pickles"},{a:"10g",i:"American mustard"},{a:"10g",i:"Tangy tomato sauce"}],steps:["Bake potatoes until soft. Cut open and lightly mash the insides.","Cook beef mince and diced onion in a non-stick pan until browned.","Fill potatoes with cooked mince and top with shredded cheese.","Add lettuce, pickles and drizzle with mustard and tangy tomato sauce."]},
+{name:"Thai Chicken Noodle Salad",meal:"lunch-dinner",p:34,c:49,f:14,cal:452,ingredients:[{a:"40g",i:"Vermicelli rice noodles"},{a:"120g",i:"Oven roasted chicken, shredded"},{a:"15g",i:"Hoisin sauce"},{a:"10g",i:"Sriracha sauce"},{a:"10g",i:"Light soy sauce"},{a:"15g",i:"Peanut butter"},{a:"100g",i:"Red cabbage"},{a:"30g",i:"Red capsicum"},{a:"15g",i:"Spring onion"},{a:"5g",i:"Coriander"}],steps:["Mix hoisin, sriracha, soy sauce and peanut butter until smooth.","Soak noodles in warm water 2 minutes. Drain.","Slice cabbage, capsicum and spring onion.","Toss everything together with the sauce.","Top with coriander and a lime wedge if desired."]},
+{name:"Simple Salmon & Veggies",meal:"lunch-dinner",p:37,c:24,f:35,cal:560,ingredients:[{a:"150g",i:"Salmon portions, skin off"},{a:"100g",i:"Asparagus, green"},{a:"150g",i:"Sweet potato, orange flesh"},{a:"10g",i:"Olive oil"},{a:"10g",i:"Lemon juice"}],steps:["Preheat oven to 200C.","Place salmon, asparagus and sweet potato on a baking tray.","Drizzle with olive oil and lemon juice. Season with salt and pepper.","Bake 15-20 minutes and serve."]},
+{name:"Pesto Pasta Shells with Chicken & Mushroom",meal:"lunch-dinner",p:45,c:77,f:19,cal:665,ingredients:[{a:"100g",i:"Chicken thigh, cooked"},{a:"100g",i:"Pasta shells"},{a:"50g",i:"Mushroom"},{a:"50ml",i:"Salt-reduced chicken stock"},{a:"50g",i:"Basil pesto"}],steps:["Cook pasta shells according to package instructions. Drain.","In a pan, saute mushrooms with chicken stock until tender.","Add cooked chicken and basil pesto to the pan, stirring to combine.","Toss the mixture with cooked pasta shells and serve."]},
+{name:"Butter-Basted Ribeye & Rice",meal:"dinner",p:52,c:62,f:28,cal:728,ingredients:[{a:"250g",i:"Ribeye steak"},{a:"30g",i:"Butter"},{a:"250g",i:"White rice, cooked"},{a:"3 cloves",i:"Garlic"},{a:"pinch",i:"Sea salt"}],steps:["Bring steak to room temperature. Season generously with sea salt.","Heat a cast iron pan until very hot. Sear steak 2 minutes each side.","Reduce heat. Add butter and garlic. Baste steak continuously for 2 minutes.","Rest 5 minutes before slicing. Serve with white rice."],coach:"Butter basting is the highest-quality fat delivery in the system. The Maillard reaction from the sear creates bioavailable zinc and iron compounds. One of the best meals in the database."},
+{name:"Honey Garlic Chicken Thigh & Rice",meal:"dinner",p:46,c:64,f:14,cal:578,ingredients:[{a:"250g",i:"Chicken thigh, skin-on"},{a:"250g",i:"White rice, cooked"},{a:"2 tbsp",i:"Raw honey"},{a:"3 cloves",i:"Garlic, minced"},{a:"1 tbsp",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Season thighs with salt. Cook skin-side down in a pan over medium heat until golden.","Flip and add butter, garlic and honey. Baste for 2\u20133 minutes.","Cover and finish cooking until thighs are cooked through.","Serve over white rice with sauce poured over."],coach:"Honey-garlic is one of the most anti-inflammatory flavour combinations in the system. Garlic is a natural aromatase inhibitor \u2014 relevant for men over 40 looking to maintain testosterone:oestrogen ratio."},
+{name:"Beef Mince Bolognese",meal:"dinner",p:48,c:62,f:12,cal:556,ingredients:[{a:"250g",i:"Extra lean beef mince"},{a:"200g",i:"White rice pasta or sourdough pasta"},{a:"150ml",i:"Passata"},{a:"1 medium",i:"Brown onion, diced"},{a:"3 cloves",i:"Garlic, minced"},{a:"15g",i:"Butter"},{a:"30g",i:"Parmigiano Reggiano, grated"},{a:"pinch",i:"Sea salt"}],steps:["Cook pasta according to package instructions. Drain.","In a pan, melt butter and soften onion and garlic.","Add beef mince and cook until browned.","Add passata, simmer 10 minutes. Season with salt.","Serve over pasta, topped with Parmigiano Reggiano."],coach:"Parmigiano Reggiano is the only cheese used in pasta dishes in this system. Its tyrosine content makes it genuinely functional \u2014 not just flavour. Do not substitute with processed cheese."},
+{name:"Prawn Stir-Fry & Rice",meal:"dinner",p:38,c:64,f:8,cal:484,ingredients:[{a:"200g",i:"Prawns, raw"},{a:"250g",i:"White rice, cooked"},{a:"100g",i:"Bok choy"},{a:"1 tbsp",i:"Butter"},{a:"1 tbsp",i:"Raw honey"},{a:"1 tbsp",i:"Tamari or light soy sauce"},{a:"pinch",i:"Sea salt"}],steps:["Melt butter in a wok over high heat.","Add prawns and stir-fry until pink, 2\u20133 minutes.","Add bok choy and drizzle with honey and soy sauce. Toss 1 minute.","Serve over white rice."],coach:"Prawns are selenium-rich \u2014 critical for thyroid conversion of T4 to active T3. Bok choy provides calcium without the oxalate burden of spinach. A solid thyroid-supportive dinner."},
+{name:"Slow Roast Lamb & Potato",meal:"dinner",p:48,c:44,f:20,cal:552,ingredients:[{a:"250g",i:"Lamb shoulder or leg"},{a:"250g",i:"Potato, halved"},{a:"20g",i:"Butter"},{a:"1 tbsp",i:"Raw honey"},{a:"1 tsp",i:"Sea salt"},{a:"3 cloves",i:"Garlic"}],steps:["Preheat oven to 160\u00b0C. Season lamb with salt.","Place lamb in a roasting dish with garlic and potatoes.","Drizzle honey and dot with butter.","Roast for 2.5\u20133 hours until meat pulls easily.","Serve lamb with roasted potatoes and pan juices."],coach:"Slow roasting breaks down collagen into glycine \u2014 one of the most anti-inflammatory and sleep-supporting amino acids. Lamb shanks, shoulder and neck are preferred for this reason over lean cuts for slow cooking."},
+{name:"Salmon with Honey Butter Glaze & Greens",meal:"dinner",p:42,c:12,f:24,cal:444,ingredients:[{a:"200g",i:"Salmon fillet"},{a:"20g",i:"Butter"},{a:"1 tbsp",i:"Raw honey"},{a:"100g",i:"Broccolini, steamed"},{a:"pinch",i:"Sea salt"}],steps:["Season salmon with salt.","Melt butter in a pan over medium heat. Brush salmon with honey.","Cook salmon 3\u20134 minutes per side until just cooked through.","Steam broccolini until tender-crisp.","Plate salmon and broccolini. Pour pan butter over both."],coach:"Broccolini contains DIM (diindolylmethane) which supports healthy oestrogen metabolism \u2014 relevant for the anti-oestrogenic goals of the Ignition Protocol."},
+{name:"Beef Stew with Potato",meal:"dinner",p:44,c:48,f:12,cal:484,ingredients:[{a:"250g",i:"Beef chuck, cubed"},{a:"250g",i:"Potato, diced"},{a:"200ml",i:"Beef bone broth"},{a:"1 medium",i:"Carrot, diced (cooked)"},{a:"1 medium",i:"Brown onion, diced"},{a:"15g",i:"Butter"},{a:"pinch",i:"Sea salt"}],steps:["Brown beef in butter in a heavy pot. Season with salt.","Add onion and cook until soft.","Add broth, potato and carrot. Bring to a boil.","Reduce heat and simmer covered for 1.5\u20132 hours until beef is tender.","Serve in bowls."],coach:"Bone broth provides glycine, proline and hydroxyproline \u2014 the building blocks of collagen. This is the anti-inflammatory amino acid stack most men over 40 are deficient in. Stews are one of the best vehicles for collagen delivery."},
+{name:"Chicken Liver P\u00e2t\u00e9 on Sourdough",meal:"dinner",p:22,c:32,f:18,cal:384,ingredients:[{a:"150g",i:"Chicken livers"},{a:"20g",i:"Butter"},{a:"1 small",i:"Brown onion"},{a:"1 tbsp",i:"Raw honey"},{a:"2 slices",i:"Sourdough"},{a:"pinch",i:"Sea salt"}],steps:["Melt butter in a pan. Cook onion until soft.","Add chicken livers and cook until just done \u2014 still slightly pink inside.","Add honey and stir. Transfer to a blender.","Blend until smooth. Season with salt.","Spread thickly on toasted sourdough."],coach:"Chicken livers are almost as nutrient-dense as beef liver and far more approachable in taste. The honey balances the metallic edge and contributes fructose for liver glycogen. A high-performance dinner that most men would never expect."},
+{name:"Steak & Mash",meal:"dinner",p:65,c:35,f:9,cal:484,ingredients:[{a:"250g",i:"Beef scotch fillet, lean"},{a:"150g",i:"Green beans, boiled"},{a:"250g",i:"Spudlite potato"},{a:"100g",i:"Brown onion gravy"}],steps:["Prepare gravy according to package instructions. Keep warm.","Boil and mash potatoes. Season with salt.","Steam green beans until tender.","Season steak and cook in a hot pan to desired doneness. Rest 5 minutes.","Plate mash, steak and beans. Pour gravy over."]},
+{name:"Grilled Barramundi, Potato & Asparagus",meal:"dinner",p:54,c:24,f:19,cal:488,ingredients:[{a:"250g",i:"Barramundi fillet"},{a:"250g",i:"Spudlite potato"},{a:"100g",i:"Asparagus, green"},{a:"5g",i:"Extra virgin olive oil"}],steps:["Preheat oven or grill. Season barramundi with salt and pepper.","Boil or roast potatoes until tender.","Brush barramundi with olive oil and grill 4-5 minutes per side until cooked through.","Steam asparagus until tender-crisp.","Plate barramundi with potatoes and asparagus."]},
+{name:"Thai Green Chicken Curry",meal:"dinner",p:43,c:53,f:40,cal:760,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"150ml",i:"Light coconut milk"},{a:"10g",i:"Thai green curry paste"},{a:"10g",i:"Vegetable oil"},{a:"5g",i:"Fish sauce"},{a:"50g",i:"Red capsicum"},{a:"50g",i:"Zucchini, cooked"},{a:"50g",i:"Snow peas"},{a:"50g",i:"Jasmine rice, raw"}],steps:["Cook rice on stove or in rice cooker.","Cut chicken thigh and vegetables into bite-sized pieces.","Heat oil in a pan over medium heat. Add curry paste and stir-fry until fragrant.","Add chicken and stir to coat.","Add coconut milk and stir to combine. Bring to a gentle simmer.","Stir in fish sauce and add vegetables. Simmer until chicken is cooked through.","Serve over rice."]},
+{name:"Teriyaki Chicken & Rice",meal:"dinner",p:48,c:81,f:14,cal:638,ingredients:[{a:"5g",i:"Sesame oil"},{a:"190g",i:"Chicken thigh, skin-on"},{a:"5g",i:"Garlic, fresh"},{a:"5g",i:"Ginger, fresh"},{a:"10g",i:"Raw honey"},{a:"10g",i:"Light soy sauce"},{a:"5g",i:"Rice wine vinegar"},{a:"5g",i:"Sesame seeds"},{a:"150g",i:"Bok choy"},{a:"200g",i:"White rice, cooked"}],steps:["Heat sesame oil in a pan over medium heat.","Add chicken thigh and fry 7 minutes until golden.","Add garlic and ginger. Cook 2 minutes.","Stir in honey, soy sauce, vinegar and 100ml water. Bring to a boil and cook 2-5 minutes until sticky.","Blanch bok choy in boiling water 1-2 minutes. Drain.","Serve chicken over rice with bok choy. Top with sesame seeds."]},
+{name:"Rump Steak & Potato",meal:"dinner",p:55,c:56,f:8,cal:516,ingredients:[{a:"220g",i:"Beef rump steak, lean"},{a:"300g",i:"Potato, new"},{a:"80g",i:"Corn on the cob"},{a:"20g",i:"BBQ sauce, reduced salt"}],steps:["Boil or steam potatoes until tender.","Grill or pan-sear steak to desired doneness. Rest 5 minutes.","Cook corn until tender.","Plate steak, potatoes and corn. Serve with BBQ sauce."]},
+{name:"Steak, Sweet Potato & Veg",meal:"dinner",p:39,c:43,f:10,cal:414,ingredients:[{a:"150g",i:"Beef rump steak, lean"},{a:"250g",i:"Sweet potato, orange flesh"},{a:"150g",i:"Winter veg mix"},{a:"55g",i:"Peppercorn cream sauce"}],steps:["Peel and dice sweet potato. Steam or boil until tender.","Cook steak in a hot pan to desired doneness. Rest 5 minutes.","Steam winter veg mix until tender.","Heat peppercorn sauce according to package instructions.","Plate steak with sweet potato and vegetables. Drizzle with sauce."]},
+{name:"Steak, Potatoes & Veg",meal:"dinner",p:39,c:21,f:14,cal:370,ingredients:[{a:"150g",i:"Beef rump steak, lean"},{a:"200g",i:"Spudlite potato"},{a:"80g",i:"Broccoli, fresh"},{a:"80g",i:"Green beans, fresh"},{a:"10g",i:"Butter"}],steps:["Boil or steam potatoes until tender. Mash with butter.","Steam broccoli and green beans until cooked but still crisp.","Cook steak in a hot pan to desired doneness. Rest 5 minutes.","Plate steak with mashed potatoes and steamed vegetables."]},
+{name:"Beef Stroganoff",meal:"dinner",p:175,c:110,f:46,cal:1580,ingredients:[{a:"600g",i:"Beef stir-fry strips"},{a:"220g",i:"Egg fettuccine"},{a:"30g",i:"Plain flour"},{a:"250ml",i:"Beef bone broth"},{a:"120g",i:"Full-fat sour cream"},{a:"5g",i:"Extra virgin olive oil"},{a:"150g",i:"Mushroom"},{a:"150g",i:"Brown onion"}],steps:["Cook fettuccine according to package instructions. Drain.","Heat olive oil in a pan and saute sliced onion and mushrooms until softened.","Toss beef strips in flour, then add to the pan and cook until browned.","Stir in beef bone broth and simmer until sauce thickens.","Remove from heat and stir in sour cream until combined.","Serve beef stroganoff over the cooked fettuccine."],coach:"Batch recipe -- serves 4. Divide all macros by 4 for per-serve totals."},
+{name:"Thai Prawn Red Curry",meal:"dinner",p:92,c:43,f:32,cal:825,ingredients:[{a:"10g",i:"Olive oil"},{a:"200g",i:"Brown onion"},{a:"20g",i:"Ginger, fresh"},{a:"30g",i:"Thai red curry paste"},{a:"400g",i:"Crushed tomatoes"},{a:"250ml",i:"Light coconut cream"},{a:"400g",i:"Prawns, raw"}],steps:["Heat oil in a saucepan. Add onion and ginger. Cook until soft.","Stir in curry paste and cook 1 minute.","Add crushed tomatoes and coconut cream. Bring to a boil and simmer 5 minutes.","Add prawns and cook 5-10 minutes until done.","Serve with plain rice and chopped coriander if desired."],coach:"Batch recipe -- serves 4. Divide all macros by 4 for per-serve totals."},
+{name:"Carrot & Lentil Soup",meal:"dinner",p:15,c:33,f:12,cal:300,ingredients:[{a:"60g",i:"Red lentils, dry"},{a:"1g",i:"Cumin seeds"},{a:"5g",i:"Olive oil"},{a:"15g",i:"Carrot"},{a:"250ml",i:"Vegetable stock"},{a:"30ml",i:"Light coconut milk"}],steps:["Toast cumin seeds 1 minute until fragrant.","Add oil, carrots, lentils, stock and coconut milk. Bring to a boil.","Simmer 15 minutes until lentils are soft.","Blend until smooth or leave chunky.","Serve with warm bread or preferred side."]},
+{name:"Pumpkin Soup",meal:"dinner",p:31,c:109,f:9,cal:639,ingredients:[{a:"1200g",i:"Butternut pumpkin, peeled"},{a:"250g",i:"Brown onion"},{a:"10g",i:"Garlic, fresh"},{a:"750ml",i:"Vegetable stock"},{a:"5g",i:"Parsley, fresh"}],steps:["Peel and remove seeds from pumpkin. Cut into 4cm chunks.","In a pot, combine pumpkin, onion, garlic and stock. Boil then simmer until pumpkin is soft, roughly 10 minutes.","Remove from heat and blend until smooth.","Season with salt and pepper. Stir in a splash of cream.","Serve in bowls garnished with cream, pepper and parsley."],coach:"Batch recipe -- serves 4. Divide all macros by 4 for per-serve totals."},
+{name:"Slow Cooker BBQ Pulled Chicken",meal:"dinner",p:35,c:41,f:6,cal:359,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"60g",i:"BBQ sauce"},{a:"20g",i:"Brown onion"},{a:"5g",i:"Olive oil"},{a:"5g",i:"Worcestershire sauce"},{a:"5g",i:"Brown sugar"}],steps:["Grate onion.","In a slow cooker, mix BBQ sauce, onion, olive oil, Worcestershire sauce and brown sugar.","Add chicken thigh and turn to coat in the sauce.","Cover and cook on high 2-3 hours or low 6-7 hours until chicken is cooked through and easy to shred.","Remove chicken, shred with two forks, return to the sauce and stir well. Serve warm."]},
+{name:"Slow Cooker Beef and Sweet Potato Stew",meal:"dinner",p:39,c:22,f:10,cal:333,ingredients:[{a:"150g",i:"Beef chuck, lean"},{a:"100g",i:"Sweet potato, orange flesh"},{a:"50g",i:"Carrot"},{a:"30g",i:"Celery"},{a:"50g",i:"Mushroom"},{a:"30g",i:"Brown onion"},{a:"100ml",i:"Salt-reduced beef stock"},{a:"5g",i:"Worcestershire sauce"},{a:"5g",i:"Olive oil"}],steps:["Season beef with salt and pepper. Sear in olive oil until browned.","Add beef, diced sweet potato, carrot, celery, mushroom and onion to the slow cooker.","Pour beef stock and Worcestershire sauce over everything.","Cover and cook on low 8-10 hours until beef is tender.","Shred beef and stir through the stew before serving."]},
+{name:"Slow Cooker Chicken Tikka Masala",meal:"dinner",p:33,c:13,f:16,cal:325,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"15g",i:"Tikka masala paste"},{a:"125g",i:"Passata"},{a:"5g",i:"Tomato puree"},{a:"5g",i:"Olive oil"},{a:"30g",i:"Brown onion"},{a:"5g",i:"Garlic, minced"},{a:"5g",i:"Ginger, fresh"},{a:"20g",i:"Full-fat thickened cream"},{a:"5g",i:"Coriander, fresh"}],steps:["Dice chicken thigh and season with salt. Sear in oil until lightly browned.","Add onion, garlic and ginger to the pan. Cook until softened.","Transfer chicken and vegetables to a slow cooker.","Add tikka paste, passata and tomato puree. Stir well.","Cover and cook on low 5-7 hours or high 4-5 hours.","Stir in cream and cook a further 10-15 minutes. Garnish with coriander."]},
+{name:"Slow Cooker Mexican Beef Bowls",meal:"dinner",p:37,c:7,f:11,cal:271,ingredients:[{a:"150g",i:"Beef chuck, lean"},{a:"100g",i:"Crushed tomatoes"},{a:"100ml",i:"Salt-reduced beef stock"},{a:"5g",i:"Tomato paste"},{a:"5g",i:"Olive oil"},{a:"2g",i:"Cumin"},{a:"2g",i:"Paprika"},{a:"2g",i:"Dried oregano"},{a:"5g",i:"Lime juice"}],steps:["Rub beef with cumin, paprika, oregano, salt and olive oil.","Sear beef in a hot pan until browned on all sides.","Cook tomato paste in the same pan 1 minute.","Add crushed tomatoes, beef stock and lime juice. Stir well.","Transfer beef and sauce to a slow cooker.","Cook on low 8 hours or high 4 hours until beef falls apart.","Shred beef with two forks and stir into sauce before serving."]},
+{name:"Slow Cooker Creamy Garlic Chicken",meal:"dinner",p:38,c:7,f:16,cal:322,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"5g",i:"Garlic, fresh"},{a:"100ml",i:"Salt-reduced chicken stock"},{a:"5g",i:"Olive oil"},{a:"2g",i:"Dried thyme"},{a:"5g",i:"Cornflour"},{a:"5ml",i:"Water"},{a:"10g",i:"Parmigiano Reggiano, grated"},{a:"20g",i:"Full-fat thickened cream"}],steps:["Season chicken with salt and pepper. Sear in olive oil until golden on both sides.","Transfer to slow cooker. Lightly cook garlic in the same pan, then add stock and thyme. Bring to a simmer.","Pour over chicken. Cover and cook on high 4-5 hours.","Mix cornstarch with water. Stir into slow cooker with Parmigiano and cream.","Cook 20 minutes longer until sauce thickens."]},
+{name:"Slow Cooker Teriyaki Beef",meal:"dinner",p:32,c:21,f:4,cal:253,ingredients:[{a:"150g",i:"Beef rump steak, lean"},{a:"20g",i:"Raw honey"},{a:"15g",i:"Light soy sauce"},{a:"15ml",i:"Salt-reduced beef stock"},{a:"15g",i:"Rice wine vinegar"},{a:"5g",i:"Garlic, fresh"},{a:"5g",i:"Ginger, fresh"},{a:"5g",i:"Cornflour"}],steps:["Lightly brown beef strips in a pan.","In a slow cooker, combine honey, soy sauce, beef stock, rice wine vinegar, garlic, ginger and black pepper.","Add beef strips and stir to coat.","Cover and cook on low 6-8 hours until beef is tender.","Mix cornstarch with water. Stir into slow cooker to thicken sauce.","Cook on high a further 15 minutes. Serve hot."]},
+{name:"Slow Cooker Lemon Herb Chicken",meal:"dinner",p:35,c:2,f:7,cal:207,ingredients:[{a:"150g",i:"Chicken thigh, skin-on"},{a:"5g",i:"Garlic, fresh"},{a:"20g",i:"Lemon juice"},{a:"5g",i:"Dijon mustard"},{a:"2g",i:"Salt"},{a:"5g",i:"Olive oil"},{a:"2g",i:"Italian herbs"}],steps:["Whisk garlic, lemon juice, mustard, salt, olive oil and Italian seasoning to make the sauce.","Add chicken thigh and 2 tablespoons of sauce to the slow cooker.","Cover and cook on low 4-5 hours or high 3-4 hours.","Remove chicken, shred with forks, stir back into the slow cooker with remaining sauce."]},
+{name:"Balsamic Barramundi, Potatoes & Veggies",meal:"dinner",p:36,c:42,f:8,cal:388,ingredients:[{a:"150g",i:"Barramundi fillet"},{a:"150g",i:"Green beans, fresh"},{a:"10g",i:"Tomato"},{a:"300g",i:"Spudlite potato"},{a:"20g",i:"Balsamic glaze"}],steps:["Season barramundi fillets with salt and pepper.","Cook over medium-high heat 4-6 minutes per side until they flake easily. Remove and keep warm.","Add green beans and tomatoes to the skillet and cook until softened, 2-4 minutes.","Stir in balsamic glaze and cook on medium-low until thickened.","Serve fish topped with the veggie mixture alongside boiled potatoes."]},
+{name:"Raw Carrot with Honey & Salt",meal:"snack",p:2,c:22,f:0,cal:96,ingredients:[{a:"2 medium",i:"Carrots, grated raw"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Grate carrots raw \u2014 never cook.","Arrange on a plate or in a bowl.","Drizzle honey over the top.","Add a pinch of sea salt."],coach:"The daily raw carrot is a cornerstone of the Ignition Protocol. It is the single most effective gut-cleansing tool in the system \u2014 the unique non-soluble fibre binds to endotoxins and excess oestrogen. Honey and salt make it something you'll actually want to eat."},
+{name:"Milk & Honey",meal:"snack",p:8,c:28,f:8,cal:220,ingredients:[{a:"300ml",i:"Full-fat milk"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Pour cold milk into a glass.","Stir in honey until dissolved.","Add a pinch of sea salt.","Drink immediately."],coach:"The simplest and most restorative snack in the system. The sodium and glucose combination in milk-honey-salt drives cellular energy production \u2014 ideal mid-afternoon when cortisol drops."},
+{name:"Sourdough, Butter & Honey",meal:"snack",p:8,c:38,f:12,cal:296,ingredients:[{a:"2 slices",i:"Sourdough bread"},{a:"20g",i:"Butter"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Toast sourdough until golden.","Spread butter generously while hot.","Drizzle raw honey over both slices.","Add a pinch of sea salt."],coach:"Butter and honey on sourdough is the ideal mid-afternoon snack \u2014 fat for satiety, simple carbohydrate for sustained energy. The salt supports cellular glucose uptake."},
+{name:"Cottage Cheese & Honey",meal:"snack",p:22,c:18,f:6,cal:218,ingredients:[{a:"200g",i:"Full-fat cottage cheese"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon cottage cheese into a bowl.","Drizzle honey over the top.","Add a pinch of sea salt.","Eat immediately."],coach:"High-casein protein snack with minimal carbohydrate. The honey provides just enough glucose to prevent cortisol elevation between meals. Salt enhances palatability and supports adrenal function."},
+{name:"Boiled Eggs with Salt",meal:"snack",p:18,c:2,f:12,cal:192,ingredients:[{a:"3 large",i:"Eggs"},{a:"pinch",i:"Sea salt"}],steps:["Place eggs in cold water. Bring to a boil.","Boil 7 minutes for firm yolks.","Cool in cold water. Peel.","Season with sea salt."],coach:"The most portable snack in the system. Egg yolks contain choline \u2014 essential for liver fat metabolism and cognitive function. Do not discard yolks."},
+{name:"Banana with Salt",meal:"snack",p:2,c:28,f:0,cal:120,ingredients:[{a:"2 medium",i:"Bananas"},{a:"pinch",i:"Sea salt"}],steps:["Peel bananas.","Eat with a pinch of sea salt alongside."],coach:"Bananas are the fastest-absorbing fruit in the system. The potassium-sodium pairing (banana + salt) is one of the best electrolyte combinations for men training intensely. Quick pre-workout option if you forgot to eat."},
+{name:"Parmigiano & Apple",meal:"snack",p:14,c:24,f:10,cal:246,ingredients:[{a:"40g",i:"Parmigiano Reggiano"},{a:"1 medium",i:"Apple, sliced"},{a:"pinch",i:"Sea salt"}],steps:["Slice Parmigiano into shards.","Slice apple thinly.","Arrange on a board.","Add a pinch of sea salt."],coach:"One of the most satisfying and protocol-aligned snacks. Parmigiano provides tyrosine and protein; apple provides pectin and fructose. The sweet-savoury contrast makes this surprisingly compelling."},
+{name:"Mango & Cottage Cheese",meal:"snack",p:20,c:32,f:5,cal:253,ingredients:[{a:"150g",i:"Mango, diced"},{a:"200g",i:"Full-fat cottage cheese"},{a:"pinch",i:"Sea salt"}],steps:["Dice mango into bite-sized pieces.","Spoon cottage cheese into a bowl.","Top with mango.","Add a pinch of sea salt."],coach:"B-vitamin-rich mango with high-protein cottage cheese. An afternoon snack that keeps insulin stable while providing enough carbohydrate to prevent cortisol elevation."},
+{name:"Warm Honey Milk (Mid-Day)",meal:"snack",p:8,c:28,f:8,cal:220,ingredients:[{a:"300ml",i:"Full-fat milk"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Warm milk gently on the stove.","Stir in honey and sea salt until dissolved.","Drink warm."],coach:"Identical to the pre-sleep drink but consumed mid-day during rest or recovery phases. Particularly useful on rest days when cortisol management is important but training stimulus is absent."},
+{name:"Vanilla Pudding with Mango",meal:"snack",p:27,c:38,f:2,cal:280,ingredients:[{a:"17g",i:"Instant vanilla pudding"},{a:"150g",i:"Full-fat Greek yoghurt"},{a:"20g",i:"Custard casein protein, vanilla"},{a:"100g",i:"Mango, frozen"}],steps:["Prepare vanilla pudding according to package instructions.","Mix Greek yoghurt and casein protein until smooth.","Layer the pudding, yoghurt mixture and mango in a serving dish.","Refrigerate until chilled and serve."]},
+{name:"Granola, Yoghurt & Fruit",meal:"snack",p:20,c:55,f:19,cal:473,ingredients:[{a:"50g",i:"Low sugar raspberry coconut granola"},{a:"80g",i:"Full-fat vanilla yoghurt"},{a:"20g",i:"Almond butter"},{a:"120g",i:"Banana"}],steps:["Layer yoghurt and granola in a serving bowl.","Slice banana and arrange on top.","Drizzle almond butter over the bowl before serving."]},
+{name:"Yoghurt Bowl - Chocolate & Berry",meal:"snack",p:24,c:45,f:6,cal:327,ingredients:[{a:"250g",i:"Full-fat vanilla yoghurt"},{a:"100g",i:"Frozen mixed berries"},{a:"15g",i:"Dark chocolate chips (97% sugar-free)"},{a:"15g",i:"Raw honey"}],steps:["Place yoghurt in a bowl.","Top with frozen mixed berries.","Sprinkle dark chocolate chips over the top.","Drizzle with honey to finish."]},
+{name:"Berry Yogurt Parfait",meal:"snack",p:19,c:53,f:6,cal:343,ingredients:[{a:"150g",i:"Full-fat Greek yoghurt"},{a:"15g",i:"Raw honey"},{a:"100g",i:"Frozen mixed berries"},{a:"50g",i:"Blueberry granola"}],steps:["Layer yoghurt at the bottom of a glass.","Add a layer of mixed berries.","Sprinkle granola over berries.","Drizzle with honey.","Repeat layers if desired."]},
+{name:"Berry & Nut Butter Yoghurt Bowl",meal:"snack",p:21,c:15,f:9,cal:229,ingredients:[{a:"160g",i:"Full-fat strawberry yoghurt"},{a:"100g",i:"Frozen mixed berries"},{a:"2g",i:"Cinnamon"},{a:"15g",i:"Almond butter"},{a:"5g",i:"Sugar-free maple syrup"}],steps:["Place yoghurt in a bowl.","Top with frozen mixed berries.","Drizzle almond butter and sugar-free maple syrup over the top.","Sprinkle with cinnamon before serving."]},
+{name:"Apple Crumble Yogurt Bowl",meal:"snack",p:12,c:47,f:3,cal:265,ingredients:[{a:"100g",i:"Apple, red skin"},{a:"100g",i:"Full-fat vanilla yoghurt"},{a:"30g",i:"Rolled oats"},{a:"5g",i:"Cinnamon"},{a:"10g",i:"Raw honey"}],steps:["Dice apple and cook in a pan over low heat until soft. Add cinnamon.","Toast oats in a dry pan until golden.","Layer yoghurt, warm cinnamon apples and toasted oats in a bowl.","Drizzle honey over the top."]},
+{name:"Anzac Biscuit Yogurt Parfait",meal:"snack",p:12,c:35,f:9,cal:273,ingredients:[{a:"1",i:"ANZAC biscuit"},{a:"100g",i:"Full-fat Greek yoghurt"},{a:"5g",i:"Raw honey"},{a:"50g",i:"Banana"},{a:"5g",i:"Desiccated coconut"}],steps:["Crush ANZAC biscuit into small crumbs.","Layer half the yoghurt, then half the biscuit crumbs in a jar.","Add sliced banana, then repeat layers.","Drizzle honey over the top and sprinkle with coconut.","Chill or serve immediately."]},
+{name:"Chocolate Banana Protein Mousse",meal:"snack",p:38,c:33,f:2,cal:301,ingredients:[{a:"100g",i:"Banana"},{a:"100g",i:"Full-fat Greek yoghurt"},{a:"30g",i:"Whey protein isolate"},{a:"10g",i:"Cocoa powder"},{a:"10g",i:"Raw honey"}],steps:["Blend banana, yoghurt, protein powder and cocoa powder until smooth.","Add honey and mix well.","Refrigerate 1 hour for a thick mousse-like texture.","Serve chilled."]},
+{name:"Coconut Oat Protein Balls",meal:"snack",p:25,c:26,f:18,cal:361,ingredients:[{a:"30g",i:"Rolled oats"},{a:"10g",i:"Desiccated coconut"},{a:"10g",i:"Raw honey"},{a:"16g",i:"Peanut butter, smooth"},{a:"20g",i:"Whey protein isolate"},{a:"10ml",i:"Water"}],steps:["Add oats, coconut and protein powder to a bowl.","Stir in peanut butter and honey.","Add water gradually and mix until combined.","Roll into small balls.","Refrigerate for 30 minutes to set."]},
+{name:"Chocolate Chip Muffins",meal:"snack",p:6,c:21,f:5,cal:149,ingredients:[{a:"25g",i:"Plain flour"},{a:"1g",i:"Baking powder"},{a:"25ml",i:"Full-fat milk"},{a:"8g",i:"Egg, whole"},{a:"13g",i:"Dark chocolate chips (97% sugar-free)"}],steps:["Preheat oven to 180C.","Mix flour and baking powder in a bowl.","Stir in milk and egg until just combined.","Fold in chocolate chips.","Spoon into muffin tray and bake 20-25 minutes."],coach:"Batch recipe. Divide total macros by number of serves."},
+{name:"Banana Oat Cookies",meal:"snack",p:4,c:20,f:4,cal:132,ingredients:[{a:"33g",i:"Banana, mashed"},{a:"17g",i:"Rolled oats"},{a:"5g",i:"Raw honey"},{a:"1g",i:"Cinnamon"},{a:"8g",i:"Dark chocolate chips (97% sugar-free)"}],steps:["Mash bananas in a bowl.","Stir in oats, honey, cinnamon and chocolate chips.","Scoop onto lined baking tray.","Bake at 180C for 15 minutes.","Cool before serving."],coach:"Batch recipe. Divide total macros by number of serves."},
+{name:"Easy Protein Mug Cake",meal:"snack",p:31,c:20,f:6,cal:259,ingredients:[{a:"30g",i:"Whey protein isolate"},{a:"20g",i:"Plain flour"},{a:"50ml",i:"Full-fat milk"},{a:"3g",i:"Baking powder"},{a:"20g",i:"Dark chocolate chips (97% sugar-free)"}],steps:["Mix protein, flour, milk, baking powder and chocolate chips in a mug.","Microwave on high for 45-60 seconds.","Cool slightly before eating."]},
+{name:"Lava Chocolate Mug Cake",meal:"snack",p:29,c:11,f:4,cal:195,ingredients:[{a:"30g",i:"Whey protein isolate"},{a:"12g",i:"Cocoa powder"},{a:"6g",i:"Arrowroot flour"},{a:"3g",i:"Baking powder"},{a:"90ml",i:"Full-fat milk"},{a:"5g",i:"Vanilla extract"},{a:"5g",i:"White chocolate baking chips"},{a:"20g",i:"Strawberries"}],steps:["Mix dry ingredients in a small bowl.","Add milk and vanilla extract. Mix until smooth.","Lightly spray a microwave-safe mug, pour in batter and sprinkle chocolate chips on top.","Microwave for 60-80 seconds.","Serve warm. Top with strawberry."]},
+{name:"Peanut Butter Chocolate Chia Pudding",meal:"snack",p:9,c:13,f:17,cal:244,ingredients:[{a:"150ml",i:"Full-fat milk"},{a:"20g",i:"Chia seeds"},{a:"10g",i:"Cocoa powder"},{a:"15g",i:"Peanut butter, smooth"},{a:"10g",i:"Raw honey"}],steps:["Mix milk, chia seeds, cocoa powder, peanut butter and honey in a bowl.","Stir well and let sit 5 minutes. Stir again to prevent clumping.","Cover and refrigerate at least 2 hours or overnight.","Serve chilled."]},
+{name:"Vanilla Almond Oat Cookies",meal:"snack",p:33,c:53,f:19,cal:513,ingredients:[{a:"80g",i:"Rolled oats"},{a:"20g",i:"Whey protein isolate"},{a:"20g",i:"Almond butter"},{a:"15g",i:"Raw honey"},{a:"50ml",i:"Full-fat milk"}],steps:["Preheat oven to 180C.","Mix oats, protein powder, almond butter, honey and milk in a bowl.","Scoop dough onto a lined baking tray, shaping into small cookies.","Bake 12-15 minutes until golden brown.","Cool before serving."],coach:"Batch recipe. Divide total macros by number of serves."},
+{name:"Strawberry Cheesecake Protein Bites",meal:"snack",p:27,c:36,f:21,cal:443,ingredients:[{a:"50g",i:"Strawberries, fresh"},{a:"80g",i:"Full-fat cream cheese block"},{a:"20g",i:"Whey protein isolate"},{a:"40g",i:"Rolled oats"},{a:"15g",i:"Raw honey"}],steps:["Mash strawberries in a bowl.","Mix in cream cheese, protein powder and honey.","Blend oats until fine, then mix into the batter.","Roll into bite-sized balls and refrigerate 30 minutes before serving."],coach:"Batch recipe. Divide total macros by number of serves."},
+{name:"Coconut Oat Protein Bake",meal:"snack",p:28,c:35,f:13,cal:368,ingredients:[{a:"50g",i:"Rolled oats"},{a:"25g",i:"Whey protein isolate"},{a:"10g",i:"Raw honey"},{a:"1g",i:"Cinnamon"},{a:"5g",i:"Chia seeds"},{a:"20ml",i:"Water"},{a:"10g",i:"Desiccated coconut"},{a:"2g",i:"Baking powder"}],steps:["Preheat oven to 180C.","In a bowl, mix oats, protein powder, chia seeds, coconut, cinnamon and baking powder.","Stir in honey and water until combined.","Pour into a small baking dish.","Bake 20-25 minutes until golden and firm.","Cool slightly before serving."]},
+{name:"Peanut Butter & Berry Smoothie Bowl",meal:"snack",p:33,c:30,f:13,cal:369,ingredients:[{a:"100g",i:"Frozen mixed berries"},{a:"50g",i:"Banana"},{a:"100ml",i:"Full-fat milk"},{a:"15g",i:"Peanut butter, crunchy"},{a:"30g",i:"Whey protein isolate"},{a:"20g",i:"Low sugar raspberry coconut granola"}],steps:["Blend mixed berries, banana, milk, peanut butter and protein powder until smooth.","Pour into a bowl and top with granola.","Serve immediately."]},
+{name:"Chocolate Banana Protein Mug Cake",meal:"snack",p:36,c:24,f:6,cal:291,ingredients:[{a:"100g",i:"Banana"},{a:"50g",i:"Egg, whole"},{a:"5g",i:"Sugar-free maple syrup"},{a:"30g",i:"Chocolate whey protein"},{a:"2g",i:"Vanilla extract"},{a:"2g",i:"Baking powder"},{a:"2g",i:"Baking soda"},{a:"10g",i:"Cocoa powder"}],steps:["Preheat oven to 180C.","Mash banana and whisk together with egg.","Add maple syrup and vanilla extract. Mix well.","Fold in protein powder, baking powder, baking soda and cocoa powder until combined.","Spray a ramekin or oven-safe mug with oil.","Pour batter into dish and bake 18-22 minutes until a toothpick comes out clean.","Cool 5-10 minutes before serving."]},
+{name:"Smoked Salmon & Cottage Cheese Bagel Thins",meal:"snack",p:24,c:28,f:8,cal:277,ingredients:[{a:"50g",i:"Natural bagel thins"},{a:"70g",i:"Smoked salmon, cracked pepper"},{a:"25g",i:"Full-fat cottage cheese"},{a:"2g",i:"Baby capers"},{a:"2g",i:"Fresh dill"}],steps:["Toast the bagel halves until golden.","Spread cottage cheese evenly on both halves.","Layer smoked salmon on top.","Sprinkle with capers and fresh dill."]},
+{name:"Peanut Butter Banana Bagel Thins",meal:"snack",p:12,c:44,f:11,cal:321,ingredients:[{a:"50g",i:"Natural bagel thins"},{a:"20g",i:"Peanut butter, smooth"},{a:"70g",i:"Banana, sliced"},{a:"1g",i:"Cinnamon, ground"}],steps:["Toast the bagel halves until golden.","Spread peanut butter evenly on both halves.","Layer sliced banana on top.","Sprinkle with ground cinnamon if desired."]},
+{name:"Turkey & Cranberry Bagel Thins",meal:"snack",p:21,c:34,f:7,cal:283,ingredients:[{a:"50g",i:"Sesame bagel thins"},{a:"80g",i:"Shaved turkey"},{a:"25g",i:"Full-fat cream cheese"},{a:"20g",i:"Cranberry sauce"},{a:"20g",i:"English spinach"}],steps:["Toast the bagel until lightly crisp.","Spread cream cheese on both halves.","Add spinach then turkey slices on each half.","Spoon cranberry sauce on top."]},
+{name:"Egg & Spinach Bagel Thins",meal:"snack",p:19,c:28,f:9,cal:273,ingredients:[{a:"50g",i:"Natural bagel thins"},{a:"50g",i:"English spinach"},{a:"2 medium",i:"Eggs"}],steps:["Cook the eggs in a pan to your liking.","Toast the bagel until golden.","Place spinach first, then egg on top of each half."]},
+{name:"Tuna & Cucumber Bagel Thins",meal:"snack",p:25,c:34,f:8,cal:305,ingredients:[{a:"50g",i:"Natural bagel thins"},{a:"70g",i:"Chilli tuna"},{a:"50g",i:"Cucumber"},{a:"20g",i:"99% fat-free mayo"}],steps:["Toast the bagel halves.","Mix tuna with mayonnaise in a bowl.","Spread tuna mix on the bottom half.","Add sliced cucumber and top with the other half."]},
+{name:"Ham & Cheese Bagel Thins",meal:"snack",p:32,c:30,f:9,cal:330,ingredients:[{a:"50g",i:"Natural bagel thins"},{a:"80g",i:"English-style leg ham"},{a:"34g",i:"Full-fat cheddar slice"}],steps:["Toast the bagel.","Layer ham and cheese on the bottom half.","Melt in a sandwich press or oven if desired."]},
+{name:"Warm Milk, Honey & Salt",meal:"pre-sleep",p:8,c:22,f:8,cal:196,ingredients:[{a:"300ml",i:"Full-fat milk"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Warm milk gently on the stove over low heat.","Stir in honey and sea salt until dissolved.","Drink slowly before bed \u2014 this is non-negotiable in the system."],coach:"This is the sleep anchor of the Ignition Protocol. Milk provides tryptophan in a controlled dose alongside glycine and calcium \u2014 all sleep-supporting. Honey tops up liver glycogen to prevent the 2\u20133am cortisol spike that disrupts sleep architecture. Salt supports aldosterone and prevents overnight dehydration. Never skip this."},
+{name:"Cottage Cheese & Honey Pre-Sleep",meal:"pre-sleep",p:24,c:20,f:6,cal:240,ingredients:[{a:"200g",i:"Full-fat cottage cheese"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon cottage cheese into a bowl.","Drizzle honey over the top.","Add a pinch of sea salt.","Eat 45\u201360 minutes before bed."],coach:"Casein is the slow-release protein of choice for overnight muscle protein synthesis. The honey tops up liver glycogen. The salt supports overnight mineral balance. A complete pre-sleep recovery strategy."},
+{name:"Greek Yoghurt & Honey",meal:"pre-sleep",p:18,c:26,f:8,cal:256,ingredients:[{a:"200g",i:"Full-fat Greek yoghurt"},{a:"2 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Spoon yoghurt into a bowl.","Drizzle honey generously.","Add a pinch of sea salt.","Eat 45 minutes before sleep."],coach:"The acid-converted proteins in yoghurt (through fermentation) are more bioavailable than raw dairy. The probiotic culture supports gut lining integrity overnight \u2014 when gut repair peaks during fasting."},
+{name:"Banana & Milk",meal:"pre-sleep",p:12,c:52,f:8,cal:336,ingredients:[{a:"2 medium",i:"Bananas"},{a:"300ml",i:"Full-fat milk"},{a:"pinch",i:"Sea salt"}],steps:["Peel bananas.","Pour a cold glass of full-fat milk.","Eat bananas alongside the milk.","Add a pinch of sea salt to the milk."],coach:"The tryptophan in banana + milk combination is well-documented for improving sleep onset. In this system, the timing and amount is deliberate \u2014 the carbohydrate load from the banana directs tryptophan into the brain while competing amino acids are occupied elsewhere."},
+{name:"Parmigiano & Honey on Sourdough",meal:"pre-sleep",p:18,c:38,f:12,cal:336,ingredients:[{a:"2 slices",i:"Sourdough"},{a:"30g",i:"Parmigiano Reggiano"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Toast sourdough lightly.","Top with shavings of Parmigiano Reggiano.","Drizzle honey over the cheese.","Add a pinch of sea salt."],coach:"Tyrosine from Parmigiano paradoxically supports sleep when consumed alongside carbohydrates \u2014 it is converted to dopamine during the night phase, supporting deep sleep quality and morning drive."},
+{name:"Ninja Creami - Banana Biscoff Protein Ice Cream",meal:"pre-sleep",p:28,c:39,f:10,cal:362,ingredients:[{a:"200ml",i:"Full-fat milk"},{a:"110g",i:"Banana"},{a:"30g",i:"Protein powder, salted caramel"},{a:"15g",i:"Biscoff spread, crunchy"},{a:"8g",i:"Biscoff biscuit, crushed"}],steps:["Pour milk into a Ninja Creami pint container.","Add protein powder, banana and Biscoff spread.","Freeze for 12+ hours.","Spin on Ice Cream mode (or Lite Ice Cream).","If needed, add a splash of milk and respin for a smoother texture.","Top with crushed Biscoff."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Ninja Creami - Vanilla Protein Ice Cream",meal:"pre-sleep",p:33,c:16,f:3,cal:225,ingredients:[{a:"30g",i:"Whey protein isolate, vanilla"},{a:"250ml",i:"Full-fat milk"},{a:"50g",i:"Full-fat Greek yoghurt"},{a:"15g",i:"Raw honey"},{a:"5g",i:"Vanilla extract"}],steps:["Blend all ingredients until smooth.","Pour into Ninja Creami pint and freeze at least 12 hours.","Spin on Lite Ice Cream mode.","If needed, respin or add a splash of milk for creamier texture."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Ninja Creami - Chocolate Peanut Butter Protein Ice Cream",meal:"pre-sleep",p:34,c:14,f:15,cal:329,ingredients:[{a:"30g",i:"Chocolate whey protein isolate"},{a:"250ml",i:"Full-fat milk"},{a:"20g",i:"Peanut butter, smooth"},{a:"10g",i:"Cocoa powder"},{a:"10g",i:"Raw honey"}],steps:["Blend all ingredients until smooth.","Pour into Ninja Creami pint and freeze at least 12 hours.","Spin on Lite Ice Cream mode.","Add a splash of milk and respin for a smoother texture if needed."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Ninja Creami - Strawberry Cheesecake Ice Cream",meal:"pre-sleep",p:23,c:18,f:14,cal:290,ingredients:[{a:"80g",i:"Strawberries, fresh"},{a:"50g",i:"Full-fat cream cheese block"},{a:"250ml",i:"Full-fat milk"},{a:"20g",i:"Whey protein isolate, vanilla"},{a:"15g",i:"Raw honey"}],steps:["Blend all ingredients until smooth.","Pour into Ninja Creami pint and freeze at least 12 hours.","Spin on Lite Ice Cream mode.","Add a splash of milk and respin if needed."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Ninja Creami - Caramel Coffee Protein Ice Cream",meal:"pre-sleep",p:32,c:11,f:2,cal:194,ingredients:[{a:"30g",i:"Whey protein isolate, salted caramel"},{a:"100ml",i:"Long black coffee"},{a:"150ml",i:"Full-fat milk"},{a:"50g",i:"Full-fat Greek yoghurt"},{a:"10g",i:"Raw honey"}],steps:["Blend all ingredients until smooth.","Pour into Ninja Creami pint and freeze at least 12 hours.","Spin on Lite Ice Cream mode.","Add a splash of milk and respin if needed."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Ninja Creami - Cookies & Cream Protein Ice Cream",meal:"pre-sleep",p:33,c:30,f:7,cal:319,ingredients:[{a:"30g",i:"Cookies & cream whey protein isolate"},{a:"250ml",i:"Full-fat milk"},{a:"50g",i:"Full-fat Greek yoghurt"},{a:"15g",i:"Raw honey"},{a:"20g",i:"Oreo cookies, crushed"}],steps:["Blend protein powder, milk, Greek yoghurt and honey until smooth.","Pour into Ninja Creami pint and freeze at least 12 hours.","Spin on Lite Ice Cream mode.","Add crushed Oreo cookies and use Mix-In mode.","Add a splash of milk and respin for a creamier texture if needed."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Anzac Ninja Creami",meal:"pre-sleep",p:36,c:35,f:12,cal:394,ingredients:[{a:"150ml",i:"Full-fat milk"},{a:"30g",i:"Whey protein isolate"},{a:"80g",i:"Full-fat Greek yoghurt"},{a:"10g",i:"Raw honey"},{a:"5g",i:"Desiccated coconut"},{a:"10g",i:"Rolled oats"},{a:"1",i:"ANZAC biscuit, crushed"}],steps:["Blend milk, yoghurt, protein, honey, oats and coconut until smooth.","Pour mixture into a Ninja Creami pint and freeze for 24 hours.","Spin using Lite Ice Cream mode.","If needed, respin with a splash of milk for creamier texture.","Serve topped with crushed ANZAC biscuit."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Anzac Ninja Creami (No Yoghurt)",meal:"pre-sleep",p:28,c:28,f:12,cal:333,ingredients:[{a:"250ml",i:"Full-fat milk"},{a:"30g",i:"Whey protein isolate"},{a:"10g",i:"Raw honey"},{a:"5g",i:"Desiccated coconut"},{a:"1",i:"ANZAC biscuit, crushed"}],steps:["Blend milk, protein, honey and coconut until smooth.","Pour mixture into a Ninja Creami pint and freeze for 24 hours.","Spin using Lite Ice Cream mode.","If needed, respin with a splash of milk for creamier texture.","Serve topped with crushed ANZAC biscuit."],coach:"Batch: 1 pint -- serves 2. Divide macros by 2 per serve."},
+{name:"Steak Salad with Raw Carrot Dressing",meal:"salad",p:40,c:22,f:16,cal:400,ingredients:[{a:"200g",i:"Rump steak"},{a:"150g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"100g",i:"Cherry tomatoes, halved"},{a:"1 tbsp",i:"Raw honey"},{a:"1 tbsp",i:"Lemon juice"},{a:"pinch",i:"Sea salt"}],steps:["Season and cook steak to desired doneness. Rest 5 minutes then slice thinly.","Grate carrot raw \u2014 do not cook.","In a small bowl, whisk lemon juice, honey and sea salt to make the dressing.","Toss greens, carrot and tomatoes with the dressing.","Top with sliced steak."],coach:"The lemon-honey-salt dressing is the Ignition Protocol standard \u2014 no olive oil or seed oils in dressings. The raw grated carrot performs its gut-cleaning function. Steak on a salad is the best way to eat red meat in warm weather."},
+{name:"Beef & Raw Carrot Salad",meal:"salad",p:42,c:18,f:14,cal:378,ingredients:[{a:"200g",i:"Rump steak, sliced"},{a:"2 medium",i:"Carrots, grated raw"},{a:"100g",i:"Mixed leafy greens"},{a:"50g",i:"Cherry tomatoes"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Season and cook steak to desired doneness. Rest and slice thinly.","Grate carrots raw.","Whisk lemon juice, honey and salt for the dressing.","Toss greens, carrot and tomatoes with dressing.","Top with sliced steak."],coach:"The raw grated carrot performs its gut-cleaning mechanism in every salad it appears in. Never substitute cooked carrot. Rotate this salad with the prawn and kangaroo versions."},
+{name:"Prawn & Mango Salad",meal:"salad",p:34,c:28,f:8,cal:328,ingredients:[{a:"200g",i:"Prawns, cooked"},{a:"150g",i:"Mango, diced"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Grate carrot raw.","Dice mango into cubes.","Whisk lemon juice, honey and salt for the dressing.","Toss greens, carrot and mango with dressing.","Top with prawns."],coach:"Mango is high in vitamin B1 (thiamine), which is rate-limiting for glucose metabolism. Pairing mango with seafood is a strong thyroid-supportive combination. The lemon dressing provides vitamin C to enhance iron absorption from the prawns."},
+{name:"Chicken Thigh Salad",meal:"salad",p:40,c:14,f:14,cal:348,ingredients:[{a:"200g",i:"Chicken thigh, skin-on, cooked"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"100g",i:"Cherry tomatoes"},{a:"1 tbsp",i:"Full-fat yoghurt"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook chicken thigh skin-side down until crispy. Slice.","Grate carrot raw.","Whisk yoghurt, lemon juice, honey and salt for dressing.","Toss greens, carrot and tomatoes with dressing.","Top with sliced chicken."],coach:"Full-fat yoghurt in the dressing provides a creamy fat component without using olive oil or seed oils \u2014 both prohibited in Ignition Protocol dressings."},
+{name:"Salmon & Cucumber Salad",meal:"salad",p:36,c:12,f:20,cal:376,ingredients:[{a:"180g",i:"Salmon fillet, cooked"},{a:"1 medium",i:"Cucumber, sliced"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook salmon in a pan with butter. Flake or slice when cool.","Grate carrot raw. Slice cucumber.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and cucumber with dressing.","Top with salmon."],coach:"Salmon salad 1\u20132 times per week fits the system. This is not a daily meal \u2014 the PUFA from salmon accumulates. Rotate with the beef, prawn and kangaroo salad options."},
+{name:"Kangaroo & Beetroot Salad",meal:"salad",p:40,c:22,f:8,cal:328,ingredients:[{a:"200g",i:"Kangaroo steak, sliced"},{a:"100g",i:"Beetroot, cooked"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"20g",i:"Parmigiano Reggiano, shaved"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook kangaroo to desired doneness. Rest and slice thinly.","Grate carrot raw. Slice beetroot.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and beetroot with dressing.","Top with kangaroo and shavings of Parmigiano."],coach:"Beetroot provides nitrates which convert to nitric oxide \u2014 a vasodilator that improves blood flow and training performance. Combine this salad with your pre-workout meals when possible."},
+{name:"Lamb & Feta Salad",meal:"salad",p:44,c:10,f:20,cal:400,ingredients:[{a:"200g",i:"Lamb fillet, cooked"},{a:"40g",i:"Feta cheese, full-fat"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"100g",i:"Cherry tomatoes"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook lamb to desired doneness. Rest and slice thinly.","Grate carrot raw.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and tomatoes with dressing.","Top with lamb and crumbled feta."],coach:"Full-fat feta provides calcium, fat-soluble vitamins and salt \u2014 a natural electrolyte. Lamb is the most zinc-dense protein source in the system. This is a recovery salad."},
+{name:"Beef Liver & Egg Salad",meal:"salad",p:36,c:8,f:18,cal:344,ingredients:[{a:"150g",i:"Beef liver, sliced"},{a:"2 large",i:"Eggs, hard-boiled"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"15g",i:"Butter"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook liver in butter over medium heat, 2 minutes per side.","Hard boil eggs, peel and halve.","Grate carrot raw.","Whisk lemon juice, honey and salt for dressing.","Toss greens and carrot with dressing. Top with liver and eggs."],coach:"The most nutrient-dense salad in the database. Liver, egg yolk, butter and raw carrot in one bowl covers retinol, choline, B12, CoQ10 and gut-cleaning fibre simultaneously. Advanced protocol."},
+{name:"Pork & Apple Salad",meal:"salad",p:36,c:26,f:12,cal:360,ingredients:[{a:"200g",i:"Pork tenderloin, cooked"},{a:"1 medium",i:"Apple, sliced thin"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"30g",i:"Parmigiano Reggiano, shaved"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook pork tenderloin in a pan with butter. Slice thinly.","Grate carrot raw. Slice apple thinly.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and apple with dressing.","Top with pork and Parmigiano."],coach:"Apple pectin combined with raw carrot fibre creates the strongest gut-cleansing effect of any salad in the system. The Parmigiano adds tyrosine and complexity. One of the best protocol salads."},
+{name:"Tuna & Potato Salad",meal:"salad",p:36,c:38,f:6,cal:358,ingredients:[{a:"185g",i:"Canned tuna in spring water"},{a:"200g",i:"Potato, boiled and cooled"},{a:"1 medium",i:"Carrot, grated raw"},{a:"100g",i:"Mixed leafy greens"},{a:"1 tbsp",i:"Full-fat yoghurt"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Boil potato, cool and cube.","Grate carrot raw.","Whisk yoghurt, lemon juice, honey and salt for dressing.","Toss greens, carrot and potato with dressing.","Break tuna into chunks on top."],coach:"Tuna is lower in PUFA than salmon \u2014 a better everyday fish option. The yoghurt dressing replaces traditional mayo (seed oil-based) without sacrificing creaminess. Potato here is a good starch for this midday meal."},
+{name:"Chicken Thigh & Mango Salad",meal:"salad",p:38,c:30,f:12,cal:384,ingredients:[{a:"200g",i:"Chicken thigh, cooked"},{a:"150g",i:"Mango, diced"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"1 tbsp",i:"Full-fat yoghurt"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook chicken thigh until golden and cooked through. Slice.","Grate carrot raw. Dice mango.","Whisk yoghurt, lemon juice, honey and salt for dressing.","Toss greens, carrot and mango with dressing.","Top with sliced chicken."],coach:"The tropical version of the chicken salad. Mango B-vitamins pair well with the fat from chicken thigh for fat-soluble vitamin absorption. One of the more crowd-pleasing salads in the collection."},
+{name:"Prawn & Papaya Salad",meal:"salad",p:30,c:24,f:4,cal:256,ingredients:[{a:"180g",i:"Prawns, cooked"},{a:"150g",i:"Papaya, diced"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Grate carrot raw. Dice papaya.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and papaya with dressing.","Top with prawns."],coach:"Papaya contains papain \u2014 a proteolytic enzyme that supports protein digestion. Combining papaya with high-protein seafood has a genuine digestive benefit. The raw carrot completes the gut-protocol trifecta in one salad."},
+{name:"Beef & Beetroot Salad",meal:"salad",p:40,c:24,f:12,cal:372,ingredients:[{a:"200g",i:"Beef steak, sliced"},{a:"120g",i:"Beetroot, cooked"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"20g",i:"Full-fat feta"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook steak to desired doneness. Rest and slice.","Grate carrot raw. Slice beetroot.","Whisk lemon juice, honey and salt for dressing.","Toss greens, carrot and beetroot with dressing.","Top with steak and crumbled feta."],coach:"Beetroot's nitrates enhance muscular performance and blood flow. Beef and beetroot is a classic combination with genuine ergogenic value. The raw carrot and feta complete the nutrient profile."},
+{name:"Lamb & Pomegranate Salad",meal:"salad",p:40,c:20,f:14,cal:372,ingredients:[{a:"200g",i:"Lamb fillet, cooked"},{a:"60g",i:"Pomegranate seeds"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"20g",i:"Parmigiano Reggiano, shaved"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook lamb to desired doneness. Rest and slice.","Grate carrot raw.","Whisk lemon juice, honey and salt for dressing.","Toss greens and carrot with dressing.","Top with lamb, pomegranate seeds and Parmigiano."],coach:"Pomegranate is one of the most studied natural aromatase inhibitors in nutritional research \u2014 directly relevant to the testosterone:oestrogen management goals of the Ignition Protocol. Combine with zinc-rich lamb for maximum androgen support."},
+{name:"Salmon & Avocado Salad",meal:"salad",p:36,c:10,f:26,cal:428,ingredients:[{a:"160g",i:"Salmon fillet, cooked"},{a:"\u00bd",i:"Avocado, sliced"},{a:"100g",i:"Mixed leafy greens"},{a:"1 medium",i:"Carrot, grated raw"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook salmon in butter. Flake or slice when cool.","Grate carrot raw. Slice avocado.","Whisk lemon juice, honey and salt for dressing.","Toss greens and carrot with dressing.","Top with salmon and avocado."],coach:"The coconut oil keeps the cooking fat clean. The honey-lemon dressing is PUFA-free. Cucumber provides hydration and vitamin C. This is the one salad in the system with a meaningful omega-3 load."},
+{name:"Kangaroo & Raw Carrot Salad",meal:"salad",p:42,c:14,f:6,cal:284,ingredients:[{a:"200g",i:"Kangaroo steak, sliced"},{a:"2 medium",i:"Carrots, grated raw"},{a:"100g",i:"Mixed leafy greens"},{a:"100g",i:"Cherry tomatoes"},{a:"1 tbsp",i:"Full-fat yoghurt"},{a:"1 tbsp",i:"Lemon juice"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Cook kangaroo to desired doneness. Rest and slice.","Grate carrots raw.","Whisk yoghurt, lemon juice, honey and salt for dressing.","Toss greens, carrot and tomatoes with dressing.","Top with kangaroo."],coach:"Kangaroo and raw carrot is one of the highest-iron, highest-fibre combinations in the salad collection. The yoghurt dressing fat component is ideal for fat-soluble vitamin absorption from the leafy greens."},
+{name:"Liver & Egg Scramble",meal:"advanced",p:42,c:6,f:22,cal:398,ingredients:[{a:"100g",i:"Beef liver"},{a:"3 large",i:"Eggs"},{a:"20g",i:"Butter"},{a:"30g",i:"Parmigiano Reggiano"},{a:"pinch",i:"Sea salt"}],steps:["Slice liver thinly. Season with salt.","Melt butter in a pan over low heat.","Beat eggs. Add liver and eggs to the pan simultaneously.","Scramble slowly until just set.","Top with Parmigiano Reggiano."],coach:"Advanced protocol. Liver + egg + butter + Parmigiano is the most nutrient-dense combination in the system \u2014 retinol, choline, B12, CoQ10, tyrosine in a single meal. For those who want to maximise every variable."},
+{name:"Bone Broth & Egg Drop Soup",meal:"advanced",p:28,c:8,f:10,cal:244,ingredients:[{a:"500ml",i:"Beef bone broth"},{a:"3 large",i:"Eggs"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"},{a:"pinch",i:"Ginger, grated"}],steps:["Bring bone broth to a gentle simmer with ginger.","Lightly beat eggs.","Turn off heat. Slowly drizzle beaten eggs into broth while stirring \u2014 creates ribbons.","Stir in honey and sea salt.","Serve immediately."],coach:"Bone broth provides glycine and collagen precursors. Egg drop preparation preserves the yolk lecithin better than hard cooking. Honey in a savoury context provides fructose for liver glycogen alongside the collagen. This is anti-ageing nutrition at its clearest."},
+{name:"Raw Carrot, Coconut Oil & Honey",meal:"advanced",p:2,c:26,f:14,cal:242,ingredients:[{a:"2 medium",i:"Carrots, grated raw"},{a:"1 tbsp",i:"Coconut oil, melted"},{a:"1 tsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"}],steps:["Grate carrots raw.","Whisk coconut oil, honey and salt in a small bowl.","Drizzle over grated carrot and toss.","Eat immediately."],coach:"The full version of the raw carrot protocol. Coconut oil provides medium-chain fatty acids that enhance the solubility of fat-soluble vitamins being freed from the carrot fibre. The most complete version of the most important daily ritual in the system."},
+{name:"Egg Yolk & Honey Pudding",meal:"advanced",p:14,c:22,f:14,cal:274,ingredients:[{a:"4",i:"Egg yolks only"},{a:"2 tbsp",i:"Raw honey"},{a:"100ml",i:"Full-fat milk"},{a:"pinch",i:"Sea salt"}],steps:["Warm milk gently in a saucepan.","In a bowl, whisk yolks and honey until pale.","Slowly pour warm milk into the yolk mixture while stirring.","Return to the pan over very low heat, stirring constantly until slightly thickened \u2014 do not boil.","Serve warm in a cup."],coach:"Egg yolk only preparations maximise choline and retinol intake while excluding egg white tryptophan. The warm milk-honey-yolk combination is a metabolic tonic. One of the most restorative meals in the system \u2014 ideal during a hard training block."},
+{name:"Ginger & Honey Tonic",meal:"advanced",p:1,c:18,f:0,cal:76,ingredients:[{a:"300ml",i:"Warm water or bone broth"},{a:"2 tsp",i:"Fresh ginger, grated"},{a:"1 tbsp",i:"Raw honey"},{a:"pinch",i:"Sea salt"},{a:"squeeze",i:"Lemon juice"}],steps:["Grate ginger and squeeze juice through a cloth or sieve.","Combine ginger juice with warm water or broth.","Stir in honey, salt and lemon juice.","Drink on an empty stomach \u2014 morning or pre-meal."],coach:"Ginger is one of the most potent anti-inflammatory agents in the system. It inhibits 5-LOX and COX enzymes \u2014 the same pathways targeted by NSAIDs. Taken on an empty stomach in the morning, absorption is maximised. The honey-salt-lemon adds a metabolic priming effect."}
+];
+
+const CLIENT_RECIPES = [];
+
+const ALL_RECIPES = [...RECIPES, ...CLIENT_RECIPES];
+
+// ═══════════════════════════════════════
+// APP STATE & RENDER
+// ═══════════════════════════════════════
+let currentMeal = 'all';
+
+function setMeal(meal, btn) {
+  currentMeal = meal;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  const bar = document.getElementById('resultsBar');
+
+  let filtered = ALL_RECIPES.filter(r => {
+    const mealMatch = currentMeal === 'all' || r.meal === currentMeal;
+    if (!mealMatch) return false;
+    if (!query) return true;
+    const searchStr = [
+      r.name,
+      r.meal,
+      ...(r.ingredients || []).map(i => i.i),
+      r.coach || ''
+    ].join(' ').toLowerCase();
+    return query.split(' ').every(word => searchStr.includes(word));
+  });
+
+  document.getElementById('totalCount').innerHTML = ALL_RECIPES.length + '<small>PRO-METABOLIC RECIPES</small>';
+  bar.textContent = filtered.length + ' recipe' + (filtered.length !== 1 ? 's' : '') + (query ? ' matching "' + query + '"' : '');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map((r, i) => {
+    const tagClass = 'tag-' + r.meal;
+    const tagLabel = r.meal === 'lunch-dinner' ? 'LUNCH / DINNER' : r.meal.replace(/-/g, ' ').toUpperCase();
+    return `<div class="card" onclick="openModal(${ALL_RECIPES.indexOf(r)})">
+      <span class="card-tag ${tagClass}">${tagLabel}</span>
+      <div class="card-name">${r.name}</div>
+      <div class="card-macros">
+        <div class="macro-item">
+          <span class="macro-val">${r.p}g</span>
+          <span class="macro-label">Protein</span>
+        </div>
+        <div class="macro-divider"></div>
+        <div class="macro-item">
+          <span class="macro-val">${r.c}g</span>
+          <span class="macro-label">Carbs</span>
+        </div>
+        <div class="macro-divider"></div>
+        <div class="macro-item">
+          <span class="macro-val">${r.f}g</span>
+          <span class="macro-label">Fat</span>
+        </div>
+        <div class="macro-divider"></div>
+        <div class="macro-item card-cal">
+          <span class="macro-val">${r.cal}</span>
+          <span class="macro-label">kcal</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(idx) {
+  const r = ALL_RECIPES[idx];
+  const tagClass = 'tag-' + r.meal;
+  const tagLabel = r.meal === 'lunch-dinner' ? 'LUNCH / DINNER' : r.meal.replace(/-/g, ' ').toUpperCase();
+
+  document.getElementById('mTag').innerHTML = `<span class="card-tag ${tagClass}">${tagLabel}</span>`;
+  document.getElementById('mTitle').textContent = r.name;
+
+  document.getElementById('mMacros').innerHTML = `
+    <div class="modal-macro"><span class="val">${r.p}g</span><span class="lbl">Protein</span></div>
+    <div class="modal-macro"><span class="val">${r.c}g</span><span class="lbl">Carbs</span></div>
+    <div class="modal-macro"><span class="val">${r.f}g</span><span class="lbl">Fat</span></div>
+    <div class="modal-macro"><span class="val yellow">${r.cal}</span><span class="lbl">kcal</span></div>
+  `;
+
+  let bodyHTML = '';
+
+  if (r.ingredients && r.ingredients.length) {
+    bodyHTML += `<div>
+      <div class="modal-section-title">Ingredients</div>
+      <table class="ingredients-table">
+        ${r.ingredients.map(ing => `<tr><td>${ing.a}</td><td>${ing.i}</td></tr>`).join('')}
+      </table>
+    </div>`;
+  }
+
+  if (r.steps && r.steps.length) {
+    bodyHTML += `<div>
+      <div class="modal-section-title">Method</div>
+      <ol class="steps-list">
+        ${r.steps.map((s, i) => `<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('')}
+      </ol>
+    </div>`;
+  }
+
+  if (r.coach) {
+    bodyHTML += `<div class="coach-note"><strong>Coach's Note</strong>${r.coach}</div>`;
+  }
+
+  document.getElementById('mBody').innerHTML = bodyHTML;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+
+render();
+
+
+
+</script>
+</body>
+</html>
