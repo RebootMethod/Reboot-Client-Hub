@@ -466,7 +466,71 @@
     .header, .controls, .grid-wrap { padding-left: 20px; padding-right: 20px; }
     .grid { grid-template-columns: 1fr; }
     .modal-macros { gap: 12px; flex-wrap: wrap; }
+    .video-wrap { padding-left: 20px; padding-right: 20px; }
   }
+
+  .video-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 40px 0;
+  }
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #111111;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .video-frame.has-video video { display: block; }
+  .video-frame.has-video .video-placeholder { display: none; }
+  .video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    cursor: pointer;
+    padding: 20px;
+    text-align: center;
+  }
+  .video-placeholder-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px solid var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--yellow);
+    font-size: 1.3rem;
+    transition: background 0.15s ease;
+  }
+  .video-placeholder:hover .video-placeholder-icon { background: var(--yellow-dim); }
+  .video-placeholder-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .video-placeholder-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+  #videoFileInput { display: none; }
 </style>
 </head>
 <body>
@@ -480,6 +544,18 @@
     <div class="recipe-count" id="totalCount">—<small>PRO-METABOLIC RECIPES</small></div>
   </div>
 </header>
+
+<div class="video-wrap">
+  <div class="video-frame" id="videoFrame">
+    <div class="video-placeholder" id="videoPlaceholder" onclick="document.getElementById('videoFileInput').click()">
+      <div class="video-placeholder-icon">▶</div>
+      <div class="video-placeholder-label">Upload Explainer Video</div>
+      <div class="video-placeholder-sub">Click to select a video file</div>
+    </div>
+    <video id="explainerVideo" controls></video>
+  </div>
+  <input type="file" id="videoFileInput" accept="video/*" onchange="loadExplainerVideo(event)">
+</div>
 
 <div class="controls">
   <div class="controls-inner">
@@ -914,6 +990,15 @@ function setMeal(meal, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
+}
+
+function loadExplainerVideo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const video = document.getElementById('explainerVideo');
+  video.src = url;
+  document.getElementById('videoFrame').classList.add('has-video');
 }
 
 function render() {
