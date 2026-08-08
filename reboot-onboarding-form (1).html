@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Reboot Method | Client Intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONFIG NOTE FOR DAN: all setup happens in the CONFIG block
+   inside the <script> tag near the bottom of this file.
+   ============================================================ */
+
+:root{
+  --bg:#0a0a0a;
+  --ink:#f5f5f0;
+  --yellow:#FFE033;
+  --panel:#111111;
+  --panel-2:#161616;
+  --line:rgba(245,245,240,0.12);
+  --line-soft:rgba(245,245,240,0.07);
+  --muted:rgba(245,245,240,0.55);
+  --muted-2:rgba(245,245,240,0.38);
+  --err:#ff6b5a;
+  --ok:#7bd88f;
+  --maxw:820px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* atmosphere: dot grid + vignette + grain */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(245,245,240,0.055) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 50% 0%, transparent 30%, rgba(0,0,0,0.85) 100%);
+}
+.grain{
+  position:fixed;inset:-50%;pointer-events:none;z-index:1;opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- progress rail ---------- */
+.rail{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:60;
+  background:rgba(245,245,240,0.06);
+}
+.rail-fill{
+  height:100%;width:0%;background:var(--yellow);
+  transition:width .45s cubic-bezier(.22,.61,.36,1);
+  box-shadow:0 0 14px rgba(255,224,51,0.5);
+}
+
+/* ---------- shell ---------- */
+.shell{
+  position:relative;z-index:2;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:34px 22px 120px;
+}
+
+.brandbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:44px;
+}
+.mark{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.05rem;letter-spacing:.22em;
+  color:var(--yellow);opacity:.75;
+}
+.handle{
+  font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(245,245,240,0.42);
+}
+
+/* ---------- intro screen ---------- */
+.intro-eyebrow{
+  font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--yellow);margin-bottom:22px;
+}
+h1{
+  font-family:'Playfair Display',serif;
+  font-weight:700;
+  font-size:clamp(2.3rem,7vw,3.6rem);
+  line-height:1.06;
+  letter-spacing:-0.02em;
+  margin-bottom:26px;
+}
+h1 mark{background:none;color:var(--yellow);font-style:italic}
+.lede{
+  font-size:1.06rem;color:var(--muted);max-width:56ch;margin-bottom:14px;
+}
+.lede strong{color:var(--ink);font-weight:500}
+
+.meta-strip{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  margin:38px 0 34px;
+}
+.meta-cell{padding:18px 4px 18px 0}
+.meta-cell + .meta-cell{border-left:1px solid var(--line-soft);padding-left:18px}
+.meta-num{
+  font-family:'Bebas Neue',sans-serif;font-size:1.9rem;
+  color:var(--yellow);line-height:1;letter-spacing:.03em;
+}
+.meta-lbl{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-top:6px}
+
+.notice{
+  border-left:2px solid var(--yellow);
+  padding:4px 0 4px 18px;
+  color:var(--muted);
+  font-size:.95rem;
+  margin-bottom:38px;
+  max-width:58ch;
+}
+
+/* ---------- step header ---------- */
+.step-head{margin-bottom:34px}
+.step-index{
+  display:flex;align-items:baseline;gap:14px;margin-bottom:14px;
+}
+.step-index .n{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:3.2rem;line-height:.85;color:var(--yellow);letter-spacing:.02em;
+}
+.step-index .of{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+.step-title{
+  font-family:'Playfair Display',serif;font-weight:700;
+  font-size:clamp(1.7rem,4.6vw,2.3rem);line-height:1.12;letter-spacing:-0.01em;
+}
+.step-kicker{color:var(--muted);margin-top:10px;max-width:54ch;font-size:.97rem}
+
+/* ---------- fields ---------- */
+.field{margin-bottom:30px}
+.field.half{}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:600px){.row2{grid-template-columns:1fr;gap:0}}
+
+label.q{
+  display:block;font-size:1rem;font-weight:500;margin-bottom:6px;line-height:1.4;
+}
+label.q .req{color:var(--yellow);margin-left:4px}
+.help{font-size:.84rem;color:var(--muted-2);margin-bottom:12px;line-height:1.5}
+
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:2px;
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  font-size:1rem;
+  padding:13px 14px;
+  transition:border-color .2s, background .2s;
+  appearance:none;
+}
+textarea{min-height:120px;resize:vertical;line-height:1.6}
+textarea.tall{min-height:190px}
+input::placeholder,textarea::placeholder{color:rgba(245,245,240,0.26)}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--yellow);background:var(--panel-2);
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23FFE033' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
+}
+select option{background:#111;color:#f5f5f0}
+
+/* choice pills */
+.choices{display:flex;flex-wrap:wrap;gap:9px}
+.choice{
+  position:relative;display:inline-flex;
+}
+.choice input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;left:0;top:0;margin:0}
+.choice span{
+  display:block;padding:10px 15px;
+  border:1px solid var(--line);border-radius:2px;
+  background:var(--panel);color:var(--muted);
+  font-size:.92rem;transition:all .18s;cursor:pointer;
+}
+.choice input:checked + span{
+  border-color:var(--yellow);color:#0a0a0a;background:var(--yellow);font-weight:500;
+}
+.choice input:focus-visible + span{outline:2px solid var(--yellow);outline-offset:2px}
+.choice:hover span{border-color:rgba(255,224,51,0.45);color:var(--ink)}
+.choice input:checked + span:hover{color:#0a0a0a}
+
+/* stacked choices for longer options */
+.choices.stack{flex-direction:column;gap:8px}
+.choices.stack .choice{width:100%}
+.choices.stack .choice span{width:100%}
+
+/* 1-10 scale */
+.scale{display:flex;gap:6px;flex-wrap:wrap}
+.scale .choice span{
+  min-width:44px;text-align:center;padding:11px 0;
+  font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.06em;
+}
+.scale-ends{
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:var(--muted-2);margin-top:9px;letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* errors */
+.field.invalid input,.field.invalid textarea,.field.invalid select{border-color:var(--err)}
+.field.invalid .choice span{border-color:rgba(255,107,90,0.5)}
+.errmsg{display:none;color:var(--err);font-size:.82rem;margin-top:8px;letter-spacing:.02em}
+.field.invalid .errmsg{display:block}
+
+/* ---------- nav ---------- */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin-top:46px;padding-top:26px;border-top:1px solid var(--line);
+}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border-radius:2px;transition:all .2s}
+.btn-primary{
+  background:var(--yellow);color:#0a0a0a;border:1px solid var(--yellow);
+  padding:14px 30px;font-size:.95rem;font-weight:700;
+  letter-spacing:.04em;
+}
+.btn-primary:hover{background:#ffe95c;border-color:#ffe95c}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{
+  background:none;color:var(--muted);border:1px solid var(--line);
+  padding:13px 22px;font-size:.9rem;
+}
+.btn-ghost:hover{color:var(--ink);border-color:var(--muted-2)}
+.btn-text{background:none;border:none;color:var(--muted-2);font-size:.85rem;text-decoration:underline;padding:6px 0}
+.btn-text:hover{color:var(--yellow)}
+button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+
+/* ---------- review ---------- */
+.review-block{margin-bottom:30px;border-left:1px solid var(--line);padding-left:20px}
+.review-sec{
+  font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.14em;
+  color:var(--yellow);margin-bottom:14px;
+}
+.review-item{margin-bottom:13px}
+.review-q{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);margin-bottom:2px}
+.review-a{font-size:.97rem;white-space:pre-wrap}
+.review-a.empty{color:var(--muted-2);font-style:italic}
+.review-edit{font-size:.75rem;color:var(--muted-2);text-decoration:underline;background:none;border:none;padding:0;margin-left:10px;letter-spacing:.04em}
+.review-edit:hover{color:var(--yellow)}
+
+/* consent */
+.consent{
+  border:1px solid var(--line);background:var(--panel);
+  padding:20px;margin-top:10px;
+}
+.consent .choice span{background:transparent}
+
+/* ---------- done ---------- */
+.done{text-align:left;padding-top:30px}
+.done .tick{
+  font-family:'Bebas Neue',sans-serif;color:var(--yellow);
+  font-size:.72rem;letter-spacing:.24em;margin-bottom:20px;
+}
+.fallback{
+  border:1px solid var(--line);background:var(--panel);padding:22px;margin-top:26px;
+}
+.fallback h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:10px}
+.fallback p{color:var(--muted);font-size:.92rem;margin-bottom:16px}
+.fallback-btns{display:flex;flex-wrap:wrap;gap:10px}
+
+.hidden{display:none !important}
+
+/* saving state */
+.spinner{
+  display:inline-block;width:13px;height:13px;border:2px solid rgba(10,10,10,0.25);
+  border-top-color:#0a0a0a;border-radius:50%;animation:spin .7s linear infinite;
+  margin-right:9px;vertical-align:-2px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+@media(max-width:600px){
+  .shell{padding:26px 18px 90px}
+  .meta-strip{grid-template-columns:1fr;}
+  .meta-cell + .meta-cell{border-left:none;border-top:1px solid var(--line-soft);padding-left:0}
+  .nav{flex-direction:column-reverse;align-items:stretch}
+  .nav button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+
+<div class="shell">
+  <div class="brandbar">
+    <div class="mark">THE REBOOT METHOD</div>
+    <div class="handle">@rebootwithdan</div>
+  </div>
+
+  <!-- INTRO -->
+  <section id="intro">
+    <div class="intro-eyebrow">Client intake</div>
+    <h1>Before I build anything, I need to <mark>know everything</mark>.</h1>
+    <p class="lede">Your training, nutrition, cardio and daily structure get built around your life, not a template. That only works if I have the full picture.</p>
+    <p class="lede"><strong>Answer honestly, not impressively.</strong> Nothing here is judged. The more detail you give me, the less guessing I do, and the faster you get results.</p>
+
+    <div class="meta-strip">
+      <div class="meta-cell"><div class="meta-num" id="mSections">8</div><div class="meta-lbl">Sections</div></div>
+      <div class="meta-cell"><div class="meta-num">15-20</div><div class="meta-lbl">Minutes</div></div>
+      <div class="meta-cell"><div class="meta-num">24H</div><div class="meta-lbl">Until your plan lands</div></div>
+    </div>
+
+    <p class="notice">Set aside one uninterrupted block and finish it in one sitting. There is no save button, so if you close the tab you start again. Everything you write goes to me only.</p>
+
+    <div class="nav" style="border-top:none;padding-top:0;margin-top:0">
+      <span></span>
+      <button class="btn-primary" id="startBtn">Start the intake</button>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <form id="form" class="hidden" novalidate>
+    <div class="step-head">
+      <div class="step-index"><span class="n" id="stepNum">01</span><span class="of" id="stepOf">of 08</span></div>
+      <h2 class="step-title" id="stepTitle"></h2>
+      <p class="step-kicker" id="stepKicker"></p>
+    </div>
+    <div id="fields"></div>
+    <div class="nav">
+      <button type="button" class="btn-ghost" id="backBtn">Back</button>
+      <button type="button" class="btn-primary" id="nextBtn">Continue</button>
+    </div>
+  </form>
+
+  <!-- REVIEW -->
+  <section id="review" class="hidden">
+    <div class="step-head">
+      <div class="step-index"><span class="n">09</span><span class="of">Final check</span></div>
+      <h2 class="step-title">Read it back before you send it.</h2>
+      <p class="step-kicker">This is exactly what lands on my screen. Fix anything that is vague, then send it through.</p>
+    </div>
+    <div id="reviewBody"></div>
+    <div class="consent">
+      <div class="choices stack">
+        <label class="choice"><input type="checkbox" id="consent"><span>Everything above is accurate, and I understand coaching is not medical advice.</span></label>
+      </div>
+      <div class="errmsg" id="consentErr">Tick the box to send your intake.</div>
+    </div>
+    <div class="nav">
+      <button type="button" class="btn-ghost" id="reviewBack">Back</button>
+      <button type="button" class="btn-primary" id="submitBtn">Send to Dan</button>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section id="done" class="hidden">
+    <div class="done">
+      <div class="tick" id="doneTick">RECEIVED</div>
+      <h1 id="doneTitle">That is everything I need.</h1>
+      <p class="lede" id="doneMsg">Your intake is with me. I am building your training, nutrition, cardio and daily structure now, and you will have it within 24 hours. If anything in there needs a follow up question, I will message you on WhatsApp.</p>
+      <div class="fallback hidden" id="fallback">
+        <h3>Send it to me manually</h3>
+        <p>The automatic send did not go through. Copy your answers or download them, then send them to me on WhatsApp. Nothing is lost.</p>
+        <div class="fallback-btns">
+          <button type="button" class="btn-primary" id="copyBtn">Copy my answers</button>
+          <button type="button" class="btn-ghost" id="dlBtn">Download as a file</button>
+          <button type="button" class="btn-ghost" id="waBtn">Open WhatsApp</button>
+        </div>
+      </div>
+      <div style="margin-top:28px">
+        <button type="button" class="btn-text" id="dlBtn2">Download a copy of my answers</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   1. CONFIG  —  DAN, EDIT THIS BLOCK ONLY
+   ============================================================
+   endpoint : where submissions get sent.
+              Easiest option: create a free form at formspree.io,
+              paste the URL it gives you here. Answers land in your
+              email and in a Formspree dashboard.
+              Leave as "" to run in manual mode (copy / download only).
+   whatsapp : your number in international format, digits only.
+   ============================================================ */
+const CONFIG = {
+  // "ghl"       = send straight into GoHighLevel via an Inbound Webhook
+  // "formspree" = send to a Formspree form, lands in your email
+  // "manual"    = no sending, client copies or downloads their answers
+  mode: "ghl",
+
+  endpoint: "",              // paste your GHL Inbound Webhook URL here
+  whatsapp: "62XXXXXXXXXXX", // your WhatsApp number, digits only
+  coachName: "Dan"
+};
+
+/* ============================================================
+   2. THE QUESTIONS
+   Add, remove or reword anything below. Field types available:
+   text, email, tel, number, textarea, select, radio, checkbox, scale
+   Add  req:true  to make a question required.
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"basics", title:"The basics", kicker:"The numbers I build the maths around.",
+  fields:[
+    {id:"name", label:"Full name", type:"text", req:true},
+    {id:"email", label:"Email", type:"email", req:true},
+    {id:"whatsapp", label:"WhatsApp number", type:"tel", req:true, help:"Include your country code."},
+    {id:"age", label:"Age", type:"number", req:true},
+    {id:"height", label:"Height", type:"text", req:true, placeholder:"cm or feet and inches"},
+    {id:"weight", label:"Current weight", type:"text", req:true, placeholder:"kg or lbs"},
+    {id:"goalweight", label:"Goal weight, if you have one in mind", type:"text", placeholder:"Leave blank if unsure"},
+    {id:"waist", label:"Waist measurement at the navel", type:"text", help:"Measure relaxed, first thing in the morning. Skip it if you cannot right now."},
+    {id:"heaviest", label:"Heaviest and lightest you have been as an adult", type:"text", placeholder:"e.g. heaviest 108kg, lightest 82kg"},
+    {id:"job", label:"What do you do for work", type:"text", req:true},
+    {id:"city", label:"City and country you live in", type:"text", req:true},
+    {id:"photos", label:"Will you send front, side and back progress photos", type:"radio", req:true,
+      help:"These are for tracking only. They never get shared, ever.",
+      options:["Yes","I would rather not"]}
+  ]
+},
+{
+  id:"goals", title:"Where you are going", kicker:"Vague goals get vague plans. Be specific.",
+  fields:[
+    {id:"primary", label:"Your primary goal right now", type:"radio", req:true,
+      options:["Lose body fat","Build muscle","Lose fat and build muscle","Fix my energy and health","Get stronger or perform better","Something else"]},
+    {id:"goalshort", label:"Short term, what specifically has to be true for you to call this a win", type:"textarea", req:true,
+      help:"Numbers, clothes, photos, energy, how you feel at 4pm. Be exact, and put a rough timeframe on it.",
+      placeholder:"e.g. Down to 88kg, shirt off at the pool without holding my breath, still training 4 times a week, and no 3pm crash."},
+    {id:"goal12mo", label:"Where do you want to be in 12 months", type:"textarea", req:true},
+    {id:"whynow", label:"Why now. What actually triggered this", type:"textarea", req:true,
+      help:"There is always a moment. A photo, a comment, a health scare, a birthday. Tell me yours."},
+    {id:"donothing", label:"If nothing changes in the next two years, what does that look like", type:"textarea"},
+    {id:"tried", label:"What have you tried before, and why did it stop working", type:"textarea", req:true,
+      help:"Every diet, every program, every coach. Especially the ones that failed."},
+    {id:"obstacle", label:"What is most likely to get in the way this time", type:"textarea", req:true},
+    {id:"confidence", label:"How confident are you that you can follow a plan consistently", type:"scale", req:true,
+      scaleLow:"Not at all", scaleHigh:"Completely"}
+  ]
+},
+{
+  id:"metabolic", title:"Metabolic snapshot", kicker:"This is where most coaches skip. It is the part that tells me how hard I can push you and how much food you need.",
+  fields:[
+    {id:"waketemp", label:"Waking oral temperature", type:"text",
+      help:"Taken in bed before you move or drink anything. If you have not measured it, write not measured and do it for 3 mornings before we start.",
+      placeholder:"e.g. 36.2C or not measured"},
+    {id:"pmtemp", label:"Temperature mid afternoon, around 3pm", type:"text", placeholder:"e.g. 36.8C or not measured"},
+    {id:"rhr", label:"Resting heart rate on waking", type:"text", placeholder:"e.g. 58 bpm or not measured"},
+    {id:"extremities", label:"Your hands and feet are usually", type:"radio", req:true,
+      options:["Warm","Normal","Cool","Cold, even in warm weather"]},
+    {id:"energy", label:"Describe your energy across a normal day", type:"textarea", req:true,
+      help:"Morning, midday, afternoon, evening. Where does it dip and where does it spike."},
+    {id:"crash", label:"Do you get an afternoon crash", type:"radio", req:true,
+      options:["Never","Occasionally","Most days","Every single day"]},
+    {id:"sleephours", label:"Average hours of sleep", type:"text", req:true, placeholder:"e.g. 6.5"},
+    {id:"sleeptimes", label:"What time do you go to bed and wake up", type:"text", req:true, placeholder:"e.g. bed 11:30pm, up 6:15am"},
+    {id:"sleepquality", label:"Sleep quality", type:"scale", req:true, scaleLow:"Broken", scaleHigh:"Excellent"},
+    {id:"nightwake", label:"Do you wake during the night", type:"checkbox",
+      options:["I sleep through","Wake once or twice","Wake up to pee","Wake up hot or sweating","Wake around 2 to 4am and cannot get back down","Hard to fall asleep in the first place"]},
+    {id:"morningappetite", label:"Appetite when you wake up", type:"radio", req:true,
+      options:["Genuinely hungry","Could eat","No appetite at all","Feel a bit sick at the thought of food"]},
+    {id:"cravings", label:"What do you crave, and when", type:"textarea",
+      placeholder:"e.g. sugar after dinner, salty stuff late at night"},
+    {id:"libido", label:"Libido", type:"scale", req:true, scaleLow:"Non existent", scaleHigh:"Strong"},
+    {id:"morningwood", label:"Morning erections", type:"radio",
+      help:"Blunt but genuinely useful. It is one of the clearest markers of hormonal and metabolic health in men over 40.",
+      options:["Most mornings","A few times a week","Rarely","Almost never","Rather not say"]},
+    {id:"mood", label:"Mood, patience and irritability lately", type:"textarea"},
+    {id:"cold", label:"How do you handle cold", type:"radio",
+      options:["Always warm","Fine","I feel the cold more than others","I am always cold"]},
+    {id:"digestion", label:"Digestion and bowel movements", type:"textarea", req:true,
+      help:"How many per day, consistency, bloating, reflux, gas, anything that flares it up. Do not be polite about it, it matters."},
+    {id:"sweat", label:"Do you sweat easily", type:"radio", options:["Very easily","Normally","Only under real effort","Barely sweat at all"]},
+    {id:"recovery", label:"How do you feel the day after a hard session", type:"radio", req:true,
+      options:["Fine, ready to go again","A bit sore but good","Wiped out for a day","Wiped out for two or more days"]},
+    {id:"hairskin", label:"Any changes to hair, skin, nails or body temperature you have noticed", type:"textarea"},
+    {id:"wearable", label:"Do you wear a tracking device", type:"radio",
+      options:["Oura","Whoop","Garmin","Apple Watch","Other","None"]}
+  ]
+},
+{
+  id:"health", title:"Health and injuries", kicker:"So I never program something that hurts you.",
+  fields:[
+    {id:"conditions", label:"Any diagnosed medical conditions", type:"textarea", req:true,
+      help:"Thyroid, blood pressure, cholesterol, blood sugar, sleep apnoea, anything. Write none if none.",
+      placeholder:"Write none if there are none."},
+    {id:"meds", label:"Medications you take", type:"textarea", req:true, placeholder:"Include dose and timing. Write none if none."},
+    {id:"supps", label:"Supplements you currently take", type:"textarea", req:true, placeholder:"Brand, dose and when you take them. Write none if none."},
+    {id:"bloods", label:"Have you had bloodwork in the last 12 months", type:"radio", req:true,
+      options:["Yes and I can send it","Yes but I do not have the results","No","I am booking some in"]},
+    {id:"injuries", label:"Current injuries, pain or niggles", type:"textarea", req:true,
+      help:"Where, how long, what makes it worse, what makes it better. Write none if none.",
+      placeholder:"e.g. left shoulder, 2 years, hurts on overhead pressing, fine on incline."},
+    {id:"pastinjuries", label:"Past injuries or surgeries", type:"textarea"},
+    {id:"cantdo", label:"Any movements you cannot do or have been told to avoid", type:"textarea"},
+    {id:"nicotine", label:"Nicotine", type:"radio", options:["None","Vape","Cigarettes","Pouches or gum","Occasionally, socially"]},
+    {id:"stress_health", label:"Anything else health related I should know before I program for you", type:"textarea"}
+  ]
+},
+{
+  id:"nutrition", title:"How you eat now", kicker:"I build your plan out of food you actually like. Tell me what that is.",
+  fields:[
+    {id:"typicalday", label:"Walk me through everything you ate and drank yesterday", type:"textarea", req:true, tall:true,
+      help:"Times, rough portions, drinks, snacks, the lot. If yesterday was unusual, use a normal day instead. Honesty here is worth more than a perfect answer.",
+      placeholder:"6:30am - black coffee\n9:00am - 3 eggs, 2 toast, butter\n12:30pm - chicken salad and a coke\n..."},
+    {id:"mealcount", label:"How many times a day do you eat", type:"radio", req:true,
+      options:["1 to 2","3","4 to 5","6 or more","It changes every day"]},
+    {id:"firstmeal", label:"What time is your first and last food of the day", type:"text", req:true, placeholder:"e.g. first 11am, last 9pm"},
+    {id:"loves", label:"Foods you love and want in the plan", type:"textarea", req:true,
+      help:"Be greedy here. The plan is far easier to stick to when it is full of food you look forward to."},
+    {id:"hates", label:"Foods you will not eat", type:"textarea", req:true},
+    {id:"allergies", label:"Allergies and intolerances", type:"textarea", req:true, placeholder:"Write none if none."},
+    {id:"tolerance", label:"How do these sit with you", type:"checkbox",
+      help:"Tick anything that causes bloating, discomfort or that you actively avoid.",
+      options:["Dairy","Gluten or wheat","Red meat","Seafood","Eggs","Fruit","Beans and legumes","Onion and garlic","Spicy food","None of these bother me"]},
+    {id:"caffeine", label:"Caffeine intake and timing", type:"text", req:true, placeholder:"e.g. 3 coffees, last one around 2pm"},
+    {id:"alcohol", label:"Alcohol", type:"text", req:true, placeholder:"e.g. 4 to 6 beers on a Friday, nothing midweek"},
+    {id:"water", label:"Roughly how much water a day, and do you add salt or electrolytes", type:"text", req:true},
+    {id:"diethistory", label:"Diets you have run before", type:"checkbox",
+      options:["Keto","Low carb","Intermittent fasting or OMAD","Carnivore","Calorie counting or macros","Paleo","Vegan or vegetarian","Meal delivery","Weight loss injections","Never dieted properly"]},
+    {id:"lowestcals", label:"Lowest daily calories you have eaten for a sustained stretch, and for how long", type:"text",
+      help:"This tells me a lot about where your metabolism is starting from.",
+      placeholder:"e.g. around 1400 for about 6 months, or not sure"},
+    {id:"tracking", label:"Are you willing to weigh and track your food", type:"radio", req:true,
+      options:["Yes, happy to","For a few weeks to learn portions","I would rather not","Absolutely not"]},
+    {id:"cooking", label:"Who cooks, how confident are you, and how much time do you have", type:"textarea", req:true},
+    {id:"eatingout", label:"How many meals a week are eaten out, ordered in or client entertaining", type:"text", req:true},
+    {id:"travel_food", label:"How often do you travel, and what does eating look like when you do", type:"textarea"},
+    {id:"budget", label:"Any budget or shopping constraints I should work inside", type:"textarea"}
+  ]
+},
+{
+  id:"training", title:"Training", kicker:"What you can do, where you can do it, and what you actually enjoy.",
+  fields:[
+    {id:"history", label:"Your training history", type:"textarea", req:true,
+      help:"How many years, what styles, what you were best at, and the longest consistent stretch you have ever put together."},
+    {id:"current", label:"What are you doing right now", type:"textarea", req:true,
+      help:"Sessions per week, split, exercises, rough sets and reps. Write nothing at the moment if you are not training."},
+    {id:"days", label:"How many days a week can you realistically train", type:"radio", req:true,
+      help:"Realistically. Not the best case week, the normal week.",
+      options:["2","3","4","5","6"]},
+    {id:"session", label:"How long can a session be", type:"radio", req:true,
+      options:["30 minutes","45 minutes","60 minutes","75 to 90 minutes"]},
+    {id:"whentrain", label:"What time of day will you train, and which days suit you best", type:"text", req:true,
+      placeholder:"e.g. 6am Mon, Tue, Thu, Fri before work"},
+    {id:"where", label:"Where will you train", type:"checkbox", req:true,
+      options:["Commercial gym","Home gym","Hotel gyms while travelling","Outdoors","Garage or bodyweight only"]},
+    {id:"gymname", label:"If you use a gym, which one and where", type:"text",
+      help:"Name and location. I will look up the equipment so your program matches the floor you are standing on."},
+    {id:"equipment", label:"What equipment do you have access to", type:"checkbox", req:true,
+      options:["Full commercial gym","Barbell and plates","Squat rack or power rack","Adjustable bench","Dumbbells","Kettlebells","Cable machine","Leg machines","Resistance bands","Pull up bar","Treadmill","Bike or spin bike","Rower","Assault bike","Bodyweight only"]},
+    {id:"dbrange", label:"If you train at home, what weights do you actually own", type:"text",
+      placeholder:"e.g. adjustable dumbbells to 32kg, one 24kg kettlebell, bands"},
+    {id:"lifts", label:"Rough numbers on your main lifts", type:"textarea",
+      help:"Best recent set on anything you know. Write not sure if you have no idea, that is fine.",
+      placeholder:"e.g. bench 90kg x 5, squat 120kg x 5, deadlift 150kg x 3, 8 strict pull ups"},
+    {id:"loveexercises", label:"Exercises you love", type:"textarea", req:true},
+    {id:"hateexercises", label:"Exercises you hate or that hurt", type:"textarea", req:true},
+    {id:"cardio", label:"What cardio are you doing now, and how do you feel about cardio in general", type:"textarea", req:true},
+    {id:"steps", label:"Average daily steps", type:"text", req:true, placeholder:"e.g. around 6000, or not tracked"},
+    {id:"sports", label:"Sports, surfing, golf, padel, anything else you do weekly", type:"textarea",
+      help:"I will program around it rather than on top of it."},
+    {id:"mobility", label:"Anything that feels stiff, restricted or limits your range", type:"textarea"}
+  ]
+},
+{
+  id:"life", title:"Your actual life", kicker:"The plan has to fit the day you really have, not the one you wish you had.",
+  fields:[
+    {id:"weekday", label:"Walk me through a normal weekday, hour by hour", type:"textarea", req:true, tall:true,
+      help:"Wake up to lights out. Include work, commute, meals, kids, training, screen time, wind down. This is the single most useful answer on the whole form, so take your time.",
+      placeholder:"5:45am - wake, coffee\n6:30am - gym\n8:00am - school run\n9:00am - desk, first meetings\n..."},
+    {id:"weekend", label:"How is a weekend different", type:"textarea", req:true},
+    {id:"worktype", label:"Your working day is mostly", type:"radio", req:true,
+      options:["Desk based","On my feet","Physical work","Shift work","Constant travel","A mix"]},
+    {id:"workhours", label:"Typical working hours, and how often they blow out", type:"text", req:true},
+    {id:"traveldays", label:"How many nights a month are you away from home", type:"text", req:true},
+    {id:"family", label:"Who is at home, and what are you responsible for", type:"textarea", req:true,
+      help:"Kids and ages, caregiving, anything that takes your evenings."},
+    {id:"support", label:"How supportive are the people around you", type:"radio", req:true,
+      options:["Very, they are on board","Neutral","They will quietly make it harder","I am doing this on my own"]},
+    {id:"stress", label:"Current stress level", type:"scale", req:true, scaleLow:"Calm", scaleHigh:"Maxed out"},
+    {id:"stressors", label:"Your three biggest sources of stress right now", type:"textarea", req:true},
+    {id:"sunlight", label:"How much time do you spend outside in daylight", type:"radio", req:true,
+      options:["Barely any","Under 30 minutes","30 to 60 minutes","1 to 2 hours","More than 2 hours"]},
+    {id:"recoverytools", label:"What do you have access to", type:"checkbox",
+      options:["Sauna","Ice bath or cold plunge","Pool","Massage","Physio","Steam room","None of these"]},
+    {id:"evening", label:"What does the last hour before bed look like", type:"textarea", req:true,
+      placeholder:"Screens, work, TV, alcohol, kids, whatever it really is."},
+    {id:"events", label:"Anything already in the diary over the coming months", type:"textarea",
+      help:"Holidays, weddings, work trips, big events. I will build around them instead of pretending they are not coming."}
+  ]
+},
+{
+  id:"coaching", title:"How to coach you", kicker:"Last one. This is how I get the most out of you.",
+  fields:[
+    {id:"need", label:"What do you actually need from me", type:"checkbox", req:true,
+      options:["Accountability and check ins","A plan I just follow","Education, I want to understand why","Someone to push me hard","Flexibility when life gets messy","Someone to keep me patient"]},
+    {id:"style", label:"How do you want me to talk to you", type:"radio", req:true,
+      options:["Direct and blunt, tell me straight","Firm but encouraging","Supportive, I respond badly to pressure"]},
+    {id:"slip", label:"What normally happens when you slip up", type:"textarea", req:true,
+      help:"Do you get back on it the next day, or does one bad weekend end the whole thing."},
+    {id:"pastcoach", label:"Have you worked with a coach before", type:"textarea", req:true,
+      help:"What they did well, what they did badly, and why it ended."},
+    {id:"quit", label:"What would make you quit on this", type:"textarea", req:true,
+      help:"Tell me now and I will build the plan so it does not happen."},
+    {id:"nonneg", label:"Non negotiables that have to stay in your life", type:"textarea",
+      help:"Friday beers, family dinner, Sunday roast, the morning coffee ritual. Name them and I will keep them in."},
+    {id:"checkin", label:"Best day for your weekly check in", type:"radio", req:true,
+      options:["Sunday","Monday","Friday","Whatever suits you"]},
+    {id:"commitment", label:"How committed are you, honestly", type:"scale", req:true, scaleLow:"Testing the water", scaleHigh:"All in"},
+    {id:"anythingelse", label:"Anything else I should know", type:"textarea", req:true,
+      help:"Special requests, things you have always wanted to try, things you are nervous about. Anything at all.",
+      placeholder:"Write none if there is nothing."}
+  ]
+}
+];
+
+/* ============================================================
+   3. ENGINE  —  no need to touch below here
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const el = (t,c) => { const e=document.createElement(t); if(c) e.className=c; return e; };
+const pad = n => String(n).padStart(2,"0");
+
+let step = 0;
+const answers = {};
+const totalSteps = SECTIONS.length;
+
+$("#mSections").textContent = totalSteps;
+$("#stepOf").textContent = "of " + pad(totalSteps);
+
+function buildField(f){
+  const wrap = el("div","field");
+  wrap.dataset.fid = f.id;
+
+  const lab = el("label","q");
+  lab.textContent = f.label;
+  lab.setAttribute("for", f.id);
+  if(f.req){ const r=el("span","req"); r.textContent="*"; lab.appendChild(r); }
+  wrap.appendChild(lab);
+
+  if(f.help){ const h=el("div","help"); h.textContent=f.help; wrap.appendChild(h); }
+
+  if(f.type==="textarea"){
+    const t=el("textarea", f.tall?"tall":"");
+    t.id=f.id; t.name=f.id;
+    if(f.placeholder) t.placeholder=f.placeholder;
+    if(answers[f.id]) t.value=answers[f.id];
+    wrap.appendChild(t);
+  }
+  else if(f.type==="select"){
+    const s=el("select"); s.id=f.id; s.name=f.id;
+    const blank=el("option"); blank.value=""; blank.textContent="Choose one";
+    s.appendChild(blank);
+    f.options.forEach(o=>{ const op=el("option"); op.value=o; op.textContent=o; if(answers[f.id]===o) op.selected=true; s.appendChild(op); });
+    wrap.appendChild(s);
+  }
+  else if(f.type==="radio" || f.type==="checkbox"){
+    const longest = f.options.reduce((a,b)=>Math.max(a,b.length),0);
+    const box = el("div","choices" + (longest>26?" stack":""));
+    f.options.forEach((o,i)=>{
+      const c=el("label","choice");
+      const inp=el("input");
+      inp.type=f.type; inp.name=f.id; inp.value=o; inp.id=f.id+"_"+i;
+      if(f.type==="radio" && answers[f.id]===o) inp.checked=true;
+      if(f.type==="checkbox" && Array.isArray(answers[f.id]) && answers[f.id].includes(o)) inp.checked=true;
+      const sp=el("span"); sp.textContent=o;
+      c.appendChild(inp); c.appendChild(sp); box.appendChild(c);
+    });
+    wrap.appendChild(box);
+  }
+  else if(f.type==="scale"){
+    const box=el("div","choices scale");
+    for(let i=1;i<=10;i++){
+      const c=el("label","choice");
+      const inp=el("input"); inp.type="radio"; inp.name=f.id; inp.value=String(i); inp.id=f.id+"_"+i;
+      if(answers[f.id]===String(i)) inp.checked=true;
+      const sp=el("span"); sp.textContent=i;
+      c.appendChild(inp); c.appendChild(sp); box.appendChild(c);
+    }
+    wrap.appendChild(box);
+    const ends=el("div","scale-ends");
+    const a=el("span"); a.textContent=f.scaleLow||"Low";
+    const b=el("span"); b.textContent=f.scaleHigh||"High";
+    ends.appendChild(a); ends.appendChild(b);
+    wrap.appendChild(ends);
+  }
+  else {
+    const i=el("input"); i.type=f.type; i.id=f.id; i.name=f.id;
+    if(f.placeholder) i.placeholder=f.placeholder;
+    if(answers[f.id]) i.value=answers[f.id];
+    if(f.type==="number"){ i.min="0"; i.inputMode="numeric"; }
+    wrap.appendChild(i);
+  }
+
+  const err=el("div","errmsg");
+  err.textContent = f.type==="checkbox" ? "Pick at least one." : "This one matters. Fill it in.";
+  wrap.appendChild(err);
+
+  return wrap;
+}
+
+function renderStep(){
+  const sec = SECTIONS[step];
+  $("#stepNum").textContent = pad(step+1);
+  $("#stepTitle").textContent = sec.title;
+  $("#stepKicker").textContent = sec.kicker;
+  const holder = $("#fields");
+  holder.innerHTML = "";
+  sec.fields.forEach(f => holder.appendChild(buildField(f)));
+  $("#backBtn").textContent = step===0 ? "Back to start" : "Back";
+  $("#nextBtn").textContent = step===totalSteps-1 ? "Review my answers" : "Continue";
+  setProgress((step)/totalSteps);
+  window.scrollTo({top:0,behavior:"instant"});
+}
+
+function setProgress(p){ $("#railFill").style.width = Math.min(100,Math.round(p*100)) + "%"; }
+
+function captureStep(){
+  SECTIONS[step].fields.forEach(f=>{
+    if(f.type==="checkbox"){
+      const vals=[...document.querySelectorAll(`input[name="${f.id}"]:checked`)].map(i=>i.value);
+      answers[f.id]=vals;
+    } else if(f.type==="radio" || f.type==="scale"){
+      const v=document.querySelector(`input[name="${f.id}"]:checked`);
+      answers[f.id]= v ? v.value : "";
+    } else {
+      const n=document.getElementById(f.id);
+      answers[f.id]= n ? n.value.trim() : "";
+    }
+  });
+}
+
+function validateStep(){
+  let ok=true, firstBad=null;
+  SECTIONS[step].fields.forEach(f=>{
+    const wrap=document.querySelector(`.field[data-fid="${f.id}"]`);
+    wrap.classList.remove("invalid");
+    if(!f.req) return;
+    const v=answers[f.id];
+    const empty = Array.isArray(v) ? v.length===0 : !v;
+    if(empty){
+      ok=false; wrap.classList.add("invalid");
+      if(!firstBad) firstBad=wrap;
+    }
+  });
+  if(firstBad) firstBad.scrollIntoView({behavior:"smooth",block:"center"});
+  return ok;
+}
+
+function show(id){
+  ["#intro","#form","#review","#done"].forEach(s=>$(s).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+$("#startBtn").onclick = () => { show("#form"); renderStep(); };
+
+$("#nextBtn").onclick = () => {
+  captureStep();
+  if(!validateStep()) return;
+  if(step < totalSteps-1){ step++; renderStep(); }
+  else { buildReview(); show("#review"); setProgress(1); window.scrollTo({top:0}); }
+};
+
+$("#backBtn").onclick = () => {
+  captureStep();
+  if(step===0){ show("#intro"); setProgress(0); window.scrollTo({top:0}); }
+  else { step--; renderStep(); }
+};
+
+$("#reviewBack").onclick = () => { step=totalSteps-1; show("#form"); renderStep(); };
+
+function fmt(v){
+  if(Array.isArray(v)) return v.length ? v.join(", ") : "";
+  return v || "";
+}
+
+function buildReview(){
+  const body=$("#reviewBody");
+  body.innerHTML="";
+  SECTIONS.forEach((sec,si)=>{
+    const b=el("div","review-block");
+    const h=el("div","review-sec");
+    h.textContent = pad(si+1) + "  " + sec.title.toUpperCase();
+    const edit=el("button","review-edit");
+    edit.type="button"; edit.textContent="edit";
+    edit.onclick=()=>{ step=si; show("#form"); renderStep(); };
+    h.appendChild(edit);
+    b.appendChild(h);
+    sec.fields.forEach(f=>{
+      const item=el("div","review-item");
+      const q=el("div","review-q"); q.textContent=f.label;
+      const a=el("div","review-a");
+      const val=fmt(answers[f.id]);
+      if(val) a.textContent=val; else { a.textContent="Not answered"; a.classList.add("empty"); }
+      item.appendChild(q); item.appendChild(a); b.appendChild(item);
+    });
+    body.appendChild(b);
+  });
+}
+
+function plainText(){
+  let out = "THE REBOOT METHOD - CLIENT INTAKE\n";
+  out += "Submitted: " + new Date().toLocaleString() + "\n";
+  out += "=".repeat(52) + "\n\n";
+  SECTIONS.forEach((sec,si)=>{
+    out += pad(si+1) + ". " + sec.title.toUpperCase() + "\n";
+    out += "-".repeat(52) + "\n";
+    sec.fields.forEach(f=>{
+      out += f.label + ":\n" + (fmt(answers[f.id]) || "(not answered)") + "\n\n";
+    });
+    out += "\n";
+  });
+  return out;
+}
+
+function payload(){
+  // GHL requires flat JSON, snake_case keys with no spaces, and no arrays.
+  if(CONFIG.mode === "ghl"){
+    const nameParts = (answers.name||"").trim().split(/\s+/);
+    const p = {
+      first_name: nameParts[0] || "",
+      last_name: nameParts.slice(1).join(" ") || "",
+      full_name: answers.name || "",
+      email: answers.email || "",
+      phone: answers.whatsapp || "",
+      submitted_at: new Date().toLocaleString(),
+      full_intake: plainText()
+    };
+    SECTIONS.forEach(sec=>{
+      sec.fields.forEach(f=>{
+        p[sec.id + "_" + f.id] = fmt(answers[f.id]);
+      });
+    });
+    return p;
+  }
+  // Formspree and anything else: readable labels, nicer emails.
+  const p = { _subject: "New Reboot intake: " + (answers.name || "Unnamed client") };
+  SECTIONS.forEach(sec=>{
+    sec.fields.forEach(f=>{
+      p[sec.title + " | " + f.label] = fmt(answers[f.id]);
+    });
+  });
+  p["Submitted at"] = new Date().toLocaleString();
+  return p;
+}
+
+async function send(){
+  if(!CONFIG.endpoint || CONFIG.mode === "manual") return false;
+  const body = JSON.stringify(payload());
+  // Attempt 1: normal JSON post. Works with Formspree and with GHL when it
+  // returns CORS headers.
+  try{
+    const res = await fetch(CONFIG.endpoint,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body
+    });
+    if(res.ok) return true;
+  }catch(e){ /* fall through */ }
+  // Attempt 2: same JSON, sent as a simple request so the browser does not
+  // block it. The post is delivered but the reply cannot be read back.
+  if(CONFIG.mode === "ghl"){
+    try{
+      await fetch(CONFIG.endpoint,{
+        method:"POST",
+        mode:"no-cors",
+        headers:{"Content-Type":"text/plain"},
+        body
+      });
+      return true;
+    }catch(e){ /* fall through */ }
+  }
+  return false;
+}
+
+$("#submitBtn").onclick = async () => {
+  const consent = $("#consent");
+  const consentField = consent.closest(".consent");
+  if(!consent.checked){
+    consentField.classList.add("invalid");
+    $("#consentErr").style.display="block";
+    consentField.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  const btn=$("#submitBtn");
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Sending';
+
+  const sent = await send();
+
+  show("#done");
+  window.scrollTo({top:0});
+  if(!sent){
+    $("#doneTick").textContent = "NOT SENT YET";
+    $("#doneTitle").textContent = "One more step to get this to me.";
+    $("#doneMsg").textContent = "Your answers are safe on this screen. Copy or download them below and send them straight to me, and I will start building.";
+    $("#fallback").classList.remove("hidden");
+    $("#dlBtn2").classList.add("hidden");
+  }
+};
+
+function download(){
+  const blob=new Blob([plainText()],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download = "reboot-intake-" + (answers.name||"client").toLowerCase().replace(/[^a-z0-9]+/g,"-") + ".txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+$("#dlBtn").onclick = download;
+$("#dlBtn2").onclick = download;
+
+$("#copyBtn").onclick = async () => {
+  const btn=$("#copyBtn");
+  try{
+    await navigator.clipboard.writeText(plainText());
+    btn.textContent="Copied";
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=plainText(); document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+    btn.textContent="Copied";
+  }
+  setTimeout(()=>btn.textContent="Copy my answers",2200);
+};
+
+$("#waBtn").onclick = () => {
+  const msg = encodeURIComponent("Hi " + CONFIG.coachName + ", here is my intake. Pasting it below.");
+  window.open("https://wa.me/" + CONFIG.whatsapp.replace(/\D/g,"") + "?text=" + msg, "_blank");
+};
+
+$("#consent").addEventListener("change", e => {
+  if(e.target.checked){
+    e.target.closest(".consent").classList.remove("invalid");
+    $("#consentErr").style.display="none";
+  }
+});
+
+// clear a field error as soon as they answer it
+$("#fields").addEventListener("input", e => {
+  const w = e.target.closest(".field"); if(w) w.classList.remove("invalid");
+});
+$("#fields").addEventListener("change", e => {
+  const w = e.target.closest(".field"); if(w) w.classList.remove("invalid");
+});
+
+// tell the parent page how tall we are, so the embed can resize itself
+function reportHeight(){
+  if(window.parent === window) return;
+  const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+  parent.postMessage({ rebootFormHeight: h }, "*");
+}
+if(window.ResizeObserver){ new ResizeObserver(reportHeight).observe(document.body); }
+window.addEventListener("load", reportHeight);
+setInterval(reportHeight, 800);
+
+// warn before losing progress
+window.addEventListener("beforeunload", e => {
+  if(!$("#intro").classList.contains("hidden")) return;
+  if(!$("#done").classList.contains("hidden")) return;
+  e.preventDefault(); e.returnValue = "";
+});
+</script>
+</body>
+</html>
