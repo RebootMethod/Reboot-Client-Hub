@@ -234,7 +234,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer;border-radius:2px;transit
   padding:14px 30px;font-size:.95rem;font-weight:700;
   letter-spacing:.04em;
 }
-.btn-primary:hover{background:#ffe95c;border-color:#ffe95c}
+.btn-primary:hover{background:var(--yellow);border-color:var(--yellow);opacity:.88}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .btn-ghost{
   background:none;color:var(--muted);border:1px solid var(--line);
@@ -278,6 +278,8 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
 .fallback p{color:var(--muted);font-size:.92rem;margin-bottom:16px}
 .fallback-btns{display:flex;flex-wrap:wrap;gap:10px}
 
+.save-row{text-align:center;margin-top:18px}
+
 .hidden{display:none !important}
 
 /* saving state */
@@ -319,14 +321,15 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
 
     <div class="meta-strip">
       <div class="meta-cell"><div class="meta-num" id="mSections">8</div><div class="meta-lbl">Sections</div></div>
-      <div class="meta-cell"><div class="meta-num">15-20</div><div class="meta-lbl">Minutes</div></div>
-      <div class="meta-cell"><div class="meta-num">24H</div><div class="meta-lbl">Until your plan lands</div></div>
+      <div class="meta-cell"><div class="meta-num">30</div><div class="meta-lbl">Minutes</div></div>
+      <div class="meta-cell"><div class="meta-num">48H</div><div class="meta-lbl">Until your plan lands</div></div>
     </div>
 
-    <p class="notice">Set aside one uninterrupted block and finish it in one sitting. There is no save button, so if you close the tab you start again. Everything you write goes to me only.</p>
+    <p class="notice">Your answers save as you go, so you can stop and pick it back up. Use the link in your welcome message, on the same phone or laptop you started on. Everything you write goes to me only.</p>
 
     <div class="nav" style="border-top:none;padding-top:0;margin-top:0">
-      <span></span>
+      <button type="button" class="btn-text hidden" id="restartBtn">Start again</button>
+      <span id="restartGap"></span>
       <button class="btn-primary" id="startBtn">Start the intake</button>
     </div>
   </section>
@@ -343,7 +346,21 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
       <button type="button" class="btn-ghost" id="backBtn">Back</button>
       <button type="button" class="btn-primary" id="nextBtn">Continue</button>
     </div>
+    <div class="save-row"><button type="button" class="btn-text" id="saveBtn">Save and come back later</button></div>
   </form>
+
+  <!-- SAVED -->
+  <section id="saved" class="hidden">
+    <div class="done">
+      <div class="tick" id="savedTick">SAVED</div>
+      <h1 id="savedTitle">Your answers are saved.</h1>
+      <p class="lede" id="savedMsg">Come back through the link in your welcome message, on this same phone or laptop, and you will pick up right here.</p>
+      <div class="nav" style="border-top:none;padding-top:0">
+        <span></span>
+        <button type="button" class="btn-primary" id="keepGoingBtn">Keep going now</button>
+      </div>
+    </div>
+  </section>
 
   <!-- REVIEW -->
   <section id="review" class="hidden">
@@ -355,7 +372,7 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     <div id="reviewBody"></div>
     <div class="consent">
       <div class="choices stack">
-        <label class="choice"><input type="checkbox" id="consent"><span>Everything above is accurate, and I understand coaching is not medical advice.</span></label>
+        <label class="choice"><input type="checkbox" id="consent"><span>I agree to Dan storing my health information to coach me. Everything above is accurate, I understand coaching is not medical advice, and I will get medical clearance if I need it.</span></label>
       </div>
       <div class="errmsg" id="consentErr">Tick the box to send your intake.</div>
     </div>
@@ -370,7 +387,7 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
     <div class="done">
       <div class="tick" id="doneTick">RECEIVED</div>
       <h1 id="doneTitle">That is everything I need.</h1>
-      <p class="lede" id="doneMsg">Your intake is with me. I am building your training, nutrition, cardio and daily structure now, and you will have it within 24 hours. If anything in there needs a follow up question, I will message you on WhatsApp.</p>
+      <p class="lede" id="doneMsg">Your intake is with me. I am building your training, nutrition, cardio and daily structure now, and you will have it within 48 hours. If anything in there needs a follow up question, I will message you on WhatsApp.</p>
       <div class="fallback hidden" id="fallback">
         <h3>Send it to me manually</h3>
         <p>The automatic send did not go through. Copy your answers or download them, then send them to me on WhatsApp. Nothing is lost.</p>
@@ -389,7 +406,7 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
 
 <script>
 /* ============================================================
-   1. CONFIG  —  DAN, EDIT THIS BLOCK ONLY
+   1. CONFIG  ‚Äî  DAN, EDIT THIS BLOCK ONLY
    ============================================================
    endpoint : where submissions get sent.
               Easiest option: create a free form at formspree.io,
@@ -405,7 +422,7 @@ const CONFIG = {
   mode: "ghl",
 
   endpoint: "",              // paste your GHL Inbound Webhook URL here
-  whatsapp: "62XXXXXXXXXXX", // your WhatsApp number, digits only
+  whatsapp: "61456780363",   // your WhatsApp number, digits only
   coachName: "Dan"
 };
 
@@ -423,44 +440,38 @@ const SECTIONS = [
     {id:"email", label:"Email", type:"email", req:true},
     {id:"whatsapp", label:"WhatsApp number", type:"tel", req:true, help:"Include your country code."},
     {id:"age", label:"Age", type:"number", req:true},
-    {id:"height", label:"Height", type:"text", req:true, placeholder:"cm or feet and inches"},
-    {id:"weight", label:"Current weight", type:"text", req:true, placeholder:"kg or lbs"},
-    {id:"goalweight", label:"Goal weight, if you have one in mind", type:"text", placeholder:"Leave blank if unsure"},
-    {id:"waist", label:"Waist measurement at the navel", type:"text", help:"Measure relaxed, first thing in the morning. Skip it if you cannot right now."},
-    {id:"heaviest", label:"Heaviest and lightest you have been as an adult", type:"text", placeholder:"e.g. heaviest 108kg, lightest 82kg"},
+    {id:"height", label:"Height in cm", type:"number", req:true},
+    {id:"weight", label:"Current weight in kg", type:"number", dec:true, req:true},
+    {id:"goalweight", label:"Goal weight in kg, if you have one in mind", type:"number", dec:true, placeholder:"Leave blank if unsure"},
+    {id:"waist", label:"Waist measurement at the navel in cm", type:"number", dec:true, req:true, help:"Measure relaxed, first thing in the morning. If you are not near a tape, save this and come back."},
+    {id:"heaviest", label:"Heaviest and lightest you have been as an adult, in kg", type:"text", placeholder:"e.g. heaviest 108kg, lightest 82kg"},
     {id:"job", label:"What do you do for work", type:"text", req:true},
-    {id:"city", label:"City and country you live in", type:"text", req:true},
-    {id:"photos", label:"Will you send front, side and back progress photos", type:"radio", req:true,
+    {id:"city", label:"City and state", type:"text", req:true, placeholder:"e.g. Newcastle, NSW"},
+    {id:"photos", label:"Progress photos", type:"checkbox", req:true, err:"Tick this one to keep going.",
       help:"These are for tracking only. They never get shared, ever.",
-      options:["Yes","I would rather not"]}
+      options:["I'll upload front, side and back photos to 1Fit when I get my login"]}
   ]
 },
 {
   id:"goals", title:"Where you are going", kicker:"Vague goals get vague plans. Be specific.",
   fields:[
     {id:"primary", label:"Your primary goal right now", type:"radio", req:true,
-      options:["Lose body fat","Build muscle","Lose fat and build muscle","Fix my energy and health","Get stronger or perform better","Something else"]},
+      options:["Lose body fat","Build muscle","Lose fat and build muscle","Fix my energy and health","Get stronger or perform better"]},
     {id:"goalshort", label:"Short term, what specifically has to be true for you to call this a win", type:"textarea", req:true,
       help:"Numbers, clothes, photos, energy, how you feel at 4pm. Be exact, and put a rough timeframe on it.",
       placeholder:"e.g. Down to 88kg, shirt off at the pool without holding my breath, still training 4 times a week, and no 3pm crash."},
     {id:"goal12mo", label:"Where do you want to be in 12 months", type:"textarea", req:true},
     {id:"whynow", label:"Why now. What actually triggered this", type:"textarea", req:true,
       help:"There is always a moment. A photo, a comment, a health scare, a birthday. Tell me yours."},
-    {id:"donothing", label:"If nothing changes in the next two years, what does that look like", type:"textarea"},
-    {id:"tried", label:"What have you tried before, and why did it stop working", type:"textarea", req:true,
-      help:"Every diet, every program, every coach. Especially the ones that failed."},
-    {id:"obstacle", label:"What is most likely to get in the way this time", type:"textarea", req:true},
+    {id:"tried", label:"What's worked for you before, and what pulled you off it", type:"textarea", req:true,
+      help:"Every program, every diet. What got you results, and what happened when it stopped."},
     {id:"confidence", label:"How confident are you that you can follow a plan consistently", type:"scale", req:true,
       scaleLow:"Not at all", scaleHigh:"Completely"}
   ]
 },
 {
-  id:"metabolic", title:"Metabolic snapshot", kicker:"This is where most coaches skip. It is the part that tells me how hard I can push you and how much food you need.",
+  id:"metabolic", title:"Energy, sleep and drive", kicker:"This tells me how hard I can push you and how much food you need.",
   fields:[
-    {id:"waketemp", label:"Waking oral temperature", type:"text",
-      help:"Taken in bed before you move or drink anything. If you have not measured it, write not measured and do it for 3 mornings before we start.",
-      placeholder:"e.g. 36.2C or not measured"},
-    {id:"pmtemp", label:"Temperature mid afternoon, around 3pm", type:"text", placeholder:"e.g. 36.8C or not measured"},
     {id:"rhr", label:"Resting heart rate on waking", type:"text", placeholder:"e.g. 58 bpm or not measured"},
     {id:"extremities", label:"Your hands and feet are usually", type:"radio", req:true,
       options:["Warm","Normal","Cool","Cold, even in warm weather"]},
@@ -469,12 +480,9 @@ const SECTIONS = [
     {id:"crash", label:"Do you get an afternoon crash", type:"radio", req:true,
       options:["Never","Occasionally","Most days","Every single day"]},
     {id:"sleephours", label:"Average hours of sleep", type:"text", req:true, placeholder:"e.g. 6.5"},
-    {id:"sleeptimes", label:"What time do you go to bed and wake up", type:"text", req:true, placeholder:"e.g. bed 11:30pm, up 6:15am"},
     {id:"sleepquality", label:"Sleep quality", type:"scale", req:true, scaleLow:"Broken", scaleHigh:"Excellent"},
     {id:"nightwake", label:"Do you wake during the night", type:"checkbox",
       options:["I sleep through","Wake once or twice","Wake up to pee","Wake up hot or sweating","Wake around 2 to 4am and cannot get back down","Hard to fall asleep in the first place"]},
-    {id:"morningappetite", label:"Appetite when you wake up", type:"radio", req:true,
-      options:["Genuinely hungry","Could eat","No appetite at all","Feel a bit sick at the thought of food"]},
     {id:"cravings", label:"What do you crave, and when", type:"textarea",
       placeholder:"e.g. sugar after dinner, salty stuff late at night"},
     {id:"libido", label:"Libido", type:"scale", req:true, scaleLow:"Non existent", scaleHigh:"Strong"},
@@ -482,14 +490,10 @@ const SECTIONS = [
       help:"Blunt but genuinely useful. It is one of the clearest markers of hormonal and metabolic health in men over 40.",
       options:["Most mornings","A few times a week","Rarely","Almost never","Rather not say"]},
     {id:"mood", label:"Mood, patience and irritability lately", type:"textarea"},
-    {id:"cold", label:"How do you handle cold", type:"radio",
-      options:["Always warm","Fine","I feel the cold more than others","I am always cold"]},
     {id:"digestion", label:"Digestion and bowel movements", type:"textarea", req:true,
       help:"How many per day, consistency, bloating, reflux, gas, anything that flares it up. Do not be polite about it, it matters."},
-    {id:"sweat", label:"Do you sweat easily", type:"radio", options:["Very easily","Normally","Only under real effort","Barely sweat at all"]},
     {id:"recovery", label:"How do you feel the day after a hard session", type:"radio", req:true,
       options:["Fine, ready to go again","A bit sore but good","Wiped out for a day","Wiped out for two or more days"]},
-    {id:"hairskin", label:"Any changes to hair, skin, nails or body temperature you have noticed", type:"textarea"},
     {id:"wearable", label:"Do you wear a tracking device", type:"radio",
       options:["Oura","Whoop","Garmin","Apple Watch","Other","None"]}
   ]
@@ -500,17 +504,16 @@ const SECTIONS = [
     {id:"conditions", label:"Any diagnosed medical conditions", type:"textarea", req:true,
       help:"Thyroid, blood pressure, cholesterol, blood sugar, sleep apnoea, anything. Write none if none.",
       placeholder:"Write none if there are none."},
-    {id:"meds", label:"Medications you take", type:"textarea", req:true, placeholder:"Include dose and timing. Write none if none."},
+    {id:"meds", label:"Medications you take", type:"textarea", req:true, help:"Include TRT and weight loss injections.", placeholder:"Include dose and timing. Write none if none."},
     {id:"supps", label:"Supplements you currently take", type:"textarea", req:true, placeholder:"Brand, dose and when you take them. Write none if none."},
     {id:"bloods", label:"Have you had bloodwork in the last 12 months", type:"radio", req:true,
+      help:"If you can send it, send it to me on WhatsApp.",
       options:["Yes and I can send it","Yes but I do not have the results","No","I am booking some in"]},
     {id:"injuries", label:"Current injuries, pain or niggles", type:"textarea", req:true,
       help:"Where, how long, what makes it worse, what makes it better. Write none if none.",
       placeholder:"e.g. left shoulder, 2 years, hurts on overhead pressing, fine on incline."},
-    {id:"pastinjuries", label:"Past injuries or surgeries", type:"textarea"},
-    {id:"cantdo", label:"Any movements you cannot do or have been told to avoid", type:"textarea"},
+    {id:"pastinjuries", label:"Past injuries, surgeries, or movements you've been told to avoid", type:"textarea"},
     {id:"nicotine", label:"Nicotine", type:"radio", options:["None","Vape","Cigarettes","Pouches or gum","Occasionally, socially"]},
-    {id:"stress_health", label:"Anything else health related I should know before I program for you", type:"textarea"}
   ]
 },
 {
@@ -519,9 +522,6 @@ const SECTIONS = [
     {id:"typicalday", label:"Walk me through everything you ate and drank yesterday", type:"textarea", req:true, tall:true,
       help:"Times, rough portions, drinks, snacks, the lot. If yesterday was unusual, use a normal day instead. Honesty here is worth more than a perfect answer.",
       placeholder:"6:30am - black coffee\n9:00am - 3 eggs, 2 toast, butter\n12:30pm - chicken salad and a coke\n..."},
-    {id:"mealcount", label:"How many times a day do you eat", type:"radio", req:true,
-      options:["1 to 2","3","4 to 5","6 or more","It changes every day"]},
-    {id:"firstmeal", label:"What time is your first and last food of the day", type:"text", req:true, placeholder:"e.g. first 11am, last 9pm"},
     {id:"loves", label:"Foods you love and want in the plan", type:"textarea", req:true,
       help:"Be greedy here. The plan is far easier to stick to when it is full of food you look forward to."},
     {id:"hates", label:"Foods you will not eat", type:"textarea", req:true},
@@ -537,10 +537,10 @@ const SECTIONS = [
     {id:"lowestcals", label:"Lowest daily calories you have eaten for a sustained stretch, and for how long", type:"text",
       help:"This tells me a lot about where your metabolism is starting from.",
       placeholder:"e.g. around 1400 for about 6 months, or not sure"},
-    {id:"tracking", label:"Are you willing to weigh and track your food", type:"radio", req:true,
-      options:["Yes, happy to","For a few weeks to learn portions","I would rather not","Absolutely not"]},
+    {id:"tracking", label:"Have you tracked your food before, and which app did you use", type:"text", req:true,
+      help:"You'll weigh and track everything in the first phases. Later on I'll teach you how to run it without tracking every meal."},
     {id:"cooking", label:"Who cooks, how confident are you, and how much time do you have", type:"textarea", req:true},
-    {id:"eatingout", label:"How many meals a week are eaten out, ordered in or client entertaining", type:"text", req:true},
+    {id:"eatingout", label:"How many meals a week are eaten out or ordered in, including work dinners, footy club and BBQs", type:"text", req:true},
     {id:"travel_food", label:"How often do you travel, and what does eating look like when you do", type:"textarea"},
     {id:"budget", label:"Any budget or shopping constraints I should work inside", type:"textarea"}
   ]
@@ -554,9 +554,9 @@ const SECTIONS = [
       help:"Sessions per week, split, exercises, rough sets and reps. Write nothing at the moment if you are not training."},
     {id:"days", label:"How many days a week can you realistically train", type:"radio", req:true,
       help:"Realistically. Not the best case week, the normal week.",
-      options:["2","3","4","5","6"]},
+      options:["3","4","5","6"]},
     {id:"session", label:"How long can a session be", type:"radio", req:true,
-      options:["30 minutes","45 minutes","60 minutes","75 to 90 minutes"]},
+      options:["45 minutes","60 minutes","75 to 90 minutes"]},
     {id:"whentrain", label:"What time of day will you train, and which days suit you best", type:"text", req:true,
       placeholder:"e.g. 6am Mon, Tue, Thu, Fri before work"},
     {id:"where", label:"Where will you train", type:"checkbox", req:true,
@@ -586,22 +586,13 @@ const SECTIONS = [
       help:"Wake up to lights out. Include work, commute, meals, kids, training, screen time, wind down. This is the single most useful answer on the whole form, so take your time.",
       placeholder:"5:45am - wake, coffee\n6:30am - gym\n8:00am - school run\n9:00am - desk, first meetings\n..."},
     {id:"weekend", label:"How is a weekend different", type:"textarea", req:true},
-    {id:"worktype", label:"Your working day is mostly", type:"radio", req:true,
-      options:["Desk based","On my feet","Physical work","Shift work","Constant travel","A mix"]},
     {id:"workhours", label:"Typical working hours, and how often they blow out", type:"text", req:true},
-    {id:"traveldays", label:"How many nights a month are you away from home", type:"text", req:true},
     {id:"family", label:"Who is at home, and what are you responsible for", type:"textarea", req:true,
       help:"Kids and ages, caregiving, anything that takes your evenings."},
     {id:"support", label:"How supportive are the people around you", type:"radio", req:true,
       options:["Very, they are on board","Neutral","They will quietly make it harder","I am doing this on my own"]},
     {id:"stress", label:"Current stress level", type:"scale", req:true, scaleLow:"Calm", scaleHigh:"Maxed out"},
-    {id:"stressors", label:"Your three biggest sources of stress right now", type:"textarea", req:true},
-    {id:"sunlight", label:"How much time do you spend outside in daylight", type:"radio", req:true,
-      options:["Barely any","Under 30 minutes","30 to 60 minutes","1 to 2 hours","More than 2 hours"]},
-    {id:"recoverytools", label:"What do you have access to", type:"checkbox",
-      options:["Sauna","Ice bath or cold plunge","Pool","Massage","Physio","Steam room","None of these"]},
-    {id:"evening", label:"What does the last hour before bed look like", type:"textarea", req:true,
-      placeholder:"Screens, work, TV, alcohol, kids, whatever it really is."},
+    {id:"stressors", label:"Your biggest sources of stress right now", type:"textarea", req:true},
     {id:"events", label:"Anything already in the diary over the coming months", type:"textarea",
       help:"Holidays, weddings, work trips, big events. I will build around them instead of pretending they are not coming."}
   ]
@@ -621,9 +612,8 @@ const SECTIONS = [
       help:"Tell me now and I will build the plan so it does not happen."},
     {id:"nonneg", label:"Non negotiables that have to stay in your life", type:"textarea",
       help:"Friday beers, family dinner, Sunday roast, the morning coffee ritual. Name them and I will keep them in."},
-    {id:"checkin", label:"Best day for your weekly check in", type:"radio", req:true,
-      options:["Sunday","Monday","Friday","Whatever suits you"]},
-    {id:"commitment", label:"How committed are you, honestly", type:"scale", req:true, scaleLow:"Testing the water", scaleHigh:"All in"},
+    {id:"checkin", label:"Do you want your fortnightly check-ins live on Zoom or as recorded video feedback", type:"radio", req:true,
+      options:["Live on Zoom","Recorded video feedback"]},
     {id:"anythingelse", label:"Anything else I should know", type:"textarea", req:true,
       help:"Special requests, things you have always wanted to try, things you are nervous about. Anything at all.",
       placeholder:"Write none if there is nothing."}
@@ -632,7 +622,7 @@ const SECTIONS = [
 ];
 
 /* ============================================================
-   3. ENGINE  —  no need to touch below here
+   3. ENGINE  ‚Äî  no need to touch below here
    ============================================================ */
 const $ = s => document.querySelector(s);
 const el = (t,c) => { const e=document.createElement(t); if(c) e.className=c; return e; };
@@ -641,6 +631,25 @@ const pad = n => String(n).padStart(2,"0");
 let step = 0;
 const answers = {};
 const totalSteps = SECTIONS.length;
+const SAVE_KEY = "reboot_intake_v2";
+
+// Answers stay in this browser only, a static page has nowhere else to keep them.
+function saveProgress(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify({answers, step})); return true; }
+  catch(e){ return false; }
+}
+function loadProgress(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+    if(!saved || !saved.answers) return false;
+    Object.assign(answers, saved.answers);
+    step = Math.min(saved.step || 0, totalSteps-1);
+    return true;
+  }catch(e){ return false; }
+}
+function clearProgress(){
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+}
 
 $("#mSections").textContent = totalSteps;
 $("#stepOf").textContent = "of " + pad(totalSteps);
@@ -705,12 +714,12 @@ function buildField(f){
     const i=el("input"); i.type=f.type; i.id=f.id; i.name=f.id;
     if(f.placeholder) i.placeholder=f.placeholder;
     if(answers[f.id]) i.value=answers[f.id];
-    if(f.type==="number"){ i.min="0"; i.inputMode="numeric"; }
+    if(f.type==="number"){ i.min="0"; i.step="any"; i.inputMode = f.dec ? "decimal" : "numeric"; }
     wrap.appendChild(i);
   }
 
   const err=el("div","errmsg");
-  err.textContent = f.type==="checkbox" ? "Pick at least one." : "This one matters. Fill it in.";
+  err.textContent = f.err || (f.type==="checkbox" ? "Pick at least one." : "This one matters. Fill it in.");
   wrap.appendChild(err);
 
   return wrap;
@@ -765,7 +774,7 @@ function validateStep(){
 }
 
 function show(id){
-  ["#intro","#form","#review","#done"].forEach(s=>$(s).classList.add("hidden"));
+  ["#intro","#form","#saved","#review","#done"].forEach(s=>$(s).classList.add("hidden"));
   $(id).classList.remove("hidden");
 }
 
@@ -774,14 +783,37 @@ $("#startBtn").onclick = () => { show("#form"); renderStep(); };
 $("#nextBtn").onclick = () => {
   captureStep();
   if(!validateStep()) return;
-  if(step < totalSteps-1){ step++; renderStep(); }
-  else { buildReview(); show("#review"); setProgress(1); window.scrollTo({top:0}); }
+  if(step < totalSteps-1){ step++; saveProgress(); renderStep(); }
+  else { saveProgress(); buildReview(); show("#review"); setProgress(1); window.scrollTo({top:0}); }
 };
 
 $("#backBtn").onclick = () => {
   captureStep();
   if(step===0){ show("#intro"); setProgress(0); window.scrollTo({top:0}); }
   else { step--; renderStep(); }
+};
+
+$("#saveBtn").onclick = () => {
+  captureStep();
+  if(!saveProgress()){
+    $("#savedTick").textContent = "NOT SAVED";
+    $("#savedTitle").textContent = "This browser will not save your answers.";
+    $("#savedMsg").textContent = "Keep this tab open and finish from here, or open your link in a normal browser window and start there.";
+  }
+  show("#saved");
+  window.scrollTo({top:0});
+};
+
+$("#keepGoingBtn").onclick = () => { show("#form"); renderStep(); };
+
+$("#restartBtn").onclick = () => {
+  if(!confirm("Clear your saved answers and start again?")) return;
+  clearProgress();
+  Object.keys(answers).forEach(k => delete answers[k]);
+  step = 0;
+  $("#startBtn").textContent = "Start the intake";
+  $("#restartBtn").classList.add("hidden");
+  $("#restartGap").classList.remove("hidden");
 };
 
 $("#reviewBack").onclick = () => { step=totalSteps-1; show("#form"); renderStep(); };
@@ -904,6 +936,7 @@ $("#submitBtn").onclick = async () => {
   btn.innerHTML='<span class="spinner"></span>Sending';
 
   const sent = await send();
+  if(sent) clearProgress();
 
   show("#done");
   window.scrollTo({top:0});
@@ -972,12 +1005,19 @@ if(window.ResizeObserver){ new ResizeObserver(reportHeight).observe(document.bod
 window.addEventListener("load", reportHeight);
 setInterval(reportHeight, 800);
 
-// warn before losing progress
-window.addEventListener("beforeunload", e => {
-  if(!$("#intro").classList.contains("hidden")) return;
-  if(!$("#done").classList.contains("hidden")) return;
-  e.preventDefault(); e.returnValue = "";
+// save as they type, and offer to pick up on the way back in
+let saveTimer;
+$("#fields").addEventListener("input", () => {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { captureStep(); saveProgress(); }, 400);
 });
+$("#fields").addEventListener("change", () => { captureStep(); saveProgress(); });
+
+if(loadProgress()){
+  $("#startBtn").textContent = "Pick up where I left off";
+  $("#restartBtn").classList.remove("hidden");
+  $("#restartGap").classList.add("hidden");
+}
 </script>
 </body>
 </html>
