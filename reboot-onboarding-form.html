@@ -388,13 +388,14 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
       <div class="tick" id="doneTick">RECEIVED</div>
       <h1 id="doneTitle">That is everything I need.</h1>
       <p class="lede" id="doneMsg">Your intake is with me. I am building your training, nutrition, cardio and daily structure now, and you will have it within 48 hours. If anything in there needs a follow up question, I will message you on WhatsApp.</p>
+      <p class="lede hidden" id="doneCheck" style="font-size:15px;opacity:.75">No message from me within a day? Send me a quick WhatsApp and I'll check it landed. Your answers stay saved on this device until then.</p>
       <div class="fallback hidden" id="fallback">
         <h3>Send it to me manually</h3>
-        <p>The automatic send did not go through. Copy your answers or download them, then send them to me on WhatsApp. Nothing is lost.</p>
+        <p>The automatic send did not go through. Tap the button below. It copies your answers and opens WhatsApp with me, so all you do is paste and send. Nothing is lost.</p>
         <div class="fallback-btns">
-          <button type="button" class="btn-primary" id="copyBtn">Copy my answers</button>
+          <button type="button" class="btn-primary" id="waBtn">Copy and open WhatsApp</button>
+          <button type="button" class="btn-ghost" id="copyBtn">Copy my answers</button>
           <button type="button" class="btn-ghost" id="dlBtn">Download as a file</button>
-          <button type="button" class="btn-ghost" id="waBtn">Open WhatsApp</button>
         </div>
       </div>
       <div style="margin-top:28px">
@@ -406,7 +407,7 @@ button:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
 
 <script>
 /* ============================================================
-   1. CONFIG  ‚Äî  DAN, EDIT THIS BLOCK ONLY
+   1. CONFIG  —  DAN, EDIT THIS BLOCK ONLY
    ============================================================
    endpoint : where submissions get sent.
               Easiest option: create a free form at formspree.io,
@@ -622,7 +623,7 @@ const SECTIONS = [
 ];
 
 /* ============================================================
-   3. ENGINE  ‚Äî  no need to touch below here
+   3. ENGINE  —  no need to touch below here
    ============================================================ */
 const $ = s => document.querySelector(s);
 const el = (t,c) => { const e=document.createElement(t); if(c) e.className=c; return e; };
@@ -873,7 +874,9 @@ function payload(){
       email: answers.email || "",
       phone: answers.whatsapp || "",
       submitted_at: new Date().toLocaleString(),
-      full_intake: plainText()
+      full_intake: plainText(),
+      // same text for the GHL email body, which ignores plain line breaks
+      full_intake_html: plainText().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>")
     };
     SECTIONS.forEach(sec=>{
       sec.fields.forEach(f=>{
@@ -904,11 +907,12 @@ async function send(){
       headers:{"Content-Type":"application/json","Accept":"application/json"},
       body
     });
-    if(res.ok) return true;
-  }catch(e){ /* fall through */ }
+    if(res.ok) return "ok";
+    return false;            // GHL answered with an error, so it did not land
+  }catch(e){ /* blocked or offline, fall through */ }
   // Attempt 2: same JSON, sent as a simple request so the browser does not
   // block it. The post is delivered but the reply cannot be read back.
-  if(CONFIG.mode === "ghl"){
+  if(CONFIG.mode === "ghl" && navigator.onLine !== false){
     try{
       await fetch(CONFIG.endpoint,{
         method:"POST",
@@ -916,7 +920,7 @@ async function send(){
         headers:{"Content-Type":"text/plain"},
         body
       });
-      return true;
+      return "maybe";        // delivered as far as the browser can tell, no reply to check
     }catch(e){ /* fall through */ }
   }
   return false;
@@ -936,14 +940,15 @@ $("#submitBtn").onclick = async () => {
   btn.innerHTML='<span class="spinner"></span>Sending';
 
   const sent = await send();
-  if(sent) clearProgress();
+  if(sent === "ok") clearProgress();
+  if(sent === "maybe") $("#doneCheck").classList.remove("hidden");
 
   show("#done");
   window.scrollTo({top:0});
   if(!sent){
     $("#doneTick").textContent = "NOT SENT YET";
     $("#doneTitle").textContent = "One more step to get this to me.";
-    $("#doneMsg").textContent = "Your answers are safe on this screen. Copy or download them below and send them straight to me, and I will start building.";
+    $("#doneMsg").textContent = "Your answers are safe on this screen. Tap the button below to send them to me on WhatsApp, and I will start building.";
     $("#fallback").classList.remove("hidden");
     $("#dlBtn2").classList.add("hidden");
   }
@@ -975,9 +980,27 @@ $("#copyBtn").onclick = async () => {
   setTimeout(()=>btn.textContent="Copy my answers",2200);
 };
 
+// One tap: copy the answers, then open WhatsApp so he only has to paste.
+// The copy runs synchronously inside the tap, so phones allow it before WhatsApp takes over.
+function copyNow(){
+  const text = plainText();
+  let ok = false;
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    ok = document.execCommand("copy"); ta.remove();
+  }catch(e){}
+  try{ navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{}); }catch(e){}
+  return ok;
+}
+
 $("#waBtn").onclick = () => {
-  const msg = encodeURIComponent("Hi " + CONFIG.coachName + ", here is my intake. Pasting it below.");
+  copyNow();
+  $("#waBtn").textContent = "Copied. Paste it in WhatsApp";
+  const msg = encodeURIComponent("Hi " + CONFIG.coachName + ", here is my intake:");
   window.open("https://wa.me/" + CONFIG.whatsapp.replace(/\D/g,"") + "?text=" + msg, "_blank");
+  setTimeout(()=>$("#waBtn").textContent="Copy and open WhatsApp",4000);
 };
 
 $("#consent").addEventListener("change", e => {
